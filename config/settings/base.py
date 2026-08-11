@@ -165,14 +165,9 @@ LOGOUT_REDIRECT_URL = 'home'
 
 # Persian/Jalali date settings
 JALALI_DATE_DEFAULTS = {
+    'LIST_DISPLAY_AUTO_CONVERT': False,
     'Strftime': {
         'date': '%y/%m/%d',
         'datetime': '%H:%M:%S _ %y/%m/%d',
-    },
-    'Staticfiles': {
-        'js': ['admin/js/datetime.js', 'admin/js/calendar.js'],
-        'css': {
-            'all': ['admin/css/datetime.css', 'admin/css/calendar.css']
-        }
     },
 }
