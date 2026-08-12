@@ -11,16 +11,17 @@ class AdForm(forms.ModelForm):
     class Meta:
         model = Ad
         fields = [
-            'category', 'title', 'description', 'price', 'phone',
-            'location_country', 'location_province', 'location_city',
-            'is_negotiable', 'url'
+            'category', 'title', 'description', 'price',
+            'country', 'province', 'city',
+            'mobile_1', 'show_mobile_1', 'mobile_2', 'phone_1', 'phone_2', 'email',
+            'full_name', 'business_name',
         ]
         widgets = {
             'category': forms.Select(attrs={'class': 'form-control'}),
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'عنوان آگهی',
-                'maxlength': 100
+                'maxlength': 300
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -32,19 +33,42 @@ class AdForm(forms.ModelForm):
                 'placeholder': 'قیمت (تومان)',
                 'min': 0
             }),
-            'phone': forms.TextInput(attrs={
+            'country': forms.Select(attrs={'class': 'form-control'}),
+            'province': forms.Select(attrs={'class': 'form-control'}),
+            'city': forms.Select(attrs={'class': 'form-control'}),
+            'mobile_1': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'شماره تماس',
+                'placeholder': 'شماره موبایل اصلی',
                 'dir': 'ltr'
             }),
-            'location_country': forms.Select(attrs={'class': 'form-control'}),
-            'location_province': forms.Select(attrs={'class': 'form-control'}),
-            'location_city': forms.Select(attrs={'class': 'form-control'}),
-            'is_negotiable': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'url': forms.URLInput(attrs={
+            'show_mobile_1': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'mobile_2': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'لینک وب‌سایت (اختیاری)',
+                'placeholder': 'شماره موبایل دوم',
                 'dir': 'ltr'
+            }),
+            'phone_1': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'شماره تلفن ۱',
+                'dir': 'ltr'
+            }),
+            'phone_2': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'شماره تلفن ۲',
+                'dir': 'ltr'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'ایمیل',
+                'dir': 'ltr'
+            }),
+            'full_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'نام و نام خانوادگی'
+            }),
+            'business_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'نام کسب‌وکار'
             }),
         }
         labels = {
@@ -52,12 +76,17 @@ class AdForm(forms.ModelForm):
             'title': 'عنوان آگهی',
             'description': 'توضیحات',
             'price': 'قیمت (تومان)',
-            'phone': 'شماره تماس',
-            'location_country': 'کشور',
-            'location_province': 'استان',
-            'location_city': 'شهر',
-            'is_negotiable': 'قیمت توافقی',
-            'url': 'وب‌سایت',
+            'country': 'کشور',
+            'province': 'استان',
+            'city': 'شهر',
+            'mobile_1': 'موبایل ۱',
+            'show_mobile_1': 'نمایش موبایل ۱',
+            'mobile_2': 'موبایل ۲',
+            'phone_1': 'تلفن ۱',
+            'phone_2': 'تلفن ۲',
+            'email': 'ایمیل',
+            'full_name': 'نام و نام خانوادگی',
+            'business_name': 'نام کسب‌وکار',
         }
 
 
@@ -67,9 +96,9 @@ class AdImageForm(forms.Form):
     images = forms.FileField(
         label='تصاویر آگهی',
         widget=forms.ClearableFileInput(attrs={
-            'multiple': True,
             'accept': 'image/*',
             'class': 'form-control'
         }),
-        required=False
+        required=False,
+        help_text='می‌توانید چندین تصویر را انتخاب کنید'
     )
