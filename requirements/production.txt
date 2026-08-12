@@ -1,0 +1,5 @@
+-r base.txt
+
+# Production-specific packages
+# gunicorn  # If not using Passenger
+# psycopg  # Without binary for production
