@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}نیازمندی‌ها{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{% block meta_description %}سایت نیازمندی‌های آنلاین - خرید و فروش آگهی‌های مختلف{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}نیازمندی,آگهی,خرید,فروش{% endblock %}">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{% block og_title %}{{ block.super }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ block.meta_description }}{% endblock %}">
+    <meta property="og:type" content="website">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="/" class="logo">نیازمندی‌ها</a>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/">صفحه اصلی</a></li>
+                    <li><a href="{% url 'ads:ad_list' %}">آگهی‌ها</a></li>
+                    <li><a href="{% url 'taxonomy:category_list' %}">دسته‌بندی‌ها</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'dashboard:index' %}">پنل کاربری</a></li>
+                        <li><a href="{% url 'accounts:logout' %}">خروج</a></li>
+                    {% else %}
+                        <li><a href="{% url 'accounts:login' %}">ورود</a></li>
+                        <li><a href="{% url 'accounts:register' %}">ثبت‌نام</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            
+            <a href="{% url 'ads:ad_create' %}" class="btn btn-primary">ثبت آگهی رایگان</a>
+        </div>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container" style="margin-top: 1rem;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>درباره ما</h3>
+                <p>سایت نیازمندی‌های آنلاین برای خرید و فروش آگهی‌های مختلف</p>
+            </div>
+            <div class="footer-section">
+                <h3>دسترسی سریع</h3>
+                <a href="/">صفحه اصلی</a>
+                <a href="{% url 'ads:ad_list' %}">آگهی‌ها</a>
+                <a href="{% url 'taxonomy:category_list' %}">دسته‌بندی‌ها</a>
+            </div>
+            <div class="footer-section">
+                <h3>تماس با ما</h3>
+                <a href="{% url 'support:ticket_list' %}">پشتیبانی</a>
+                <a href="/about/">درباره ما</a>
+            </div>
+        </div>
+        <div class="container" style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+            <p>&copy; 1403 نیازمندی‌ها. تمامی حقوق محفوظ است.</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

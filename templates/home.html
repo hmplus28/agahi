@@ -1,0 +1,85 @@
+{% extends 'base/base.html' %}
+
+{% block title %}صفحه اصلی - نیازمندی‌ها{% endblock %}
+{% block meta_description %}سایت نیازمندی‌های آنلاین - خرید و فروش آگهی‌های مختلف در سراسر ایران{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 4rem 0; margin-bottom: 2rem;">
+    <div class="container" style="text-align: center;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">به نیازمندی‌ها خوش آمدید</h1>
+        <p style="font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9;">خرید و فروش آگهی‌های مختلف در سراسر ایران</p>
+        
+        <!-- Search Form -->
+        <form action="{% url 'ads:ad_list' %}" method="get" style="max-width: 600px; margin: 0 auto; display: flex; gap: 0.5rem;">
+            <input type="text" name="q" placeholder="جستجو در آگهی‌ها..." class="form-control" style="flex: 1;">
+            <button type="submit" class="btn btn-primary">جستجو</button>
+        </form>
+    </div>
+</section>
+
+<!-- Categories -->
+<section class="container" style="margin-bottom: 3rem;">
+    <h2 class="card-title" style="text-align: center; margin-bottom: 2rem;">دسته‌بندی‌های اصلی</h2>
+    <div class="grid grid-4">
+        {% for category in categories %}
+        <a href="{{ category.get_absolute_url }}" class="card" style="text-decoration: none; color: inherit; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
+            <h3 style="font-size: 1rem; color: var(--primary-color);">{{ category.name }}</h3>
+            {% if category.description %}
+            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">{{ category.description|truncatewords:5 }}</p>
+            {% endif %}
+        </a>
+        {% empty %}
+        <p>دسته‌بندی یافت نشد.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Latest Ads -->
+<section class="container" style="margin-bottom: 3rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 class="card-title" style="margin-bottom: 0;">آخرین آگهی‌ها</h2>
+        <a href="{% url 'ads:ad_list' %}" class="btn btn-outline">مشاهده همه</a>
+    </div>
+    
+    <div class="grid grid-4">
+        {% for ad in latest_ads %}
+        <div class="ad-card">
+            {% if ad.images.first.image %}
+            <img src="{{ ad.images.first.image.url }}" alt="{{ ad.title }}" class="ad-image">
+            {% else %}
+            <div class="ad-image" style="background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8;">بدون تصویر</div>
+            {% endif %}
+            
+            <div class="ad-content">
+                <h3 class="ad-title">{{ ad.title|truncatechars:50 }}</h3>
+                {% if ad.price %}
+                <div class="ad-price">{{ ad.price|intcomma }} تومان</div>
+                {% endif %}
+                <div class="ad-location">
+                    {% if ad.location_city %}{{ ad.location_city.name }}{% endif %}
+                </div>
+                <div style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--text-secondary);">
+                    {{ ad.created_at|timesince }} پیش
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="card" style="grid-column: 1 / -1; text-align: center;">
+            <p>آگهی یافت نشد.</p>
+            <a href="{% url 'ads:ad_create' %}" class="btn btn-primary" style="margin-top: 1rem;">ثبت اولین آگهی</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section style="background: var(--background-color); padding: 3rem 0;">
+    <div class="container" style="text-align: center;">
+        <h2 style="margin-bottom: 1rem;">آگهی خود را ثبت کنید</h2>
+        <p style="margin-bottom: 2rem; color: var(--text-secondary);">ثبت آگهی رایگان است و در کمتر از ۲ دقیقه انجام می‌شود</p>
+        <a href="{% url 'ads:ad_create' %}" class="btn btn-primary btn-lg">ثبت آگهی رایگان</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base/base.html' %}
+
+{% block title %}خطای سرور - 500{% endblock %}
+
+{% block content %}
+<div class="container" style="text-align: center; padding: 4rem 0;">
+    <h1 style="font-size: 4rem; color: var(--danger-color);">500</h1>
+    <h2 style="margin-bottom: 1rem;">خطای داخلی سرور</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 2rem;">متأسفیم، مشکلی در سرور رخ داده است. لطفاً بعداً دوباره تلاش کنید.</p>
+    <a href="/" class="btn btn-primary">بازگشت به صفحه اصلی</a>
+</div>
+{% endblock %}
