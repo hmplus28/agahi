@@ -1,4 +1,5 @@
 """Public-site and error-page views."""
+from django.conf import settings
 from django.core.cache import cache
 from django.db import DatabaseError, connection
 from django.db.models import Q
@@ -54,6 +55,22 @@ def home(request):
 
 
 @require_GET
+def service_worker(request):
+    """Serve the worker from site root so it can control all same-origin pages."""
+    response = render(request, 'service_worker.js', content_type='application/javascript; charset=utf-8')
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Service-Worker-Allowed'] = '/'
+    response['X-Robots-Tag'] = 'noindex, noarchive'
+    return response
+
+
+@require_GET
+def offline_page(request):
+    """Local fallback shown by the service worker when a navigation is not cached."""
+    return render(request, 'errors/offline.html', {**page_seo_context(request, indexable=False)})
+
+
+@require_GET
 def healthcheck(request):
     """Provide a minimal database-aware liveness endpoint for hosting monitors."""
     try:
@@ -61,9 +78,9 @@ def healthcheck(request):
             cursor.execute('SELECT 1')
             cursor.fetchone()
     except DatabaseError:
-        response = JsonResponse({'status': 'unavailable'}, status=503)
+        response = JsonResponse({'status': 'unavailable', 'offline_mode': settings.OFFLINE_MODE}, status=503)
     else:
-        response = JsonResponse({'status': 'ok'})
+        response = JsonResponse({'status': 'ok', 'offline_mode': settings.OFFLINE_MODE})
     response['X-Robots-Tag'] = 'noindex, noarchive'
     response['Cache-Control'] = 'no-store'
     return response

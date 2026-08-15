@@ -9,6 +9,7 @@ from django.core.management import call_command
 from django.test import SimpleTestCase, override_settings
 
 from core.services.backups import (
+    BackupError,
     apply_retention,
     create_database_backup,
     decrypt_backup,
@@ -59,6 +60,21 @@ class SQLiteBackupTests(SimpleTestCase):
             os.utime(artifact.path, (1, 1))
             removed = apply_retention(directory=directory, keep_days=0, keep_count=0)
             self.assertIn(artifact.path, removed)
+
+    @override_settings(BACKUP_ENCRYPTION_KEY='test-only-encryption-key-with-sufficient-length', OFFLINE_MODE=True)
+    def test_offline_mode_refuses_remote_backup_transfer(self):
+        with TemporaryDirectory() as temporary_directory:
+            directory = Path(temporary_directory)
+            artifact = create_database_backup(output_dir=directory)
+            encrypted = encrypt_backup(artifact.path)
+            remote_directory = directory / 'remote'
+            with self.settings(BACKUP_REMOTE_PROVIDER='filesystem', BACKUP_REMOTE_PATH=str(remote_directory)):
+                with self.assertRaisesMessage(BackupError, 'حالت آفلاین'):
+                    upload_encrypted_backup(encrypted.path)
+                output = StringIO()
+                call_command('backup_database', output_dir=str(directory), encrypt=True, upload=True, stdout=output)
+            self.assertIn('انتقال remote انجام نشد', output.getvalue())
+            self.assertFalse(remote_directory.exists())
 
     @override_settings(BACKUP_ENCRYPTION_KEY='test-only-encryption-key-with-sufficient-length')
     def test_backup_and_restore_management_commands(self):

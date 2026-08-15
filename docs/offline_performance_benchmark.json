@@ -1,0 +1,65 @@
+{
+  "iterations_per_endpoint": 30,
+  "results": [
+    {
+      "endpoint": "/",
+      "status": 200,
+      "bytes": 1823,
+      "gzip": true,
+      "cold_ms": 69.77,
+      "warm_p50_ms": 0.79,
+      "warm_p95_ms": 0.96,
+      "warm_max_ms": 1.57
+    },
+    {
+      "endpoint": "/ads/",
+      "status": 200,
+      "bytes": 1608,
+      "gzip": true,
+      "cold_ms": 10.91,
+      "warm_p50_ms": 0.77,
+      "warm_p95_ms": 0.96,
+      "warm_max_ms": 0.99
+    },
+    {
+      "endpoint": "/ads/?q=تست",
+      "status": 200,
+      "bytes": 1312,
+      "gzip": true,
+      "cold_ms": 6.23,
+      "warm_p50_ms": 0.76,
+      "warm_p95_ms": 0.92,
+      "warm_max_ms": 0.97
+    },
+    {
+      "endpoint": "/healthz/",
+      "status": 200,
+      "bytes": 16,
+      "gzip": false,
+      "cold_ms": 0.5,
+      "warm_p50_ms": 0.42,
+      "warm_p95_ms": 0.62,
+      "warm_max_ms": 0.98
+    },
+    {
+      "endpoint": "/robots.txt",
+      "status": 200,
+      "bytes": 160,
+      "gzip": true,
+      "cold_ms": 0.57,
+      "warm_p50_ms": 0.51,
+      "warm_p95_ms": 0.67,
+      "warm_max_ms": 0.69
+    },
+    {
+      "endpoint": "/sitemap.xml",
+      "status": 200,
+      "bytes": 214,
+      "gzip": true,
+      "cold_ms": 1.86,
+      "warm_p50_ms": 0.6,
+      "warm_p95_ms": 0.77,
+      "warm_max_ms": 0.79
+    }
+  ]
+}

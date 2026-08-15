@@ -41,6 +41,7 @@
   {% if messages %}<div class="container messages">{% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}</div>{% endif %}
   <main>{% block content %}{% endblock %}</main>
   <footer class="footer"><div class="container footer-content"><section><h2>{{ site_settings.site_name|default:'نیازمندی‌ها' }}</h2><p>سامانهٔ آگهی‌های آنلاین با محتوای بررسی‌شده.</p></section><nav aria-label="پیوندهای پایانی"><a href="{% url 'ads:ad_list' %}">آگهی‌ها</a><a href="{% url 'taxonomy:category_list' %}">دسته‌بندی‌ها</a><a href="{% url 'support:ticket_list' %}">پشتیبانی</a></nav></div></footer>
+  <script defer src="{% static 'js/offline.js' %}"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

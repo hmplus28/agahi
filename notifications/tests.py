@@ -3,7 +3,7 @@ from django.utils import timezone
 
 from notifications.models import SMSLog
 from notifications.services.dispatch import dispatch_pending_sms
-from notifications.services.sms_gateway import SMSGatewayAdapter, SMSRequest, SMSResponse
+from notifications.services.sms_gateway import KavenegarSMSAdapter, SMSGatewayAdapter, SMSGatewayFactory, SMSRequest, SMSResponse
 
 
 class SuccessfulAdapter(SMSGatewayAdapter):
@@ -68,3 +68,11 @@ class NotificationDispatchTests(TestCase):
         self.assertEqual(result['skipped_disabled'], 1)
         self.assertEqual(log.status, 'pending')
         self.assertEqual(log.attempts, 0)
+
+    @override_settings(OFFLINE_MODE=True, SMS_ENABLED=True, SMS_PROVIDER='kavenegar', KAVENEGAR_API_KEY='configured-key')
+    def test_offline_mode_disables_external_sms_adapter(self):
+        adapter = SMSGatewayFactory.get_default_adapter()
+        self.assertFalse(adapter.is_configured)
+        self.assertEqual(adapter.name, 'disabled')
+        direct_result = KavenegarSMSAdapter('configured-key').send(SMSRequest(mobile='09120000000', message='test'))
+        self.assertEqual(direct_result.error_code, 'offline_mode')

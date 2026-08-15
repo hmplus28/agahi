@@ -9,6 +9,8 @@ load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = os.environ.get('SECRET_KEY', '')
 DEBUG = os.environ.get('DEBUG', 'false').lower() in {'1', 'true', 'yes', 'on'}
+# Offline mode disables every runtime integration that may initiate traffic outside this host.
+OFFLINE_MODE = os.environ.get('OFFLINE_MODE', 'false').lower() in {'1', 'true', 'yes', 'on'}
 
 _raw_hosts = os.environ.get('ALLOWED_HOSTS', '')
 ALLOWED_HOSTS = [host.strip() for host in _raw_hosts.split(',') if host.strip()]
@@ -73,7 +75,8 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 _cache_url = os.environ.get('CACHE_URL', '')
 _cache_dir = os.environ.get('CACHE_DIR', '')
-if _cache_url:
+ENABLE_REDIS_CACHE = os.environ.get('ENABLE_REDIS_CACHE', 'false').lower() in {'1', 'true', 'yes', 'on'}
+if _cache_url and ENABLE_REDIS_CACHE and not OFFLINE_MODE:
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.redis.RedisCache',
@@ -153,6 +156,9 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-reply@example.com'
 EMAIL_BACKEND = os.environ.get(
     'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend'
 )
+if OFFLINE_MODE:
+    # Delivery must stay on-host; e-mails remain visible in server logs for operators.
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000').rstrip('/')
 SEO_LANDING_MIN_ADS = int(os.environ.get('SEO_LANDING_MIN_ADS', '3'))
@@ -161,11 +167,11 @@ ZARINPAL_MERCHANT_ID = os.environ.get('ZARINPAL_MERCHANT_ID', '')
 ZARINPAL_SANDBOX = os.environ.get('PAYMENT_SANDBOX', 'true').lower() in {'1', 'true', 'yes'}
 NEXTPAY_API_KEY = os.environ.get('NEXTPAY_API_KEY', '')
 NEXTPAY_SANDBOX = os.environ.get('NEXTPAY_SANDBOX', 'true').lower() in {'1', 'true', 'yes'}
-PAYMENT_HTTP_TIMEOUT = int(os.environ.get('PAYMENT_HTTP_TIMEOUT', '20'))
+PAYMENT_HTTP_TIMEOUT = int(os.environ.get('PAYMENT_HTTP_TIMEOUT', '5'))
 SMS_ENABLED = os.environ.get('SMS_ENABLED', 'false').lower() in {'1', 'true', 'yes'}
 SMS_PROVIDER = os.environ.get('SMS_PROVIDER', 'disabled')
 SMS_SENDER_ID = os.environ.get('SMS_SENDER_ID', '')
-SMS_HTTP_TIMEOUT = int(os.environ.get('SMS_HTTP_TIMEOUT', '15'))
+SMS_HTTP_TIMEOUT = int(os.environ.get('SMS_HTTP_TIMEOUT', '5'))
 SMS_MAX_ATTEMPTS = int(os.environ.get('SMS_MAX_ATTEMPTS', '3'))
 KAVENEGAR_API_KEY = os.environ.get('KAVENEGAR_API_KEY', '')
 

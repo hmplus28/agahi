@@ -261,6 +261,8 @@ def upload_encrypted_backup(path: Path) -> str:
     Supported transports are `ftps`, `ftp`, and a mounted `filesystem` path, which
     is useful for testable storage mounts. Plain archives are rejected by design.
     """
+    if getattr(settings, 'OFFLINE_MODE', False):
+        raise BackupError('سامانه در حالت آفلاین است؛ نسخهٔ local ایجاد می‌شود اما انتقال برون‌سایتی انجام نمی‌گیرد.')
     if not path.name.endswith('.enc'):
         raise BackupError('فقط فایل رمزنگاری‌شده اجازهٔ انتقال برون‌سایتی دارد.')
     mac_path = _mac_path(path)

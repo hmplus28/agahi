@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+
+{% block title %}اتصال در دسترس نیست{% endblock %}
+{% block meta_description %}اتصال اینترنت یا شبکهٔ سایت موقتاً در دسترس نیست.{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+
+{% block content %}
+<section class="container page-section narrow-container">
+  <article class="card offline-card">
+    <h1>اتصال در دسترس نیست</h1>
+    <p>صفحهٔ درخواستی در حافظهٔ محلی مرورگر موجود نبود. صفحات و فایل‌هایی که قبلاً باز کرده‌اید، در صورت وجود cache، همچنان قابل مشاهده‌اند.</p>
+    <p>پس از برقرار شدن اتصال، این صفحه را دوباره بارگذاری کنید. ثبت آگهی، پرداخت و ارسال فرم‌های جدید تا بازگشت ارتباط انجام نمی‌شود.</p>
+    <a class="btn btn-primary" href="{% url 'core:home' %}">بازگشت به صفحهٔ خانه</a>
+  </article>
+</section>
+{% endblock %}

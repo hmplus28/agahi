@@ -6,6 +6,7 @@ from accounts.models import User
 from ads.models import Ad, AdStatus
 from billing.models import Payment, Tariff
 from billing.services.orders import create_checkout
+from billing.services.payment_gateway import PaymentGatewayConfigurationError, PaymentGatewayFactory, PaymentRequest, ZarinPalAdapter
 from locations.models import City, Country, Province
 from taxonomy.models import Category
 
@@ -58,3 +59,12 @@ class BillingTests(TestCase):
         self.assertEqual(payment.status, 'manual_review')
         self.assertEqual(payment.gateway, 'zarinpal')
         self.assertIn('پیکربندی', payment.admin_note)
+
+    @override_settings(OFFLINE_MODE=True, DEFAULT_PAYMENT_GATEWAY='zarinpal', ZARINPAL_MERCHANT_ID='configured-merchant')
+    def test_offline_mode_blocks_gateway_before_network_request(self):
+        with self.assertRaisesMessage(PaymentGatewayConfigurationError, 'حالت آفلاین'):
+            PaymentGatewayFactory.get_default_adapter()
+        direct_result = ZarinPalAdapter('configured-merchant').request_payment(
+            PaymentRequest(amount=1000, callback_url='https://example.test/callback', description='test')
+        )
+        self.assertEqual(direct_result.error_code, 'offline_mode')

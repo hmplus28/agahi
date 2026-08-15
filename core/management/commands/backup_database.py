@@ -1,6 +1,7 @@
 """Create a local database backup, optionally encrypt/copy it remotely, and apply retention."""
 from pathlib import Path
 
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from core.services.backups import (
@@ -41,8 +42,11 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f'نسخهٔ رمزنگاری‌شده ساخته شد: {encrypted.path}'))
                 self.stdout.write(f'Encrypted SHA256: {encrypted.checksum}')
                 if options['upload']:
-                    remote_location = upload_encrypted_backup(encrypted.path)
-                    self.stdout.write(self.style.SUCCESS(f'نسخهٔ رمزنگاری‌شده انتقال یافت: {remote_location}'))
+                    if settings.OFFLINE_MODE:
+                        self.stdout.write(self.style.WARNING('حالت آفلاین فعال است؛ انتقال remote انجام نشد و نسخهٔ رمزنگاری‌شده محلی حفظ شد.'))
+                    else:
+                        remote_location = upload_encrypted_backup(encrypted.path)
+                        self.stdout.write(self.style.SUCCESS(f'نسخهٔ رمزنگاری‌شده انتقال یافت: {remote_location}'))
             removed = apply_retention(directory=directory, keep_days=options.get('keep_days'), keep_count=options.get('keep_count'))
             if removed:
                 self.stdout.write(f'{len(removed)} فایل قدیمی با retention حذف شد.')

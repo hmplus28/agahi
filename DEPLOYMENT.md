@@ -14,6 +14,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements/production.txt
+# برای نصب بدون اینترنت، به‌جای دو خط بالا از deployment/install_offline_dependencies.sh استفاده کنید.
 cp .env.example .env
 chmod 600 .env
 ```
@@ -40,7 +41,11 @@ python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 ```
 
-وب‌سرور باید مسیر `STATIC_URL` را به `STATIC_ROOT` و مسیر media را به storage مناسب متصل کند. طبق مستندات Django، اجرای `collectstatic` بخشی ضروری از deployment است؛ برای مقیاس بیشتر static/media را از CDN یا object storage سرویس دهید.
+وب‌سرور باید مسیر `STATIC_URL` را به `STATIC_ROOT` و مسیر media را به storage محلی مناسب متصل کند. اجرای `collectstatic` بخشی ضروری از deployment است. فونت، CSS و JavaScript پروژه self-hosted هستند و برای کارکرد سایت به CDN یا object storage خارجی نیاز نیست.
+
+## ۲.۱. حالت آفلاین و نصب بدون اینترنت
+
+برای مقاومت در قطع اینترنت، `OFFLINE_MODE=true` و یک `CACHE_DIR` قابل‌نوشتن خارج از `public_html` تنظیم کنید. این حالت پرداخت، SMS، email خارجی، Redis و انتقال remote backup را غیرفعال می‌کند؛ هستهٔ SSR و PostgreSQL محلی به کار ادامه می‌دهند. پیش از رخداد، wheelhouse را با `deployment/build_offline_wheelhouse.sh` بسازید. راهنمای کامل در [OFFLINE_OPERATION.md](docs/OFFLINE_OPERATION.md) قرار دارد.
 
 ## ۳. Passenger و دامنه
 
@@ -64,11 +69,11 @@ SSL معتبر را روی دامنه فعال کنید. اگر reverse proxy ی
 # اعمال نردبان خودکار
 15 2 * * * /home/USER/apps/agahi/.venv/bin/python /home/USER/apps/agahi/manage.py auto_ladder --days 7 --limit 100 >> /home/USER/logs/agahi-cron.log 2>&1
 
-# صف پیام‌های مرتبط با انقضا
-30 2 * * * /home/USER/apps/agahi/.venv/bin/python /home/USER/apps/agahi/manage.py send_notifications --type all --days 3 >> /home/USER/logs/agahi-cron.log 2>&1
+# صف و ارسال پیام‌های مرتبط با انقضا؛ در OFFLINE_MODE فقط queue محلی حفظ می‌شود.
+30 2 * * * /home/USER/apps/agahi/.venv/bin/python /home/USER/apps/agahi/manage.py send_notifications --type all --days 3 --dispatch >> /home/USER/logs/agahi-cron.log 2>&1
 ```
 
-`send_notifications` فعلاً پیام‌ها را به‌صورت idempotent در `SMSLog` با وضعیت `pending` ثبت می‌کند. اتصال نهایی سرویس‌دهندهٔ SMS باید در یک worker یا integration ایمن، همین رکوردها را ارسال و `provider_id`، `status` و `response` را به‌روزرسانی کند.
+`send_notifications` صف پیامک را idempotent ایجاد می‌کند و در صورت `--dispatch` فقط با provider پیکربندی‌شده ارسال می‌کند. در `OFFLINE_MODE=true` provider خارجی غیرفعال است و queue محلی دست‌نخورده می‌ماند تا پس از بازگشت ارتباط ارسال شود.
 
 ## ۵. پرداخت و کنترل پیش از انتشار
 
@@ -84,4 +89,4 @@ python manage.py test
 
 ## منابع
 
-برای تصمیم‌های SEO و asset deployment، [فهرست منابع رسمی](docs/IMPLEMENTATION_REFERENCES.md) را ببینید.
+برای عملیات backup و بازیابی، [BACKUP_AND_RECOVERY.md](docs/BACKUP_AND_RECOVERY.md) و برای رفتار در قطع اینترنت، [OFFLINE_OPERATION.md](docs/OFFLINE_OPERATION.md) را ببینید.

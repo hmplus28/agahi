@@ -3,8 +3,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
 
-import requests
 from django.conf import settings
+
+from core.services.http_client import HTTPClientError, post_form
 
 
 @dataclass(frozen=True)
@@ -67,26 +68,27 @@ class KavenegarSMSAdapter(SMSGatewayAdapter):
         return bool(self.api_key)
 
     def send(self, request: SMSRequest) -> SMSResponse:
+        if getattr(settings, 'OFFLINE_MODE', False):
+            return SMSResponse(success=False, error_code='offline_mode', error_message='ارسال پیامک در حالت آفلاین غیرفعال است.')
         if not self.is_configured:
             return DisabledSMSAdapter().send(request)
         try:
             payload = {'receptor': request.mobile, 'message': request.message}
             if self.sender:
                 payload['sender'] = self.sender
-            response = requests.post(
+            response = post_form(
                 f'https://api.kavenegar.com/v1/{self.api_key}/sms/send.json',
-                data=payload,
-                timeout=self.timeout,
+                payload,
+                self.timeout,
             )
             raw = response.text[:2000]
-            response.raise_for_status()
-            data = response.json()
+            data = response.data
             entries = data.get('entries') or []
             if entries:
                 provider_id = str(entries[0].get('messageid', ''))
                 return SMSResponse(success=True, provider_id=provider_id, raw_response=raw)
             return SMSResponse(success=False, error_code='unexpected_response', error_message='پاسخ معتبر از سرویس پیامک دریافت نشد.', raw_response=raw)
-        except requests.RequestException as exc:
+        except HTTPClientError as exc:
             return SMSResponse(success=False, error_code='network_error', error_message=str(exc)[:500])
         except (TypeError, ValueError) as exc:
             return SMSResponse(success=False, error_code='response_error', error_message=str(exc)[:500])
@@ -97,7 +99,7 @@ class SMSGatewayFactory:
 
     @classmethod
     def get_default_adapter(cls) -> SMSGatewayAdapter:
-        if not getattr(settings, 'SMS_ENABLED', False):
+        if getattr(settings, 'OFFLINE_MODE', False) or not getattr(settings, 'SMS_ENABLED', False):
             return DisabledSMSAdapter()
         provider = getattr(settings, 'SMS_PROVIDER', 'disabled').lower().strip()
         if provider == 'console':

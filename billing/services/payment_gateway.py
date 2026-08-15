@@ -3,8 +3,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
 
-import requests
 from django.conf import settings
+
+from core.services.http_client import HTTPClientError, post_form, post_json
 
 
 @dataclass(frozen=True)
@@ -71,6 +72,8 @@ class ZarinPalAdapter(PaymentGatewayAdapter):
         return bool(self.merchant_id)
 
     def request_payment(self, request: PaymentRequest) -> PaymentResponse:
+        if getattr(settings, 'OFFLINE_MODE', False):
+            return PaymentResponse(success=False, error_code='offline_mode', error_message='پرداخت اینترنتی در حالت آفلاین غیرفعال است.')
         if not self.is_configured:
             return PaymentResponse(success=False, error_code='not_configured', error_message='درگاه پرداخت پیکربندی نشده است.')
         payload = {
@@ -84,10 +87,8 @@ class ZarinPalAdapter(PaymentGatewayAdapter):
         if request.email:
             payload['email'] = request.email
         try:
-            response = requests.post(f'{self.base_url}/request.json', json=payload, timeout=self.timeout)
-            raw = response.text[:2000]
-            response.raise_for_status()
-            body = response.json()
+            response = post_json(f'{self.base_url}/request.json', payload, self.timeout)
+            body = response.data
             data = body.get('data') or {}
             if data.get('code') == 100 and data.get('authority'):
                 authority = str(data['authority'])
@@ -99,22 +100,23 @@ class ZarinPalAdapter(PaymentGatewayAdapter):
                 error_code=str(error.get('code', 'provider_error')),
                 error_message=str(error.get('message', 'درخواست پرداخت توسط درگاه پذیرفته نشد.'))[:500],
             )
-        except requests.RequestException as exc:
+        except HTTPClientError as exc:
             return PaymentResponse(success=False, error_code='network_error', error_message=str(exc)[:500])
         except (TypeError, ValueError) as exc:
             return PaymentResponse(success=False, error_code='response_error', error_message=str(exc)[:500])
 
     def verify_payment(self, authority: str, amount: int) -> VerificationResult:
+        if getattr(settings, 'OFFLINE_MODE', False):
+            return VerificationResult(success=False, error_code='offline_mode', error_message='تأیید پرداخت اینترنتی در حالت آفلاین غیرفعال است.')
         if not self.is_configured:
             return VerificationResult(success=False, error_code='not_configured', error_message='درگاه پرداخت پیکربندی نشده است.')
         try:
-            response = requests.post(
+            response = post_json(
                 f'{self.base_url}/verify.json',
-                json={'merchant_id': self.merchant_id, 'amount': amount, 'authority': authority},
-                timeout=self.timeout,
+                {'merchant_id': self.merchant_id, 'amount': amount, 'authority': authority},
+                self.timeout,
             )
-            response.raise_for_status()
-            body = response.json()
+            body = response.data
             data = body.get('data') or {}
             if data.get('code') in {100, 101}:
                 return VerificationResult(
@@ -128,7 +130,7 @@ class ZarinPalAdapter(PaymentGatewayAdapter):
                 error_code=str(error.get('code', 'provider_error')),
                 error_message=str(error.get('message', 'تأیید پرداخت ناموفق بود.'))[:500],
             )
-        except requests.RequestException as exc:
+        except HTTPClientError as exc:
             return VerificationResult(success=False, error_code='network_error', error_message=str(exc)[:500])
         except (TypeError, ValueError) as exc:
             return VerificationResult(success=False, error_code='response_error', error_message=str(exc)[:500])
@@ -149,6 +151,8 @@ class NextPayAdapter(PaymentGatewayAdapter):
         return bool(self.api_key)
 
     def request_payment(self, request: PaymentRequest) -> PaymentResponse:
+        if getattr(settings, 'OFFLINE_MODE', False):
+            return PaymentResponse(success=False, error_code='offline_mode', error_message='پرداخت اینترنتی در حالت آفلاین غیرفعال است.')
         if not self.is_configured:
             return PaymentResponse(success=False, error_code='not_configured', error_message='درگاه پرداخت پیکربندی نشده است.')
         payload = {'api_key': self.api_key, 'amount': request.amount, 'callback': request.callback_url, 'description': request.description[:255]}
@@ -157,33 +161,33 @@ class NextPayAdapter(PaymentGatewayAdapter):
         if request.email:
             payload['email'] = request.email
         try:
-            response = requests.post(f'{self.base_url}/gateway/pip', data=payload, timeout=self.timeout)
-            response.raise_for_status()
-            data = response.json()
+            response = post_form(f'{self.base_url}/gateway/pip', payload, self.timeout)
+            data = response.data
             if data.get('code') == -1 and data.get('trans_id'):
                 authority = str(data['trans_id'])
                 return PaymentResponse(success=True, authority=authority, redirect_url=f'{self.base_url}/gateway/trans_{authority}')
             return PaymentResponse(success=False, error_code=str(data.get('code', 'provider_error')), error_message=str(data.get('message', 'درخواست پرداخت ناموفق بود.'))[:500])
-        except requests.RequestException as exc:
+        except HTTPClientError as exc:
             return PaymentResponse(success=False, error_code='network_error', error_message=str(exc)[:500])
         except (TypeError, ValueError) as exc:
             return PaymentResponse(success=False, error_code='response_error', error_message=str(exc)[:500])
 
     def verify_payment(self, authority: str, amount: int) -> VerificationResult:
+        if getattr(settings, 'OFFLINE_MODE', False):
+            return VerificationResult(success=False, error_code='offline_mode', error_message='تأیید پرداخت اینترنتی در حالت آفلاین غیرفعال است.')
         if not self.is_configured:
             return VerificationResult(success=False, error_code='not_configured', error_message='درگاه پرداخت پیکربندی نشده است.')
         try:
-            response = requests.post(
+            response = post_form(
                 f'{self.base_url}/gateway/verify',
-                data={'api_key': self.api_key, 'amount': amount, 'trans_id': authority},
-                timeout=self.timeout,
+                {'api_key': self.api_key, 'amount': amount, 'trans_id': authority},
+                self.timeout,
             )
-            response.raise_for_status()
-            data = response.json()
+            data = response.data
             if data.get('code') == 0:
                 return VerificationResult(success=True, ref_id=str(data.get('ShaparakRefId', '')), card_number=str(data.get('card_no', '')))
             return VerificationResult(success=False, error_code=str(data.get('code', 'provider_error')), error_message=str(data.get('message', 'تأیید پرداخت ناموفق بود.'))[:500])
-        except requests.RequestException as exc:
+        except HTTPClientError as exc:
             return VerificationResult(success=False, error_code='network_error', error_message=str(exc)[:500])
         except (TypeError, ValueError) as exc:
             return VerificationResult(success=False, error_code='response_error', error_message=str(exc)[:500])
@@ -192,6 +196,8 @@ class NextPayAdapter(PaymentGatewayAdapter):
 class PaymentGatewayFactory:
     @staticmethod
     def get_adapter(provider: str | None = None) -> PaymentGatewayAdapter:
+        if getattr(settings, 'OFFLINE_MODE', False):
+            raise PaymentGatewayConfigurationError('سامانه در حالت آفلاین است؛ آغاز یا تأیید پرداخت اینترنتی موقتاً غیرفعال است.')
         provider = (provider or getattr(settings, 'DEFAULT_PAYMENT_GATEWAY', 'zarinpal')).lower().strip()
         timeout = int(getattr(settings, 'PAYMENT_HTTP_TIMEOUT', 20))
         if provider == 'zarinpal':
