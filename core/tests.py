@@ -14,7 +14,7 @@ class PublicSecurityHeaderTests(TestCase):
     def test_healthcheck_is_database_aware_and_not_indexable(self):
         response = self.client.get(reverse('core:healthcheck'))
         self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(response.content, {'status': 'ok', 'offline_mode': False})
+        self.assertJSONEqual(response.content, {'status': 'ok', 'offline_mode': True})
         self.assertEqual(response['X-Robots-Tag'], 'noindex, noarchive')
         self.assertEqual(response['Cache-Control'], 'no-store')
 

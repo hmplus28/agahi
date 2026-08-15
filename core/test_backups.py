@@ -23,7 +23,7 @@ from core.services.backups import (
 
 class SQLiteBackupTests(SimpleTestCase):
     @override_settings(BACKUP_ENCRYPTION_KEY='test-only-encryption-key-with-sufficient-length')
-    def test_backup_encrypt_upload_restore_and_retention(self):
+    def test_backup_encrypt_restore_and_retention(self):
         with TemporaryDirectory() as temporary_directory:
             directory = Path(temporary_directory)
             artifact = create_database_backup(output_dir=directory)
@@ -50,12 +50,6 @@ class SQLiteBackupTests(SimpleTestCase):
                 self.assertEqual(sha256_file(decrypted), sha256_file(artifact.path))
             finally:
                 decrypted.unlink(missing_ok=True)
-
-            remote_directory = directory / 'remote'
-            with self.settings(BACKUP_REMOTE_PROVIDER='filesystem', BACKUP_REMOTE_PATH=str(remote_directory)):
-                remote = upload_encrypted_backup(encrypted.path)
-            self.assertTrue(Path(remote).exists())
-            self.assertTrue(Path(f'{remote}.hmac').exists())
 
             os.utime(artifact.path, (1, 1))
             removed = apply_retention(directory=directory, keep_days=0, keep_count=0)
@@ -86,8 +80,8 @@ class SQLiteBackupTests(SimpleTestCase):
                 call_command('backup_database', output_dir=str(directory), encrypt=True, upload=True, stdout=output)
             encrypted_files = list(directory.glob('agahi-*.sql.gz.enc'))
             self.assertEqual(len(encrypted_files), 1)
-            self.assertTrue(remote_directory.joinpath(encrypted_files[0].name).exists())
-            self.assertTrue(remote_directory.joinpath(f'{encrypted_files[0].name}.hmac').exists())
+            self.assertIn('انتقال remote انجام نشد', output.getvalue())
+            self.assertFalse(remote_directory.exists())
 
             restore_output = StringIO()
             call_command('restore_database', input=str(encrypted_files[0]), stdout=restore_output)

@@ -1,4 +1,0 @@
-# Optional integrations. Install only when the corresponding external service is deliberately enabled.
-# Offline/local deployments do not require this file.
-requests>=2.32.0
-redis>=5.0.0

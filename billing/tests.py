@@ -58,7 +58,7 @@ class BillingTests(TestCase):
         payment = Payment.objects.get(ad=self.ad)
         self.assertEqual(payment.status, 'manual_review')
         self.assertEqual(payment.gateway, 'zarinpal')
-        self.assertIn('پیکربندی', payment.admin_note)
+        self.assertIn('حالت آفلاین', payment.admin_note)
 
     @override_settings(OFFLINE_MODE=True, DEFAULT_PAYMENT_GATEWAY='zarinpal', ZARINPAL_MERCHANT_ID='configured-merchant')
     def test_offline_mode_blocks_gateway_before_network_request(self):

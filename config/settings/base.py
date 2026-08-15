@@ -9,8 +9,8 @@ load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = os.environ.get('SECRET_KEY', '')
 DEBUG = os.environ.get('DEBUG', 'false').lower() in {'1', 'true', 'yes', 'on'}
-# Offline mode disables every runtime integration that may initiate traffic outside this host.
-OFFLINE_MODE = os.environ.get('OFFLINE_MODE', 'false').lower() in {'1', 'true', 'yes', 'on'}
+# This deployment is intentionally offline-first at all times: no external integration may run.
+OFFLINE_MODE = True
 
 _raw_hosts = os.environ.get('ALLOWED_HOSTS', '')
 ALLOWED_HOSTS = [host.strip() for host in _raw_hosts.split(',') if host.strip()]
@@ -73,38 +73,17 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
-_cache_url = os.environ.get('CACHE_URL', '')
-_cache_dir = os.environ.get('CACHE_DIR', '')
-ENABLE_REDIS_CACHE = os.environ.get('ENABLE_REDIS_CACHE', 'false').lower() in {'1', 'true', 'yes', 'on'}
-if _cache_url and ENABLE_REDIS_CACHE and not OFFLINE_MODE:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-            'LOCATION': _cache_url,
-            'TIMEOUT': 300,
-            'KEY_PREFIX': 'agahi',
-        }
+# File cache is shared by Passenger workers and stays on this host; Redis is deliberately unsupported.
+CACHE_DIR = os.environ.get('CACHE_DIR', str(BASE_DIR / 'var' / 'cache'))
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': CACHE_DIR,
+        'TIMEOUT': 300,
+        'OPTIONS': {'MAX_ENTRIES': 5000, 'CULL_FREQUENCY': 3},
+        'KEY_PREFIX': 'agahi',
     }
-elif _cache_dir:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-            'LOCATION': _cache_dir,
-            'TIMEOUT': 300,
-            'OPTIONS': {'MAX_ENTRIES': 5000, 'CULL_FREQUENCY': 3},
-            'KEY_PREFIX': 'agahi',
-        }
-    }
-else:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'LOCATION': 'agahi-local-cache',
-            'TIMEOUT': 300,
-            'OPTIONS': {'MAX_ENTRIES': 2000, 'CULL_FREQUENCY': 3},
-            'KEY_PREFIX': 'agahi',
-        }
-    }
+}
 
 DATABASES = {
     'default': {
@@ -153,12 +132,8 @@ LOGIN_REDIRECT_URL = 'dashboard:index'
 LOGOUT_REDIRECT_URL = 'core:home'
 
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-reply@example.com')
-EMAIL_BACKEND = os.environ.get(
-    'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend'
-)
-if OFFLINE_MODE:
-    # Delivery must stay on-host; e-mails remain visible in server logs for operators.
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Delivery remains on-host; messages are visible in server logs for operators.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000').rstrip('/')
 SEO_LANDING_MIN_ADS = int(os.environ.get('SEO_LANDING_MIN_ADS', '3'))

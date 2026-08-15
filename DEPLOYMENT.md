@@ -19,14 +19,14 @@ cp .env.example .env
 chmod 600 .env
 ```
 
-در `.env` مقادیر `SECRET_KEY`، نام و رمز پایگاه داده، `ALLOWED_HOSTS`، `CSRF_TRUSTED_ORIGINS` و در صورت استفاده از درگاه، `ZARINPAL_MERCHANT_ID` را تکمیل کنید. همهٔ originهای CSRF باید با `https://` آغاز شوند.
+در `.env` مقادیر `SECRET_KEY`، نام و رمز پایگاه داده، `ALLOWED_HOSTS`، `CSRF_TRUSTED_ORIGINS` و `CACHE_DIR` خصوصی و قابل‌نوشتن را تکمیل کنید. همهٔ originهای CSRF باید با `https://` آغاز شوند.
 
 | متغیر | مقدار نمونه | نقش |
 |---|---|---|
 | `DJANGO_SETTINGS_MODULE` | `config.settings.production` | فعال‌سازی تنظیمات production |
 | `ALLOWED_HOSTS` | `example.com,www.example.com` | محدودسازی Host header |
 | `CSRF_TRUSTED_ORIGINS` | `https://example.com` | پذیرش POST امن از دامنهٔ سایت |
-| `PAYMENT_SANDBOX` | `false` در production | انتخاب محیط واقعی یا آزمایشی درگاه |
+| `CACHE_DIR` | `/home/USER/private/agahi-cache` | cache فایل‌محور محلیِ مشترک میان workerهای Passenger |
 
 ## ۲. اعمال schema و static files
 
@@ -45,7 +45,7 @@ python manage.py collectstatic --noinput
 
 ## ۲.۱. حالت آفلاین و نصب بدون اینترنت
 
-برای مقاومت در قطع اینترنت، `OFFLINE_MODE=true` و یک `CACHE_DIR` قابل‌نوشتن خارج از `public_html` تنظیم کنید. این حالت پرداخت، SMS، email خارجی، Redis و انتقال remote backup را غیرفعال می‌کند؛ هستهٔ SSR و PostgreSQL محلی به کار ادامه می‌دهند. پیش از رخداد، wheelhouse را با `deployment/build_offline_wheelhouse.sh` بسازید. راهنمای کامل در [OFFLINE_OPERATION.md](docs/OFFLINE_OPERATION.md) قرار دارد.
+این نسخه به‌صورت دائمی آفلاین اجرا می‌شود؛ پرداخت، SMS، email خارجی، Redis و انتقال remote backup در سطح کد غیرفعال هستند. یک `CACHE_DIR` قابل‌نوشتن خارج از `public_html` تنظیم کنید تا همهٔ workerهای Passenger از cache فایل‌محور محلی مشترک استفاده کنند؛ هستهٔ SSR و PostgreSQL محلی به کار ادامه می‌دهند. پیش از رخداد، wheelhouse را با `deployment/build_offline_wheelhouse.sh` بسازید. راهنمای کامل در [OFFLINE_OPERATION.md](docs/OFFLINE_OPERATION.md) قرار دارد.
 
 ## ۳. Passenger و دامنه
 
@@ -69,15 +69,15 @@ SSL معتبر را روی دامنه فعال کنید. اگر reverse proxy ی
 # اعمال نردبان خودکار
 15 2 * * * /home/USER/apps/agahi/.venv/bin/python /home/USER/apps/agahi/manage.py auto_ladder --days 7 --limit 100 >> /home/USER/logs/agahi-cron.log 2>&1
 
-# صف و ارسال پیام‌های مرتبط با انقضا؛ در OFFLINE_MODE فقط queue محلی حفظ می‌شود.
-30 2 * * * /home/USER/apps/agahi/.venv/bin/python /home/USER/apps/agahi/manage.py send_notifications --type all --days 3 --dispatch >> /home/USER/logs/agahi-cron.log 2>&1
+# ایجاد صف پیام‌های مرتبط با انقضا؛ در استقرار آفلاین فقط queue محلی حفظ می‌شود.
+30 2 * * * /home/USER/apps/agahi/.venv/bin/python /home/USER/apps/agahi/manage.py send_notifications --type all --days 3 >> /home/USER/logs/agahi-cron.log 2>&1
 ```
 
-`send_notifications` صف پیامک را idempotent ایجاد می‌کند و در صورت `--dispatch` فقط با provider پیکربندی‌شده ارسال می‌کند. در `OFFLINE_MODE=true` provider خارجی غیرفعال است و queue محلی دست‌نخورده می‌ماند تا پس از بازگشت ارتباط ارسال شود.
+`send_notifications` صف پیامک را idempotent ایجاد می‌کند. در استقرار دائمی آفلاین provider خارجی وجود ندارد و queue محلی برای پیگیری اپراتور دست‌نخورده می‌ماند.
 
-## ۵. پرداخت و کنترل پیش از انتشار
+## ۵. کنترل پیش از انتشار
 
-جریان پرداخت، payment callback را با تأیید سمت سرور نگه می‌دارد و فقط بعد از verification، invoice و service آگهی را successful می‌کند. پرداخت واقعی را ابتدا با `PAYMENT_SANDBOX=true` و callback HTTPS دامنهٔ staging آزمایش کنید. برای انتشار نهایی، یک مدیر باید تعرفه‌های فعال، مسیر callback و کلید merchant را بررسی کند.
+پرداخت اینترنتی در این استقرار دائمی آفلاین غیرفعال است و هیچ کلید merchant یا callback خارجی نباید پیکربندی شود. مدل‌های مالی و رکوردهای محلی برای توسعهٔ احتمالی آینده حفظ شده‌اند، اما هیچ درخواست شبکه‌ای از آن‌ها صادر نمی‌شود.
 
 پیش از هر release، حداقل این سه فرمان را اجرا کنید:
 

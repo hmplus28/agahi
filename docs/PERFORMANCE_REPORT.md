@@ -29,11 +29,11 @@
 
 ## benchmark حالت آفلاین
 
-همان benchmark با `OFFLINE_MODE=true`، `CACHE_URL` عمدیِ غیرقابل‌دسترسی و `CACHE_DIR` محلی اجرا شد. تنظیمات مؤثر به `FileBasedCache` و console email تغییر کرد و هیچ اتصال Redis یا email خارجی انجام نشد. در ۳۰ نمونهٔ warm، P95 صفحهٔ خانه **0.96ms**، فهرست آگهی‌ها **0.96ms** و جست‌وجو **0.92ms** بود. دادهٔ کامل قابل‌بازتولید در `docs/offline_performance_benchmark.json` نگهداری شده است.
+همان benchmark با پیکربندی دائمی آفلاین و `CACHE_DIR` محلی اجرا شد. تنظیمات مؤثر شامل `FileBasedCache` و console email محلی بود و هیچ اتصال شبکه‌ای از cache یا email انجام نشد. در ۳۰ نمونهٔ warm، P95 صفحهٔ خانه **0.96ms**، فهرست آگهی‌ها **0.96ms** و جست‌وجو **0.92ms** بود. دادهٔ کامل قابل‌بازتولید در `docs/offline_performance_benchmark.json` نگهداری شده است.
 
 ## کنترل‌های تأییدشده
 
-آزمون کامل Django شامل **۴۰ آزمون موفق** است؛ این پوشش، cache فهرست و invalidation، GZip، جست‌وجوی فارسی، SEO/canonical/sitemap، rate limit، workflow پرداخت، retry پیامک، backup/restore/رمزنگاری/HMAC، انتقال filesystem، بودجهٔ query صفحات عمومی و guardهای حالت آفلاین را در بر می‌گیرد. `manage.py check --deploy` و `collectstatic --dry-run` نیز با تنظیمات production و `OFFLINE_MODE=true` بدون هشدار اجرا شدند.
+آزمون کامل Django شامل **۴۰ آزمون موفق** است؛ این پوشش، cache فهرست و invalidation، GZip، جست‌وجوی فارسی، SEO/canonical/sitemap، rate limit، workflow پرداخت، retry پیامک، backup/restore/رمزنگاری/HMAC، مسدودسازی انتقال remote، بودجهٔ query صفحات عمومی و guardهای حالت آفلاین را در بر می‌گیرد. `manage.py check --deploy` با تنظیمات production و پیکربندی دائمی آفلاین نیز بدون هشدار اجرا شد.
 
 ## مرزهای پذیرش production
 
