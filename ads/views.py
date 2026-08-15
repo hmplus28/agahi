@@ -3,19 +3,23 @@ from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
-from django.db.models import F, Q
+from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from core.cache_decorators import cache_public_page
+from core.cache_utils import cache_key, public_ads_version, public_taxonomy_version
 from core.models import SiteSettings
 from core.services.duplicate_detection import detect_duplicate_ads
 from taxonomy.models import Category
 
 from .forms import AdForm, AdImageForm
 from .models import Ad, AdStatus
+from .search import search_ads
 from .services.image_processing import save_ad_image
 from .services.lifecycle import transition
 
@@ -26,6 +30,10 @@ def _public_ads():
         .select_related('category', 'city', 'province')
         .prefetch_related('images')
     )
+
+
+def _public_page_version():
+    return f'{public_ads_version()}-{public_taxonomy_version()}'
 
 
 def _decimal_query(value):
@@ -54,12 +62,12 @@ def _save_images(ad, files):
         )
 
 
+@cache_public_page(60, _public_page_version, namespace='ads-list-response')
 def ad_list(request):
-    """Server-rendered, crawlable public listing with bounded filters."""
+    """Server-rendered public listing with cached anonymous responses and bounded filters."""
     ads = _public_ads()
     query = request.GET.get('q', '').strip()
-    if query:
-        ads = ads.filter(Q(title__icontains=query) | Q(description__icontains=query))
+    ads, search_ordering = search_ads(ads, query)
     category_id = request.GET.get('category')
     if category_id and category_id.isdigit():
         ads = ads.filter(category_id=category_id)
@@ -79,6 +87,8 @@ def ad_list(request):
         'price_low': ['price', '-published_at'],
         'price_high': ['-price', '-published_at'],
     }.get(sort, ['-is_featured', '-sort_at', '-published_at'])
+    if search_ordering and sort == 'newest':
+        ordering = [search_ordering, *ordering]
     page_obj = Paginator(ads.order_by(*ordering), 24).get_page(request.GET.get('page'))
     context = {
         'page_obj': page_obj,
@@ -108,9 +118,14 @@ def ad_detail(request, pk):
         request.session.set_expiry(60 * 60)
         ad.refresh_from_db(fields=['views_count'])
 
-    related_ads = _public_ads().filter(category=ad.category).exclude(pk=ad.pk)
-    if ad.city_id:
-        related_ads = related_ads.filter(city_id=ad.city_id)
+    related_key = cache_key('related-ads', public_ads_version(), ad.pk, ad.category_id, ad.city_id)
+    related_ads = cache.get(related_key)
+    if related_ads is None:
+        related_query = _public_ads().filter(category=ad.category).exclude(pk=ad.pk)
+        if ad.city_id:
+            related_query = related_query.filter(city_id=ad.city_id)
+        related_ads = list(related_query.order_by('-is_featured', '-sort_at', '-published_at')[:4])
+        cache.set(related_key, related_ads, 300)
     context = {
         'ad': ad,
         'related_ads': related_ads[:4],

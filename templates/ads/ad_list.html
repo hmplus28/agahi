@@ -36,7 +36,7 @@
         <a href="{{ ad.get_absolute_url }}" class="ad-card-link" aria-label="مشاهده آگهی {{ ad.title }}">
           {% with image=ad.images.all.0 %}
             {% if image %}
-              <img class="ad-image" src="{{ image.image_thumb.url }}" width="{{ image.thumb_width }}" height="{{ image.thumb_height }}" alt="{{ ad.title }}" {% if forloop.counter0 > 3 %}loading="lazy"{% endif %}>
+              <img class="ad-image" src="{{ image.image_thumb.url }}" width="{{ image.thumb_width }}" height="{{ image.thumb_height }}" alt="{{ ad.title }}" {% if forloop.first %}fetchpriority="high"{% elif forloop.counter0 > 3 %}loading="lazy"{% endif %}>
             {% else %}
               <div class="ad-image image-placeholder" aria-label="آگهی بدون تصویر">بدون تصویر</div>
             {% endif %}

@@ -1,8 +1,9 @@
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 
 from accounts.models import User
-from ads.models import Ad, AdStatus
+from ads.models import Ad, AdImage, AdStatus
 from ads.services.lifecycle import transition
 from locations.models import City, Country, Province
 from taxonomy.models import Category
@@ -10,6 +11,7 @@ from taxonomy.models import Category
 
 class AdvertisementFlowTests(TestCase):
     def setUp(self):
+        cache.clear()
         self.user = User.objects.create_user(username='09120000000', mobile='09120000000', password='strong-password-123')
         country = Country.objects.create(name='ایران', slug='iran')
         province = Province.objects.create(country=country, name='تهران', slug='tehran')
@@ -59,3 +61,41 @@ class AdvertisementFlowTests(TestCase):
         self.make_ad()
         self.assertEqual(self.client.get(reverse('core:home')).status_code, 200)
         self.assertEqual(self.client.get(reverse('ads:ad_list')).status_code, 200)
+
+    def test_public_listing_is_cached_and_invalidated_after_ad_change(self):
+        ad = self.make_ad()
+        url = reverse('ads:ad_list')
+        first = self.client.get(url)
+        self.assertEqual(first.status_code, 200)
+        self.assertIn('public', first['Cache-Control'])
+        with self.assertNumQueries(0):
+            second = self.client.get(url)
+        self.assertContains(second, ad.title)
+
+        fresh = self.make_ad()
+        refreshed = self.client.get(url)
+        self.assertContains(refreshed, fresh.title)
+
+    def test_listing_supports_gzip_and_normalized_search_fallback(self):
+        self.make_ad()
+        url = f"{reverse('ads:ad_list')}?q=یخچال"
+        response = self.client.get(url, HTTP_ACCEPT_ENCODING='gzip')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get('Content-Encoding'), 'gzip')
+
+    def test_first_listing_image_is_prioritized_and_remaining_images_are_lazy(self):
+        for index in range(5):
+            ad = self.make_ad()
+            AdImage.objects.create(
+                ad=ad,
+                image_thumb=f'ads/thumb-{index}.webp',
+                image_display=f'ads/display-{index}.webp',
+                thumb_width=480,
+                thumb_height=320,
+                display_width=1280,
+                display_height=853,
+                is_primary=True,
+            )
+        response = self.client.get(reverse('ads:ad_list'))
+        self.assertContains(response, 'fetchpriority="high"')
+        self.assertContains(response, 'loading="lazy"')

@@ -155,6 +155,10 @@ class Ad(models.Model):
         ordering = ['-is_featured', '-sort_at', '-published_at']
         indexes = [
             models.Index(fields=['status', 'published_at']),
+            models.Index(
+                fields=['status', 'deleted_at', '-is_featured', '-sort_at', '-published_at'],
+                name='ads_public_list_idx',
+            ),
             models.Index(fields=['status', 'category']),
             models.Index(fields=['status', 'city']),
             models.Index(fields=['category', 'city', 'status']),
