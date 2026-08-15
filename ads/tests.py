@@ -18,19 +18,21 @@ class AdvertisementFlowTests(TestCase):
         self.city = City.objects.create(province=province, name='تهران', slug='tehran')
         self.category = Category.objects.create(title='خدمات', slug='services')
 
-    def make_ad(self, status=AdStatus.ACTIVE):
-        return Ad.objects.create(
-            user=self.user,
-            title='تعمیرات یخچال',
-            description='تعمیرات تخصصی و فوری یخچال در تهران',
-            category=self.category,
-            country=self.city.province.country,
-            province=self.city.province,
-            city=self.city,
-            mobile_1='09120000000',
-            full_name='کاربر آزمایشی',
-            status=status,
-        )
+    def make_ad(self, status=AdStatus.ACTIVE, **overrides):
+        values = {
+            'user': self.user,
+            'title': 'تعمیرات یخچال',
+            'description': 'تعمیرات تخصصی و فوری یخچال در تهران',
+            'category': self.category,
+            'country': self.city.province.country,
+            'province': self.city.province,
+            'city': self.city,
+            'mobile_1': '09120000000',
+            'full_name': 'کاربر آزمایشی',
+            'status': status,
+        }
+        values.update(overrides)
+        return Ad.objects.create(**values)
 
     def test_ad_normalizes_and_hashes_content(self):
         ad = self.make_ad()
@@ -82,6 +84,33 @@ class AdvertisementFlowTests(TestCase):
         response = self.client.get(url, HTTP_ACCEPT_ENCODING='gzip')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get('Content-Encoding'), 'gzip')
+        decoded = response.content
+        if response.get('Content-Encoding') == 'gzip':
+            import gzip
+            decoded = gzip.decompress(decoded)
+        self.assertIn(b'noindex,follow', decoded)
+
+    def test_search_covers_title_description_business_category_and_city(self):
+        default_ad = self.make_ad()
+        self.make_ad(
+            title='عنوان منحصربه‌فرد',
+            description='شرح متفاوت',
+            business_name='کارگاه آریا',
+        )
+        for query in ('عنوان منحصربه‌فرد', 'شرح متفاوت', 'آریا', self.category.title, self.city.name):
+            response = self.client.get(reverse('ads:ad_list'), {'q': query})
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'عنوان منحصربه‌فرد')
+
+        normalized_response = self.client.get(reverse('ads:ad_list'), {'q': 'يخچال'})
+        self.assertEqual(normalized_response.status_code, 200)
+        self.assertContains(normalized_response, default_ad.title)
+
+    def test_search_query_is_escaped_in_html(self):
+        response = self.client.get(f"{reverse('ads:ad_list')}?q=<script>alert(1)</script>")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, '<script>alert(1)</script>', html=True)
+        self.assertContains(response, '&lt;script&gt;alert(1)&lt;/script&gt;', html=False)
 
     def test_first_listing_image_is_prioritized_and_remaining_images_are_lazy(self):
         for index in range(5):

@@ -2,6 +2,7 @@
 
 {% block title %}آگهی‌ها | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
 {% block meta_description %}فهرست آگهی‌های فعال و قابل جست‌وجو{% endblock %}
+{% block robots %}{% if query %}noindex,follow{% else %}index,follow,max-image-preview:large{% endif %}{% endblock %}
 
 {% block content %}
 <section class="container page-section">
