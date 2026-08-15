@@ -1,0 +1,15 @@
+{% extends 'base/base.html' %}
+
+{% block title %}دسته‌بندی‌ها | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
+{% block meta_description %}دسته‌بندی‌های آگهی‌های فعال را مرور کنید.{% endblock %}
+
+{% block content %}
+<section class="container page-section">
+  <header class="page-heading"><h1>دسته‌بندی‌های آگهی</h1><p>دسته‌بندی موردنظر را انتخاب کنید تا آگهی‌های مرتبط را ببینید.</p></header>
+  <div class="grid grid-4">
+  {% for category in categories %}
+    <article class="card category-card"><h2><a href="{{ category.get_absolute_url }}">{{ category.title }}</a></h2>{% if category.description %}<p>{{ category.description }}</p>{% endif %}</article>
+  {% empty %}<p class="empty-state">دسته‌بندی فعالی وجود ندارد.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

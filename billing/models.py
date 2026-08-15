@@ -58,6 +58,29 @@ class Tariff(models.Model):
         return f"{self.title} - {self.price:,}"
 
 
+class AdService(models.Model):
+    """A purchased tariff applied to an advertisement."""
+    STATUS_CHOICES = [
+        ('active', _('Active')),
+        ('expired', _('Expired')),
+        ('cancelled', _('Cancelled')),
+    ]
+    ad = models.ForeignKey('ads.Ad', on_delete=models.CASCADE, related_name='services')
+    tariff = models.ForeignKey(Tariff, on_delete=models.PROTECT, related_name='ad_services')
+    starts_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active', db_index=True)
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-starts_at']
+        indexes = [models.Index(fields=['ad', 'status', 'expires_at'])]
+
+    def __str__(self):
+        return f'{self.ad.code} - {self.tariff.code}'
+
+
 class Order(models.Model):
     """Order model for purchasing services."""
     STATUS_CHOICES = [

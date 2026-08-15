@@ -46,8 +46,10 @@ class Ad(models.Model):
     # Content
     title = models.CharField(_('title'), max_length=300)
     normalized_title = models.CharField(_('normalized title'), max_length=300, blank=True, db_index=True)
+    normalized_title_hash = models.CharField(_('normalized title hash'), max_length=64, blank=True, db_index=True)
     description = models.TextField(_('description'), validators=[MaxLengthValidator(6000)])
     normalized_description = models.TextField(_('normalized description'), blank=True)
+    normalized_description_hash = models.CharField(_('normalized description hash'), max_length=64, blank=True, db_index=True)
     keywords = models.CharField(_('keywords'), max_length=500, blank=True, help_text=_('Comma-separated keywords, max 11'))
     
     # Pricing
@@ -145,7 +147,7 @@ class Ad(models.Model):
     deleted_at = models.DateTimeField(_('deleted at'), null=True, blank=True, db_index=True)
     
     # SEO
-    slug = models.SlugField(_('slug'), max_length=300, blank=True)
+    slug = models.SlugField(_('slug'), max_length=300, unique=True, blank=True)
     
     class Meta:
         verbose_name = _('ad')
@@ -162,29 +164,42 @@ class Ad(models.Model):
             models.Index(fields=['slug']),
             models.Index(fields=['code']),
             models.Index(fields=['normalized_title']),
+            models.Index(fields=['normalized_title_hash']),
+            models.Index(fields=['normalized_description_hash']),
         ]
     
     def __str__(self):
         return f"{self.code} - {self.title}"
     
     def save(self, *args, **kwargs):
+        from core.services.persian_normalization import normalize_persian_text
+
+        self.title = normalize_persian_text(self.title)
+        self.description = normalize_persian_text(self.description)
+        self.normalized_title = self.title
+        self.normalized_description = self.description
+        self.normalized_title_hash = hashlib.sha256(self.normalized_title.encode('utf-8')).hexdigest()
+        self.normalized_description_hash = hashlib.sha256(
+            self.normalized_description.encode('utf-8')
+        ).hexdigest()
         if not self.code:
             self.code = self._generate_code()
-        
         if not self.slug:
-            base_slug = slugify(self.title)
-            self.slug = f"{self.code}-{base_slug[:200]}" if base_slug else self.code
-        
+            base_slug = slugify(self.title, allow_unicode=True)
+            self.slug = f"{self.code}-{base_slug[:260]}" if base_slug else self.code
         super().save(*args, **kwargs)
-    
+
     def _generate_code(self):
-        """Generate unique ad code."""
-        import random
-        import string
+        """Generate a collision-resistant public identifier."""
+        import secrets
         while True:
-            code = ''.join(random.choices(string.digits, k=8))
+            code = str(secrets.randbelow(90000000) + 10000000)
             if not Ad.objects.filter(code=code).exists():
                 return code
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('ads:ad_detail', kwargs={'pk': self.pk})
     
     @property
     def is_active(self):
@@ -213,8 +228,8 @@ class Ad(models.Model):
         return _('توافقی')
     
     def is_indexable(self):
-        """Check if ad should be indexed by search engines."""
-        return self.status == AdStatus.ACTIVE and not self.deleted_at
+        """Check whether the public page may be indexed."""
+        return self.status == AdStatus.ACTIVE and not self.deleted_at and not self.is_expired
 
 
 class AdStatusHistory(models.Model):

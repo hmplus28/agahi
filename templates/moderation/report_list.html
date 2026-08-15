@@ -1,0 +1,7 @@
+{% extends 'base/base.html' %}
+
+{% block title %}مدیریت گزارش‌ها{% endblock %}
+
+{% block content %}
+<section class="container page-section"><header class="page-heading"><h1>گزارش‌های آگهی</h1></header><div class="card table-wrap"><table><thead><tr><th>آگهی</th><th>علت</th><th>گزارش‌دهنده</th><th>وضعیت</th><th>اقدام</th></tr></thead><tbody>{% for report in reports %}<tr><td><a href="{{ report.ad.get_absolute_url }}">{{ report.ad.title }}</a></td><td>{{ report.get_reason_display }}</td><td>{% if report.reporter_user %}{{ report.reporter_user.mobile }}{% else %}ناشناس{% endif %}</td><td>{{ report.get_status_display }}</td><td><form method="post" action="{% url 'moderation:update_report' report.pk %}">{% csrf_token %}<select name="status"><option value="reviewing">در حال بررسی</option><option value="resolved">رسیدگی‌شده</option><option value="rejected">ردشده</option></select><input name="admin_note" value="{{ report.admin_note }}"><button class="btn btn-outline" type="submit">ذخیره</button></form></td></tr>{% empty %}<tr><td colspan="5">گزارشی وجود ندارد.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base/base.html' %}
+
+{% block title %}فاکتورها | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
+
+{% block content %}
+<section class="container page-section">
+  <header class="page-heading"><h1>فاکتورها و پرداخت‌ها</h1><p>سوابق پرداخت و خدمات ثبت‌شده برای آگهی‌های شما.</p></header>
+  <div class="card table-wrap"><table><thead><tr><th>شماره</th><th>آگهی</th><th>مبلغ</th><th>وضعیت</th><th>تاریخ</th></tr></thead><tbody>{% for invoice in invoices %}<tr><td>{{ invoice.invoice_number }}</td><td>{% if invoice.ad %}<a href="{{ invoice.ad.get_absolute_url }}">{{ invoice.ad.title }}</a>{% else %}—{% endif %}</td><td>{{ invoice.total }} تومان</td><td>{{ invoice.get_status_display }}</td><td><time datetime="{{ invoice.created_at|date:'c' }}">{{ invoice.created_at|date:'Y/m/d' }}</time></td></tr>{% empty %}<tr><td colspan="5">هنوز فاکتوری ثبت نشده است.</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% endblock %}

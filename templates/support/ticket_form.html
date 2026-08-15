@@ -1,0 +1,7 @@
+{% extends 'base/base.html' %}
+
+{% block title %}ثبت تیکت | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
+
+{% block content %}
+<section class="container narrow-container page-section"><header class="page-heading"><h1>ثبت تیکت جدید</h1></header><form method="post" class="ad-form">{% csrf_token %}{% for field in form %}<div class="form-group"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endfor %}<button class="btn btn-primary" type="submit">ارسال تیکت</button></form></section>
+{% endblock %}

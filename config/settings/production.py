@@ -1,62 +1,49 @@
-"""
-Production settings for config project.
+"""Production-only settings for deployment behind HTTPS."""
+import os
 
-SECURITY WARNING: Never use this file for development!
-"""
+from django.core.exceptions import ImproperlyConfigured
 
 from .base import *
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-# Security settings for production
-SECURE_SSL_REDIRECT = True
+if not SECRET_KEY or SECRET_KEY.startswith('django-insecure'):
+    raise ImproperlyConfigured('SECRET_KEY must be set to a secure production value.')
+if not ALLOWED_HOSTS or '*' in ALLOWED_HOSTS:
+    raise ImproperlyConfigured('ALLOWED_HOSTS must contain explicit production hostnames.')
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()
+]
+
+SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'true').lower() in {'1', 'true', 'yes'}
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_HSTS_SECONDS = 31536000  # 1 year
+X_FRAME_OPTIONS = 'DENY'
+SECURE_REFERRER_POLICY = 'same-origin'
+SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
-X_FRAME_OPTIONS = 'DENY'
 
-# Add your production domain here
-# ALLOWED_HOSTS should be set via environment variable
-# Example: ALLOWED_HOSTS=.example.com,example.com
+STORAGES = {
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage',
+    },
+}
 
-# CSRF trusted origins for HTTPS
-CSRF_TRUSTED_ORIGINS = []
-
-# Static files configuration for production
-# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
-
-# Logging for production
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'format': '{levelname} {asctime} {name} {process:d} {thread:d} {message}',
             'style': '{',
         },
     },
     'handlers': {
-        'file': {
-            'level': 'WARNING',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/django/error.log',
-            'formatter': 'verbose',
-        },
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'verbose'},
     },
-    'root': {
-        'handlers': ['file'],
-        'level': 'WARNING',
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'WARNING',
-            'propagate': False,
-        },
-    },
+    'root': {'handlers': ['console'], 'level': 'WARNING'},
+    'loggers': {'django': {'handlers': ['console'], 'level': 'WARNING', 'propagate': False}},
 }

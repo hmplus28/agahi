@@ -1,0 +1,31 @@
+{% extends 'base/base.html' %}
+
+{% block title %}آگهی‌های من | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
+
+{% block content %}
+<section class="container page-section">
+  <div class="section-heading"><h1>آگهی‌های من</h1><a href="{% url 'ads:ad_create' %}" class="btn btn-primary">ثبت آگهی</a></div>
+  <form method="get" class="filter-bar">
+    <label for="user-search">جست‌وجو</label><input id="user-search" class="form-control" type="search" name="q" value="{{ query }}">
+    <label for="status">وضعیت</label>
+    <select id="status" class="form-control" name="status"><option value="">همه</option>{% for value, label in status_choices %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    <button type="submit" class="btn btn-outline">اعمال</button>
+  </form>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>آگهی</th><th>شهر</th><th>وضعیت</th><th>بازدید</th><th>اقدام</th></tr></thead>
+      <tbody>
+      {% for ad in page_obj %}
+        <tr>
+          <td><a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a><small>{{ ad.code }}</small></td>
+          <td>{% if ad.city %}{{ ad.city.name }}{% else %}—{% endif %}</td>
+          <td>{{ ad.get_status_display }}</td><td>{{ ad.views_count }}</td>
+          <td><a href="{% url 'billing:tariff_list' ad.pk %}">خدمات</a> {% if ad.can_edit %}<a href="{% url 'ads:ad_edit' ad.pk %}">ویرایش</a>{% endif %} <form class="inline-form" method="post" action="{% url 'ads:ad_delete' ad.pk %}">{% csrf_token %}<button class="link-button" type="submit">حذف</button></form></td>
+        </tr>
+      {% empty %}<tr><td colspan="5">آگهی‌ای یافت نشد.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page_obj.paginator.num_pages > 1 %}<nav class="pagination" aria-label="صفحه‌بندی آگهی‌های من">{% if page_obj.has_previous %}<a href="?q={{ query|urlencode }}&status={{ status }}&page={{ page_obj.previous_page_number }}">قبلی</a>{% endif %}<span class="current">{{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a href="?q={{ query|urlencode }}&status={{ status }}&page={{ page_obj.next_page_number }}">بعدی</a>{% endif %}</nav>{% endif %}
+</section>
+{% endblock %}

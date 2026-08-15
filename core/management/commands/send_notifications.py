@@ -1,98 +1,81 @@
-"""
-Management command to send notifications.
-Sends SMS and email notifications for various events.
-"""
+"""Queue idempotent SMS notifications for advertisement expiration events."""
+from datetime import timedelta
+
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from datetime import timedelta
-from ads.models import Ad
+
+from ads.models import Ad, AdStatus
 from notifications.models import SMSLog
 
 
 class Command(BaseCommand):
-    help = 'Send scheduled notifications (expiring ads, etc.)'
+    help = 'Queue SMS logs for advertisements that are expiring or newly expired.'
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            '--type',
-            type=str,
-            choices=['expiring_soon', 'expired', 'all'],
-            default='expiring_soon',
-            help='Type of notifications to send'
-        )
-        parser.add_argument(
-            '--days',
-            type=int,
-            default=3,
-            help='Days until expiration for warning (default: 3)'
-        )
+        parser.add_argument('--type', choices=['expiring_soon', 'expired', 'all'], default='expiring_soon')
+        parser.add_argument('--days', type=int, default=3, help='Days before expiration for warning messages.')
 
     def handle(self, *args, **options):
-        notification_type = options['type']
-        days = options['days']
-        
-        if notification_type in ['expiring_soon', 'all']:
-            self._send_expiring_soon_notifications(days)
-        
-        if notification_type in ['expired', 'all']:
-            self._send_expired_notifications()
-        
-        self.stdout.write(self.style.SUCCESS('Notification process completed.'))
+        created = 0
+        if options['type'] in {'expiring_soon', 'all'}:
+            created += self._queue_expiring(max(options['days'], 1))
+        if options['type'] in {'expired', 'all'}:
+            created += self._queue_expired()
+        self.stdout.write(self.style.SUCCESS(f'{created} اعلان برای ارسال در صف ثبت شد.'))
 
-    def _send_expiring_soon_notifications(self, days):
-        """Send notifications for ads expiring soon."""
-        now = timezone.now()
-        expires_soon = now + timedelta(days=days)
-        
-        expiring_ads = Ad.objects.filter(
-            status='active',
-            expires_at__lte=expires_soon,
-            expires_at__gt=now
-        ).select_related('owner')
-        
-        count = 0
-        for ad in expiring_ads:
-            # Check if already notified
-            if not SMSLog.objects.filter(
-                recipient=ad.owner.mobile,
-                message__icontains='منقضی',
-                created_at__gte=now - timedelta(hours=24)
-            ).exists():
-                # Send SMS (placeholder - integrate with SMS provider)
-                message = f'آگهی "{ad.title}" شما تا {days} روز دیگر منقضی می‌شود.'
-                SMSLog.objects.create(
-                    recipient=ad.owner.mobile,
-                    message=message,
-                    status='pending'
-                )
-                count += 1
-        
-        self.stdout.write(f'Sent {count} expiring soon notifications.')
+    @staticmethod
+    def _logged_recently(ad, marker, now):
+        return SMSLog.objects.filter(
+            ad=ad,
+            type='ad_expiry',
+            message__startswith=marker,
+            created_at__gte=now - timedelta(hours=24),
+        ).exists()
 
-    def _send_expired_notifications(self):
-        """Send notifications for expired ads."""
+    def _queue_expiring(self, days):
         now = timezone.now()
-        
-        expired_ads = Ad.objects.filter(
-            status='expired',
-            updated_at__gte=now - timedelta(days=1)
-        ).select_related('owner')
-        
+        end = now + timedelta(days=days)
+        ads = Ad.objects.filter(
+            status=AdStatus.ACTIVE,
+            expires_at__gt=now,
+            expires_at__lte=end,
+            deleted_at__isnull=True,
+        ).select_related('user')
         count = 0
-        for ad in expired_ads:
-            # Check if already notified
-            if not SMSLog.objects.filter(
-                recipient=ad.owner.mobile,
-                message__icontains='منقضی شد',
-                created_at__gte=now - timedelta(hours=24)
-            ).exists():
-                # Send SMS (placeholder - integrate with SMS provider)
-                message = f'آگهی "{ad.title}" شما منقضی شد.'
-                SMSLog.objects.create(
-                    recipient=ad.owner.mobile,
-                    message=message,
-                    status='pending'
-                )
-                count += 1
-        
-        self.stdout.write(f'Sent {count} expired notifications.')
+        marker = 'هشدار تمدید:'
+        for ad in ads:
+            if self._logged_recently(ad, marker, now):
+                continue
+            SMSLog.objects.create(
+                user=ad.user,
+                ad=ad,
+                mobile=ad.user.mobile,
+                type='ad_expiry',
+                message=f'{marker} آگهی «{ad.title}» تا {days} روز دیگر منقضی می‌شود.',
+                status='pending',
+            )
+            count += 1
+        return count
+
+    def _queue_expired(self):
+        now = timezone.now()
+        ads = Ad.objects.filter(
+            status=AdStatus.EXPIRED,
+            updated_at__gte=now - timedelta(days=1),
+            deleted_at__isnull=True,
+        ).select_related('user')
+        count = 0
+        marker = 'انقضای آگهی:'
+        for ad in ads:
+            if self._logged_recently(ad, marker, now):
+                continue
+            SMSLog.objects.create(
+                user=ad.user,
+                ad=ad,
+                mobile=ad.user.mobile,
+                type='ad_expiry',
+                message=f'{marker} آگهی «{ad.title}» منقضی شد.',
+                status='pending',
+            )
+            count += 1
+        return count

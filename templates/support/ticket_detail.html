@@ -1,0 +1,7 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ ticket.subject }} | پشتیبانی{% endblock %}
+
+{% block content %}
+<section class="container narrow-container page-section"><nav class="breadcrumbs" aria-label="مسیر صفحه"><a href="{% url 'support:ticket_list' %}">پشتیبانی</a><span>/</span><span>{{ ticket.subject }}</span></nav><header class="page-heading"><h1>{{ ticket.subject }}</h1><p>{{ ticket.get_status_display }}</p></header><div class="ticket-thread">{% for item in ticket.messages.all %}<article class="card ticket-message"><header><strong>{% if item.sender_id == user.id %}شما{% else %}پشتیبانی{% endif %}</strong><time datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:'Y/m/d H:i' }}</time></header>{{ item.message|linebreaks }}</article>{% endfor %}</div>{% if ticket.status != 'closed' %}<form method="post" class="ad-form">{% csrf_token %}<div class="form-group"><label class="form-label" for="{{ form.message.id_for_label }}">پاسخ شما</label>{{ form.message }}</div><button class="btn btn-primary" type="submit">ارسال پاسخ</button></form>{% endif %}</section>
+{% endblock %}

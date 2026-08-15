@@ -1,0 +1,10 @@
+{% extends 'base/base.html' %}
+
+{% block title %}تأیید خرید خدمت | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
+
+{% block content %}
+<section class="container narrow-container page-section">
+  <header class="page-heading"><h1>تأیید خرید خدمت</h1></header>
+  <article class="card"><dl class="summary-list"><dt>آگهی</dt><dd>{{ ad.title }}</dd><dt>خدمت</dt><dd>{{ tariff.title }}</dd><dt>مدت</dt><dd>{{ tariff.duration_days }} روز</dd><dt>مبلغ</dt><dd>{{ tariff.price }} تومان</dd></dl><form method="post">{% csrf_token %}<button class="btn btn-primary" type="submit">ادامه به پرداخت</button><a class="btn btn-outline" href="{% url 'billing:invoice_list' %}">انصراف</a></form></article>
+</section>
+{% endblock %}

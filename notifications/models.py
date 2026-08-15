@@ -43,6 +43,7 @@ class SMSLog(models.Model):
         choices=TYPE_CHOICES,
         default='other',
     )
+    message = models.TextField(_('message'), default='')
     provider_id = models.CharField(_('provider ID'), max_length=100, blank=True)
     status = models.CharField(
         _('status'),
@@ -58,6 +59,10 @@ class SMSLog(models.Model):
         verbose_name = _('SMS log')
         verbose_name_plural = _('SMS logs')
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['ad', 'type', 'created_at']),
+            models.Index(fields=['mobile', 'created_at']),
+        ]
     
     def __str__(self):
         return f"SMS to {self.mobile} - {self.status}"

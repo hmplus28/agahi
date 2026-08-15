@@ -1,0 +1,7 @@
+{% extends 'base/base.html' %}
+
+{% block title %}خدمات آگهی | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
+
+{% block content %}
+<section class="container page-section"><header class="page-heading"><h1>خدمات آگهی</h1><p>برای آگهی «{{ ad.title }}» خدمت موردنظر را انتخاب کنید.</p></header><div class="grid grid-3">{% for tariff in tariffs %}<article class="card"><h2>{{ tariff.title }}</h2><p>{{ tariff.description }}</p><p><strong>{{ tariff.price }} تومان</strong></p><p>{{ tariff.duration_days }} روز</p><a class="btn btn-primary" href="{% url 'billing:checkout' tariff.id ad.id %}">انتخاب خدمت</a></article>{% empty %}<p class="empty-state">تعرفه فعالی موجود نیست.</p>{% endfor %}</div></section>
+{% endblock %}

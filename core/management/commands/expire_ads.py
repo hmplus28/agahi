@@ -1,33 +1,30 @@
-"""
-Management command to expire old ads.
-Marks ads as expired if their expiration date has passed.
-"""
+"""Expire active advertisements whose paid validity has ended."""
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from ads.models import Ad
+
+from ads.models import Ad, AdStatus
+from ads.services.lifecycle import transition
 
 
 class Command(BaseCommand):
-    help = 'Mark ads as expired if their expiration date has passed'
+    help = 'Mark active advertisements as expired once expires_at has passed.'
+
+    def add_arguments(self, parser):
+        parser.add_argument('--limit', type=int, default=500, help='Maximum advertisements to process.')
 
     def handle(self, *args, **options):
         now = timezone.now()
-        
-        # Find active ads that have expired
-        expired_ads = Ad.objects.filter(
-            status='active',
-            expires_at__lt=now
+        candidates = (
+            Ad.objects.filter(
+                status=AdStatus.ACTIVE,
+                deleted_at__isnull=True,
+                expires_at__isnull=False,
+                expires_at__lte=now,
+            )
+            .order_by('expires_at')[:max(options['limit'], 1)]
         )
-        
-        count = expired_ads.count()
-        
-        if count == 0:
-            self.stdout.write(self.style.SUCCESS('No expired ads found.'))
-            return
-        
-        # Update status to expired
-        updated = expired_ads.update(status='expired')
-        
-        self.stdout.write(
-            self.style.SUCCESS(f'Successfully marked {updated} ads as expired.')
-        )
+        count = 0
+        for ad in candidates:
+            transition(ad, AdStatus.EXPIRED, reason='انقضای خودکار اعتبار آگهی')
+            count += 1
+        self.stdout.write(self.style.SUCCESS(f'{count} آگهی منقضی شد.'))

@@ -34,6 +34,10 @@ class Category(models.Model):
     
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('taxonomy:category_detail_slug', kwargs={'pk': self.pk, 'slug': self.slug})
     
     def get_full_path(self):
         """Return full category path from root to this category."""

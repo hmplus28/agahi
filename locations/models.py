@@ -22,7 +22,7 @@ class Province(models.Model):
     """Province model for location hierarchy."""
     country = models.ForeignKey(
         Country,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='provinces',
         verbose_name=_('country'),
     )
@@ -45,7 +45,7 @@ class City(models.Model):
     """City model for location hierarchy."""
     province = models.ForeignKey(
         Province,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='cities',
         verbose_name=_('province'),
     )

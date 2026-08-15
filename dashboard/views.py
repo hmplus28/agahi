@@ -1,92 +1,69 @@
-"""
-Dashboard views - User panel views.
-"""
-from django.shortcuts import render, redirect
+"""Authenticated user dashboard views."""
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q
-from ads.models import Ad
-from billing.models import Order, Invoice
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import redirect, render
+
+from ads.models import Ad, AdStatus
+from billing.models import Order
+from accounts.models import Profile
 from support.models import Ticket
 
 
 @login_required
 def index(request):
-    """Dashboard home page."""
-    # User's ads count by status
-    user_ads = Ad.objects.filter(owner=request.user)
+    user_ads = Ad.objects.filter(user=request.user)
     ads_stats = {
         'total': user_ads.count(),
-        'active': user_ads.filter(status='active').count(),
-        'pending': user_ads.filter(status='pending').count(),
-        'expired': user_ads.filter(status='expired').count(),
+        'active': user_ads.filter(status=AdStatus.ACTIVE).count(),
+        'pending': user_ads.filter(status=AdStatus.PENDING_APPROVAL).count(),
+        'expired': user_ads.filter(status=AdStatus.EXPIRED).count(),
     }
-    
-    # Recent ads
-    recent_ads = user_ads.select_related('category', 'location_city').order_by('-created_at')[:5]
-    
-    # Recent orders
-    recent_orders = Order.objects.filter(user=request.user).select_related('tariff').order_by('-created_at')[:5]
-    
-    # Open tickets
-    open_tickets = Ticket.objects.filter(user=request.user, is_closed=False).count()
-    
     context = {
         'ads_stats': ads_stats,
-        'recent_ads': recent_ads,
-        'recent_orders': recent_orders,
-        'open_tickets': open_tickets,
+        'recent_ads': user_ads.select_related('category', 'city').order_by('-created_at')[:5],
+        'recent_orders': Order.objects.filter(user=request.user).order_by('-created_at')[:5],
+        'open_tickets': Ticket.objects.filter(user=request.user).exclude(status='closed').count(),
     }
-    
     return render(request, 'dashboard/index.html', context)
 
 
 @login_required
 def my_ads(request):
-    """User's ads list."""
-    ads = Ad.objects.filter(owner=request.user).select_related(
-        'category', 'location_city'
-    ).prefetch_related(
-        'images'
-    ).order_by('-created_at')
-    
-    # Filter by status
-    status = request.GET.get('status')
-    if status:
+    ads = (
+        Ad.objects.filter(user=request.user)
+        .select_related('category', 'city')
+        .prefetch_related('images')
+        .order_by('-created_at')
+    )
+    status = request.GET.get('status', '')
+    valid_statuses = {choice for choice, _ in AdStatus.choices}
+    if status in valid_statuses:
         ads = ads.filter(status=status)
-    
-    # Search
-    q = request.GET.get('q')
-    if q:
-        ads = ads.filter(Q(title__icontains=q) | Q(description__icontains=q))
-    
-    context = {
-        'ads': ads,
-    }
-    
-    return render(request, 'dashboard/my_ads.html', context)
+    query = request.GET.get('q', '').strip()
+    if query:
+        ads = ads.filter(Q(title__icontains=query) | Q(description__icontains=query))
+    page_obj = Paginator(ads, 20).get_page(request.GET.get('page'))
+    return render(
+        request,
+        'dashboard/my_ads.html',
+        {'page_obj': page_obj, 'status': status, 'query': query, 'status_choices': AdStatus.choices},
+    )
 
 
 @login_required
 def profile(request):
-    """User profile page."""
+    profile_obj, _ = Profile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
-        # Update user info
-        request.user.first_name = request.POST.get('first_name', '')
-        request.user.last_name = request.POST.get('last_name', '')
-        request.user.save()
-        
-        # Update profile
-        profile = request.user.profile
-        profile.bio = request.POST.get('bio', '')
-        profile.save()
-        
-        from django.contrib import messages
-        messages.success(request, 'اطلاعات پروفایل با موفقیت به‌روزرسانی شد.')
+        request.user.first_name = request.POST.get('first_name', '').strip()
+        request.user.last_name = request.POST.get('last_name', '').strip()
+        request.user.email = request.POST.get('email', '').strip()
+        request.user.save(update_fields=['first_name', 'last_name', 'email'])
+        profile_obj.business_name = request.POST.get('business_name', '').strip()
+        profile_obj.address = request.POST.get('address', '').strip()
+        profile_obj.postal_code = request.POST.get('postal_code', '').strip()
+        profile_obj.save(update_fields=['business_name', 'address', 'postal_code', 'updated_at'])
+        messages.success(request, 'اطلاعات پروفایل به‌روزرسانی شد.')
         return redirect('dashboard:profile')
-    
-    context = {
-        'user': request.user,
-        'profile': request.user.profile,
-    }
-    
-    return render(request, 'dashboard/profile.html', context)
+    return render(request, 'dashboard/profile.html', {'profile': profile_obj})

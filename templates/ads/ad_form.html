@@ -1,0 +1,31 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{% if ad %}ویرایش آگهی{% else %}ثبت آگهی{% endif %} | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
+
+{% block content %}
+<section class="container narrow-container page-section">
+  <header class="page-heading"><h1>{% if ad %}ویرایش آگهی{% else %}ثبت آگهی جدید{% endif %}</h1><p>اطلاعات را با دقت وارد کنید. آگهی پس از بررسی منتشر می‌شود.</p></header>
+  <form method="post" enctype="multipart/form-data" class="ad-form" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="form-grid">
+      {% for field in form %}
+        <div class="form-group {% if field.name == 'description' or field.name == 'address' %}form-group-wide{% endif %}">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span aria-hidden="true">*</span>{% endif %}</label>
+          {{ field }}
+          {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+          {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+      <div class="form-group form-group-wide">
+        <label class="form-label" for="{{ image_form.images.id_for_label }}">{{ image_form.images.label }}</label>
+        {{ image_form.images }}
+        <small>{{ image_form.images.help_text }}</small>
+        {% for error in image_form.images.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">{% if ad %}ذخیره تغییرات{% else %}ثبت آگهی{% endif %}</button>
+    <a href="{% url 'dashboard:my_ads' %}" class="btn btn-outline">انصراف</a>
+  </form>
+</section>
+{% endblock %}

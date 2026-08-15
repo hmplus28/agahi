@@ -1,22 +1,30 @@
-```
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*.so
 .Python
 env/
 venv/
 .venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
+
+# Django and local data
+.env
+.env.*
+!.env.example
+db.sqlite3
+media/
+staticfiles/
+
+# Test and tooling artifacts
 .coverage
 .coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.cache/
 *.log
+
+# Editors and operating systems
+.vscode/
+.idea/
 .DS_Store
-```

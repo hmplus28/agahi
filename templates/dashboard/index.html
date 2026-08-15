@@ -1,109 +1,36 @@
 {% extends 'base/base.html' %}
 
-{% block title %}پنل کاربری - نیازمندی‌ها{% endblock %}
+{% block title %}داشبورد کاربری | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: 2rem;">
-    <div class="grid grid-4" style="grid-template-columns: 250px 1fr; gap: 2rem;">
-        <!-- Sidebar -->
-        <aside>
-            <div class="card">
-                <div style="text-align: center; padding: 1rem 0;">
-                    <div style="width: 80px; height: 80px; background: var(--primary-color); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
-                        {{ user.first_name|default:user.mobile|slice:":1"|upper }}
-                    </div>
-                    <h3>{{ user.get_full_name|default:user.mobile }}</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.875rem;">{{ user.mobile }}</p>
-                </div>
-                
-                <nav style="margin-top: 1rem;">
-                    <a href="{% url 'dashboard:index' %}" class="btn btn-outline" style="display: block; margin-bottom: 0.5rem; text-align: right;">📊 داشبورد</a>
-                    <a href="{% url 'dashboard:my_ads' %}" class="btn btn-outline" style="display: block; margin-bottom: 0.5rem; text-align: right;">📝 آگهی‌های من</a>
-                    <a href="{% url 'ads:ad_create' %}" class="btn btn-primary" style="display: block; margin-bottom: 0.5rem; text-align: center;">➕ ثبت آگهی جدید</a>
-                    <a href="{% url 'billing:order_list' %}" class="btn btn-outline" style="display: block; margin-bottom: 0.5rem; text-align: right;">💳 سفارش‌ها</a>
-                    <a href="{% url 'support:ticket_list' %}" class="btn btn-outline" style="display: block; margin-bottom: 0.5rem; text-align: right;">🎫 تیکت‌ها</a>
-                    <a href="{% url 'dashboard:profile' %}" class="btn btn-outline" style="display: block; margin-bottom: 0.5rem; text-align: right;">⚙️ تنظیمات پروفایل</a>
-                    <a href="{% url 'accounts:logout' %}" class="btn btn-danger" style="display: block; text-align: center;">خروج</a>
-                </nav>
-            </div>
-        </aside>
-        
-        <!-- Main Content -->
-        <main>
-            <h1 class="card-title">داشبورد</h1>
-            
-            <!-- Stats Cards -->
-            <div class="grid grid-4" style="margin-bottom: 2rem;">
-                <div class="card" style="text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
-                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-color);">{{ ads_stats.total }}</div>
-                    <div style="color: var(--text-secondary);">کل آگهی‌ها</div>
-                </div>
-                <div class="card" style="text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">✅</div>
-                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--success-color);">{{ ads_stats.active }}</div>
-                    <div style="color: var(--text-secondary);">آگهی‌های فعال</div>
-                </div>
-                <div class="card" style="text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
-                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning-color);">{{ ads_stats.pending }}</div>
-                    <div style="color: var(--text-secondary);">در انتظار بررسی</div>
-                </div>
-                <div class="card" style="text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div>
-                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--danger-color);">{{ ads_stats.expired }}</div>
-                    <div style="color: var(--text-secondary);">منقضی شده</div>
-                </div>
-            </div>
-            
-            <!-- Recent Ads -->
-            <div class="card" style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2 class="card-title" style="margin-bottom: 0;">آخرین آگهی‌ها</h2>
-                    <a href="{% url 'dashboard:my_ads' %}" class="btn btn-outline" style="padding: 0.5rem 1rem;">مشاهده همه</a>
-                </div>
-                
-                {% for ad in recent_ads %}
-                <div style="display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border-color); {% if forloop.last %}border-bottom: none{% endif %}">
-                    {% if ad.images.first.image %}
-                    <img src="{{ ad.images.first.image.url }}" alt="{{ ad.title }}" style="width: 80px; height: 60px; object-fit: cover; border-radius: 0.5rem;">
-                    {% else %}
-                    <div style="width: 80px; height: 60px; background: #e2e8f0; border-radius: 0.5rem;"></div>
-                    {% endif %}
-                    
-                    <div style="flex: 1;">
-                        <h3 style="font-size: 1rem; margin-bottom: 0.25rem;">{{ ad.title|truncatechars:50 }}</h3>
-                        <div style="font-size: 0.875rem; color: var(--text-secondary);">
-                            {{ ad.created_at|timesince }} پیش
-                            {% if ad.location_city %} • {{ ad.location_city.name }}{% endif %}
-                        </div>
-                    </div>
-                    
-                    <div>
-                        {% if ad.status == 'active' %}
-                        <span class="badge badge-success">فعال</span>
-                        {% elif ad.status == 'pending' %}
-                        <span class="badge badge-warning">در انتظار بررسی</span>
-                        {% elif ad.status == 'expired' %}
-                        <span class="badge badge-danger">منقضی شده</span>
-                        {% endif %}
-                    </div>
-                </div>
-                {% empty %}
-                <p style="text-align: center; color: var(--text-secondary); padding: 2rem 0;">هنوز آگهی ثبت نکرده‌اید.</p>
-                {% endfor %}
-            </div>
-            
-            <!-- Support Tickets -->
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2 class="card-title" style="margin-bottom: 0;">پشتیبانی</h2>
-                    <a href="{% url 'support:ticket_create' %}" class="btn btn-primary" style="padding: 0.5rem 1rem;">ثبت تیکت جدید</a>
-                </div>
-                
-                <p>تیکت‌های باز: <strong>{{ open_tickets }}</strong></p>
-            </div>
-        </main>
-    </div>
-</div>
+<section class="container page-section">
+  <header class="section-heading"><h1>داشبورد کاربری</h1><a class="btn btn-primary" href="{% url 'ads:ad_create' %}">ثبت آگهی</a></header>
+  <nav class="dashboard-nav" aria-label="منوی کاربر">
+    <a href="{% url 'dashboard:index' %}">داشبورد</a>
+    <a href="{% url 'dashboard:my_ads' %}">آگهی‌های من</a>
+    <a href="{% url 'dashboard:profile' %}">پروفایل</a>
+    <a href="{% url 'support:ticket_list' %}">پشتیبانی</a>
+    <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" class="link-button">خروج</button></form>
+  </nav>
+
+  <div class="grid grid-4 stats-grid">
+    <article class="card"><strong>{{ ads_stats.total }}</strong><span>کل آگهی‌ها</span></article>
+    <article class="card"><strong>{{ ads_stats.active }}</strong><span>فعال</span></article>
+    <article class="card"><strong>{{ ads_stats.pending }}</strong><span>در انتظار بررسی</span></article>
+    <article class="card"><strong>{{ ads_stats.expired }}</strong><span>منقضی‌شده</span></article>
+  </div>
+
+  <section class="card dashboard-section">
+    <div class="section-heading"><h2>آخرین آگهی‌ها</h2><a href="{% url 'dashboard:my_ads' %}">مشاهده همه</a></div>
+    <ul class="simple-list">
+      {% for ad in recent_ads %}
+        <li><a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a><span>{{ ad.get_status_display }}</span><time datetime="{{ ad.created_at|date:'c' }}">{{ ad.created_at|timesince }} پیش</time></li>
+      {% empty %}
+        <li>هنوز آگهی ثبت نکرده‌اید.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="card dashboard-section"><h2>پشتیبانی</h2><p>تیکت‌های باز: <strong>{{ open_tickets }}</strong></p><a href="{% url 'support:ticket_list' %}">مشاهدهٔ تیکت‌ها</a></section>
+</section>
 {% endblock %}
