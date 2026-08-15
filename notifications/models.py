@@ -53,6 +53,9 @@ class SMSLog(models.Model):
     )
     sent_at = models.DateTimeField(_('sent at'), null=True, blank=True)
     response = models.TextField(_('response'), blank=True)
+    attempts = models.PositiveSmallIntegerField(_('attempts'), default=0)
+    last_attempt_at = models.DateTimeField(_('last attempt at'), null=True, blank=True)
+    next_attempt_at = models.DateTimeField(_('next attempt at'), null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(_('created at'), auto_now_add=True)
     
     class Meta:
@@ -62,6 +65,7 @@ class SMSLog(models.Model):
         indexes = [
             models.Index(fields=['ad', 'type', 'created_at']),
             models.Index(fields=['mobile', 'created_at']),
+            models.Index(fields=['status', 'next_attempt_at']),
         ]
     
     def __str__(self):

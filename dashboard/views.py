@@ -2,12 +2,13 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from django.shortcuts import redirect, render
 
-from ads.models import Ad, AdStatus
-from billing.models import Order
 from accounts.models import Profile
+from ads.models import Ad, AdStatus
+from billing.models import AdService, Order
+from locations.models import City, Province
 from support.models import Ticket
 
 
@@ -34,7 +35,10 @@ def my_ads(request):
     ads = (
         Ad.objects.filter(user=request.user)
         .select_related('category', 'city')
-        .prefetch_related('images')
+        .prefetch_related(
+            'images',
+            Prefetch('services', queryset=AdService.objects.filter(status='active').select_related('tariff')),
+        )
         .order_by('-created_at')
     )
     status = request.GET.get('status', '')
@@ -43,7 +47,7 @@ def my_ads(request):
         ads = ads.filter(status=status)
     query = request.GET.get('q', '').strip()
     if query:
-        ads = ads.filter(Q(title__icontains=query) | Q(description__icontains=query))
+        ads = ads.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(code__startswith=query))
     page_obj = Paginator(ads, 20).get_page(request.GET.get('page'))
     return render(
         request,
@@ -55,15 +59,32 @@ def my_ads(request):
 @login_required
 def profile(request):
     profile_obj, _ = Profile.objects.get_or_create(user=request.user)
+    provinces = Province.objects.filter(is_active=True).order_by('sort_order', 'name')
+    cities = City.objects.filter(is_active=True).select_related('province').order_by('sort_order', 'name')
     if request.method == 'POST':
-        request.user.first_name = request.POST.get('first_name', '').strip()
-        request.user.last_name = request.POST.get('last_name', '').strip()
-        request.user.email = request.POST.get('email', '').strip()
-        request.user.save(update_fields=['first_name', 'last_name', 'email'])
-        profile_obj.business_name = request.POST.get('business_name', '').strip()
-        profile_obj.address = request.POST.get('address', '').strip()
-        profile_obj.postal_code = request.POST.get('postal_code', '').strip()
-        profile_obj.save(update_fields=['business_name', 'address', 'postal_code', 'updated_at'])
-        messages.success(request, 'اطلاعات پروفایل به‌روزرسانی شد.')
-        return redirect('dashboard:profile')
-    return render(request, 'dashboard/profile.html', {'profile': profile_obj})
+        province = provinces.filter(pk=request.POST.get('province')).first()
+        city = cities.filter(pk=request.POST.get('city')).first()
+        if city and not province:
+            messages.error(request, 'برای انتخاب شهر، استان مربوط را نیز انتخاب کنید.')
+        elif city and city.province_id != province.pk:
+            messages.error(request, 'شهر انتخاب‌شده متعلق به استان انتخاب‌شده نیست.')
+        else:
+            request.user.first_name = request.POST.get('first_name', '').strip()
+            request.user.last_name = request.POST.get('last_name', '').strip()
+            request.user.email = request.POST.get('email', '').strip()
+            request.user.save(update_fields=['first_name', 'last_name', 'email'])
+            profile_obj.business_name = request.POST.get('business_name', '').strip()
+            profile_obj.address = request.POST.get('address', '').strip()
+            profile_obj.postal_code = request.POST.get('postal_code', '').strip()
+            profile_obj.province = province
+            profile_obj.city = city
+            profile_obj.save(update_fields=[
+                'business_name', 'address', 'postal_code', 'province', 'city', 'updated_at',
+            ])
+            messages.success(request, 'اطلاعات پروفایل به‌روزرسانی شد.')
+            return redirect('dashboard:profile')
+    return render(request, 'dashboard/profile.html', {
+        'profile': profile_obj,
+        'provinces': provinces,
+        'cities': cities,
+    })

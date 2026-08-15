@@ -4,6 +4,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from ads import views as ad_views
+from locations import views as location_views
 from seo import views as seo_views
 
 urlpatterns = [
@@ -20,6 +22,13 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls', namespace='dashboard')),
     path('robots.txt', seo_views.robots_txt, name='robots_txt'),
     path('sitemap.xml', seo_views.sitemap_xml, name='sitemap_xml'),
+    path('sitemaps/ads-<int:page>.xml', seo_views.sitemap_ads, name='sitemap_ads'),
+    path('sitemaps/categories.xml', seo_views.sitemap_categories, name='sitemap_categories'),
+    path('sitemaps/locations.xml', seo_views.sitemap_locations, name='sitemap_locations'),
+    path('ad/<int:code>/<str:slug>/', ad_views.ad_detail_by_code, name='ad_detail'),
+    # Keep these catch-all public landing routes last so application and SEO paths win first.
+    path('<slug:location_slug>/<slug:category_slug>/', location_views.location_category_detail, name='location_category_detail'),
+    path('<slug:slug>/', location_views.location_detail, name='location_detail'),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,9 @@
+# Replace USERNAME, PROJECT_DIR, VENV_PYTHON and private paths before adding to cPanel Cron Jobs.
+# Local verified database backup: every day at 03:15
+15 3 * * * cd /home/USERNAME/PROJECT_DIR && /home/USERNAME/venv/bin/python manage.py backup_database >> /home/USERNAME/private/agahi-backup.log 2>&1
+
+# Local + encrypted external copy: every day at 03:30 (use this instead of the local-only line if remote backup is configured)
+30 3 * * * cd /home/USERNAME/PROJECT_DIR && /home/USERNAME/venv/bin/python manage.py backup_database --encrypt --upload >> /home/USERNAME/private/agahi-backup.log 2>&1
+
+# Queue and dispatch daily expiry reminders: every day at 09:10
+10 9 * * * cd /home/USERNAME/PROJECT_DIR && /home/USERNAME/venv/bin/python manage.py send_notifications --type all --dispatch >> /home/USERNAME/private/agahi-notifications.log 2>&1

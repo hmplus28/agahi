@@ -1,9 +1,14 @@
+from io import BytesIO
+
 from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
+from PIL import Image
 
 from accounts.models import User
-from ads.models import Ad, AdImage, AdStatus
+from ads.forms import AdForm
+from ads.models import Ad, AdImage, AdReport, AdStatus, ForbiddenWord
 from ads.services.lifecycle import transition
 from locations.models import City, Country, Province
 from taxonomy.models import Category
@@ -42,12 +47,12 @@ class AdvertisementFlowTests(TestCase):
 
     def test_public_detail_is_rendered_and_counts_once_per_session(self):
         ad = self.make_ad()
-        response = self.client.get(reverse('ads:ad_detail', args=[ad.pk]))
+        response = self.client.get(ad.get_absolute_url())
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'index,follow')
         ad.refresh_from_db()
         self.assertEqual(ad.views_count, 1)
-        self.client.get(reverse('ads:ad_detail', args=[ad.pk]))
+        self.client.get(ad.get_absolute_url())
         ad.refresh_from_db()
         self.assertEqual(ad.views_count, 1)
 
@@ -128,3 +133,77 @@ class AdvertisementFlowTests(TestCase):
         response = self.client.get(reverse('ads:ad_list'))
         self.assertContains(response, 'fetchpriority="high"')
         self.assertContains(response, 'loading="lazy"')
+
+    def _form_payload(self, **overrides):
+        data = {
+            'category': self.category.pk,
+            'title': 'تعمیرات یخچال در محل',
+            'description': 'تعمیرات تخصصی برای همه مدل‌های یخچال در تهران',
+            'keywords': 'تعمیرات, یخچال',
+            'price': '',
+            'country': self.city.province.country_id,
+            'province': self.city.province_id,
+            'city': self.city.pk,
+            'address': '',
+            'mobile_1': '09120000000',
+            'show_mobile_1': 'on',
+            'mobile_2': '',
+            'phone_1': '',
+            'phone_2': '',
+            'email': '',
+            'full_name': 'کاربر آزمایشی',
+            'business_name': '',
+        }
+        data.update(overrides)
+        return data
+
+    def test_forbidden_word_is_rejected_by_ad_form(self):
+        ForbiddenWord.objects.create(word='غیرمجاز', normalized_word='غیرمجاز')
+        form = AdForm(data=self._form_payload(description='این متن شامل عبارت غیرمجاز است.'))
+        self.assertFalse(form.is_valid())
+        self.assertIn('عبارت غیرمجاز', form.non_field_errors().as_text())
+
+    def test_duplicate_is_rejected_when_creating_ad(self):
+        self.make_ad()
+        form = AdForm(data=self._form_payload(title='تعمیرات یخچال', description='تعمیرات تخصصی و فوری یخچال در تهران'))
+        self.assertFalse(form.is_valid())
+        self.assertIn('آگهی مشابهی', form.non_field_errors().as_text())
+
+    def test_expired_ad_hides_contact_for_public_visitors(self):
+        ad = self.make_ad(status=AdStatus.EXPIRED, mobile_1='09121112222')
+        response = self.client.get(ad.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'این آگهی منقضی شده است')
+        self.assertNotContains(response, '09121112222')
+        self.assertContains(response, 'noindex,follow')
+
+    def test_owner_can_submit_optimized_permit_for_review(self):
+        ad = self.make_ad(status=AdStatus.NEEDS_PERMIT)
+        image_stream = BytesIO()
+        Image.new('RGB', (24, 18), 'white').save(image_stream, format='PNG')
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse('ads:ad_permit_upload', args=[ad.pk]),
+            data={
+                'permit_number': 'PERMIT-1',
+                'issuer': 'مرجع آزمایشی',
+                'issued_at': '2026-01-01',
+                'image': SimpleUploadedFile('permit.png', image_stream.getvalue(), content_type='image/png'),
+            },
+        )
+        self.assertRedirects(response, reverse('dashboard:my_ads'))
+        ad.refresh_from_db()
+        self.assertEqual(ad.permit.status, 'pending')
+        self.assertTrue(ad.permit.image.name.endswith('.webp'))
+
+    def test_public_report_is_saved_and_rate_limited(self):
+        cache.clear()
+        ad = self.make_ad()
+        url = reverse('ads:ad_report_create', args=[ad.pk])
+        reason = AdReport.REASON_CHOICES[0][0]
+        for _ in range(5):
+            response = self.client.post(url, {'reason': reason, 'description': 'متن گزارش آزمایشی'})
+            self.assertEqual(response.status_code, 302)
+        throttled = self.client.post(url, {'reason': reason, 'description': 'گزارش اضافی'})
+        self.assertEqual(throttled.status_code, 429)
+        self.assertEqual(AdReport.objects.filter(ad=ad).count(), 5)

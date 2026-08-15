@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -333,6 +334,13 @@ class Payment(models.Model):
             models.Index(fields=['status', 'created_at']),
             models.Index(fields=['user', 'status']),
             models.Index(fields=['ad', 'status']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['gateway', 'authority'],
+                condition=~Q(authority=''),
+                name='billing_unique_gateway_authority',
+            ),
         ]
     
     def __str__(self):

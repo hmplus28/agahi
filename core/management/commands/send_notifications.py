@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from ads.models import Ad, AdStatus
 from notifications.models import SMSLog
+from notifications.services.dispatch import dispatch_pending_sms
 
 
 class Command(BaseCommand):
@@ -14,6 +15,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--type', choices=['expiring_soon', 'expired', 'all'], default='expiring_soon')
         parser.add_argument('--days', type=int, default=3, help='Days before expiration for warning messages.')
+        parser.add_argument('--dispatch', action='store_true', help='Send due queued messages through the configured provider.')
+        parser.add_argument('--batch-size', type=int, default=100, help='Maximum queued messages to attempt when dispatching.')
 
     def handle(self, *args, **options):
         created = 0
@@ -22,6 +25,10 @@ class Command(BaseCommand):
         if options['type'] in {'expired', 'all'}:
             created += self._queue_expired()
         self.stdout.write(self.style.SUCCESS(f'{created} اعلان برای ارسال در صف ثبت شد.'))
+        if options['dispatch']:
+            results = dispatch_pending_sms(batch_size=max(1, options['batch_size']))
+            summary = '، '.join(f'{key}={value}' for key, value in results.items())
+            self.stdout.write(self.style.SUCCESS(f'نتیجهٔ ارسال پیامک: {summary}'))
 
     @staticmethod
     def _logged_recently(ad, marker, now):

@@ -1,4 +1,6 @@
-from django.test import TestCase
+from django.core.exceptions import ValidationError
+from django.test import TestCase, override_settings
+from django.urls import reverse
 
 from accounts.models import User
 from ads.models import Ad, AdStatus
@@ -25,5 +27,34 @@ class BillingTests(TestCase):
         self.ad.refresh_from_db()
         self.assertEqual(payment.status, 'successful')
         self.assertEqual(invoice.status, 'paid')
-        self.assertEqual(self.ad.status, AdStatus.PENDING_APPROVAL)
+        self.assertEqual(self.ad.status, AdStatus.ACTIVE)
         self.assertIsNotNone(self.ad.expires_at)
+        self.assertEqual(self.ad.status_history.latest('created_at').to_status, AdStatus.ACTIVE)
+
+    def test_expired_ad_rejects_non_renewal_service(self):
+        tariff = Tariff.objects.create(
+            code='featured-expired',
+            title='ویژه',
+            price=0,
+            service_type='featured',
+            duration_days=30,
+        )
+        with self.assertRaisesMessage(ValidationError, 'فقط خدمت تمدید'):
+            create_checkout(user=self.user, tariff=tariff, ad=self.ad)
+
+    @override_settings(DEFAULT_PAYMENT_GATEWAY='zarinpal', ZARINPAL_MERCHANT_ID='')
+    def test_paid_checkout_without_gateway_credentials_enters_manual_review(self):
+        tariff = Tariff.objects.create(
+            code='paid-renewal',
+            title='تمدید پولی',
+            price=100000,
+            service_type='annual_renewal',
+            duration_days=30,
+        )
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('billing:checkout', args=[tariff.pk, self.ad.pk]))
+        self.assertRedirects(response, reverse('billing:invoice_list'))
+        payment = Payment.objects.get(ad=self.ad)
+        self.assertEqual(payment.status, 'manual_review')
+        self.assertEqual(payment.gateway, 'zarinpal')
+        self.assertIn('پیکربندی', payment.admin_note)

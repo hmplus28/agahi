@@ -2,6 +2,7 @@
 
 {% block title %}{{ site_settings.site_name|default:'نیازمندی‌ها' }} | آگهی‌های آنلاین{% endblock %}
 {% block meta_description %}آگهی‌های خرید، فروش و خدمات را در شهر خود پیدا کنید یا آگهی جدید ثبت کنید.{% endblock %}
+{% block structured_data %}<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"{{ site_settings.site_name|default:'نیازمندی‌ها'|escapejs }}","url":"{{ canonical_url|escapejs }}"}</script>{% endblock %}
 
 {% block content %}
 <section class="hero">
@@ -29,6 +30,13 @@
     {% endfor %}
   </div>
 </section>
+
+{% if location_links %}
+<section class="container page-section" aria-labelledby="locations-heading">
+  <div class="section-heading"><h2 id="locations-heading">آگهی‌ها بر اساس شهر</h2></div>
+  <nav class="dashboard-nav" aria-label="شهرهای دارای آگهی">{% for city in location_links %}<a class="btn btn-outline" href="{% url 'location_detail' city.slug %}">آگهی‌های {{ city.name }}</a>{% endfor %}</nav>
+</section>
+{% endif %}
 
 <section class="container page-section" aria-labelledby="latest-heading">
   <div class="section-heading"><h2 id="latest-heading">تازه‌ترین آگهی‌ها</h2><a href="{% url 'ads:ad_list' %}">مشاهدهٔ همه</a></div>

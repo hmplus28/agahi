@@ -1,0 +1,33 @@
+{% extends 'base/base.html' %}
+
+{% block title %}داشبورد مدیریت | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+
+{% block content %}
+<section class="container page-section">
+  <header class="page-heading"><h1>داشبورد مدیریت</h1><p>نمای عملیاتی وضعیت آگهی‌ها، پرداخت‌ها، تیکت‌ها و گزارش‌های جدید.</p></header>
+  <div class="stats-grid grid grid-4">
+    <article class="card"><strong>{{ ad_stats.total }}</strong><span>کل آگهی‌ها</span></article>
+    <article class="card"><strong>{{ ad_stats.pending }}</strong><span>در انتظار تأیید</span></article>
+    <article class="card"><strong>{{ ad_stats.active }}</strong><span>فعال</span></article>
+    <article class="card"><strong>{{ ad_stats.expired }}</strong><span>منقضی</span></article>
+    <article class="card"><strong>{{ ad_stats.needs_permit }}</strong><span>نیازمند مجوز</span></article>
+    <article class="card"><strong>{{ ad_stats.inactive }}</strong><span>غیرفعال</span></article>
+    <article class="card"><strong>{{ ad_stats.deleted }}</strong><span>حذف‌شده</span></article>
+    <article class="card"><strong>{{ payments_today }}</strong><span>پرداخت موفق امروز</span></article>
+    <article class="card"><strong>{{ open_tickets }}</strong><span>تیکت باز</span></article>
+    <article class="card"><strong>{{ new_reports }}</strong><span>گزارش جدید</span></article>
+  </div>
+  <section class="dashboard-section card">
+    <h2>مدیریت سریع</h2>
+    <nav class="dashboard-nav" aria-label="مدیریت سریع">
+      <a class="btn btn-outline" href="{% url 'admin:ads_ad_changelist' %}?status__exact=pending_approval">آگهی‌های در انتظار</a>
+      <a class="btn btn-outline" href="{% url 'admin:ads_adpermit_changelist' %}?status__exact=pending">مجوزهای در انتظار</a>
+      <a class="btn btn-outline" href="{% url 'admin:billing_payment_changelist' %}">پرداخت‌ها</a>
+      <a class="btn btn-outline" href="{% url 'admin:support_ticket_changelist' %}">تیکت‌ها</a>
+      <a class="btn btn-outline" href="{% url 'admin:ads_adreport_changelist' %}?status__exact=new">گزارش‌های تخلف</a>
+      <a class="btn btn-primary" href="{% url 'admin:index' %}">مدیریت کامل</a>
+    </nav>
+  </section>
+</section>
+{% endblock %}

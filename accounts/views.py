@@ -6,6 +6,8 @@ from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
+from core.rate_limit import rate_limit
+
 from .forms import LoginForm, RegisterForm
 
 
@@ -16,6 +18,7 @@ def _safe_next(request):
     return None
 
 
+@rate_limit('register', limit=5, period=3600)
 def register(request):
     if request.user.is_authenticated:
         return redirect('dashboard:index')
@@ -28,6 +31,7 @@ def register(request):
     return render(request, 'accounts/register.html', {'form': form, 'next': _safe_next(request)})
 
 
+@rate_limit('login', limit=10, period=900)
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard:index')

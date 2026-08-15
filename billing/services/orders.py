@@ -6,7 +6,17 @@ from django.db import transaction
 from django.utils import timezone
 
 from ads.models import AdStatus
+from ads.services.lifecycle import transition
 from billing.models import AdService, Invoice, InvoiceItem, Order, OrderItem, Payment, Tariff
+
+
+def validate_tariff_purchase(*, tariff, ad):
+    """Enforce service eligibility in the backend, not merely in the user interface."""
+    renewal_types = {'annual_ad', 'annual_renewal'}
+    if ad.status == AdStatus.EXPIRED and tariff.service_type not in renewal_types:
+        raise ValidationError('برای آگهی منقضی فقط خدمت تمدید قابل خرید است.')
+    if ad.status not in {AdStatus.ACTIVE, AdStatus.EXPIRED}:
+        raise ValidationError('در وضعیت فعلی خرید خدمت برای این آگهی مجاز نیست.')
 
 
 def create_checkout(*, user, tariff, ad):
@@ -15,6 +25,7 @@ def create_checkout(*, user, tariff, ad):
         raise PermissionDenied('شما مجاز به خرید خدمت برای این آگهی نیستید.')
     if not tariff.is_active:
         raise ValidationError('این تعرفه فعال نیست.')
+    validate_tariff_purchase(tariff=tariff, ad=ad)
     with transaction.atomic():
         amount = tariff.price
         order = Order.objects.create(user=user, total_amount=amount)
@@ -57,9 +68,8 @@ def _apply_service(*, ad, tariff):
         base = ad.expires_at if ad.expires_at and ad.expires_at > now else now
         ad.expires_at = base + timedelta(days=tariff.duration_days)
         update_fields.append('expires_at')
-        if ad.status == AdStatus.EXPIRED:
-            ad.status = AdStatus.PENDING_APPROVAL
-            update_fields.append('status')
+        # A verified paid renewal reactivates an expired ad through the
+        # central lifecycle service after its new expiry date is persisted.
     elif tariff.service_type == 'featured':
         ad.is_featured = True
         update_fields.append('is_featured')
@@ -77,8 +87,9 @@ def _apply_service(*, ad, tariff):
         ad.auto_ladder = True
         update_fields.append('auto_ladder')
     if update_fields:
-        update_fields.append('updated_at')
-        ad.save(update_fields=update_fields)
+        ad.save(update_fields=[*dict.fromkeys(update_fields), 'updated_at'])
+    if tariff.service_type in {'annual_ad', 'annual_renewal'} and ad.status == AdStatus.EXPIRED:
+        transition(ad, AdStatus.ACTIVE, reason='تمدید آگهی پس از پرداخت موفق')
     return service
 
 

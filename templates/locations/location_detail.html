@@ -1,0 +1,52 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{% if category %}آگهی {{ category.title }} در {{ city.name }}{% else %}آگهی‌های {{ city.name }}{% endif %} | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
+{% block meta_description %}{{ intro }}{% endblock %}
+{% block robots %}{{ seo_robots }}{% endblock %}
+{% block canonical %}{{ canonical_url }}{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{% for label, url in breadcrumbs %}{"@type":"ListItem","position":{{ forloop.counter }},"name":"{{ label|escapejs }}"{% if url %},"item":"{{ request.scheme }}://{{ request.get_host }}{{ url }}"{% endif %}}{% if not forloop.last %},{% endif %}{% endfor %}]}</script>
+{% endblock %}
+
+{% block content %}
+<section class="container page-section">
+  <nav class="breadcrumbs" aria-label="مسیر صفحه">
+    {% for label, url in breadcrumbs %}{% if url %}<a href="{{ url }}">{{ label }}</a>{% else %}<span>{{ label }}</span>{% endif %}{% if not forloop.last %}<span aria-hidden="true">/</span>{% endif %}{% endfor %}
+  </nav>
+  <header class="page-heading">
+    <h1>{% if category %}آگهی {{ category.title }} در {{ city.name }}{% else %}آگهی‌های {{ city.name }}{% endif %}</h1>
+    <p>{{ intro }}</p>
+  </header>
+
+  {% if categories %}
+  <section class="dashboard-section" aria-labelledby="location-categories-title">
+    <h2 id="location-categories-title">دسته‌بندی‌های دارای آگهی در {{ city.name }}</h2>
+    <nav class="dashboard-nav" aria-label="دسته‌بندی‌های شهر">
+      {% for item in categories %}<a class="btn btn-outline" href="{% url 'location_category_detail' city.slug item.slug %}">{{ item.title }}</a>{% endfor %}
+    </nav>
+  </section>
+  {% endif %}
+
+  <section aria-labelledby="location-ads-title">
+    <h2 id="location-ads-title">{{ ad_count }} آگهی مرتبط</h2>
+    <div class="grid grid-4">
+      {% for ad in page_obj %}
+      <article class="ad-card">
+        <a href="{{ ad.get_absolute_url }}" class="ad-card-link">
+          {% with image=ad.images.all.0 %}{% if image %}<img class="ad-image" src="{{ image.image_thumb.url }}" width="{{ image.thumb_width }}" height="{{ image.thumb_height }}" alt="{{ ad.title }}" loading="lazy">{% else %}<div class="ad-image image-placeholder">بدون تصویر</div>{% endif %}{% endwith %}
+          <div class="ad-content"><h3 class="ad-title">{{ ad.title }}</h3><p class="ad-price">{{ ad.get_display_price }}</p><p class="ad-location">{{ city.name }}</p></div>
+        </a>
+      </article>
+      {% empty %}<p>فعلاً آگهی فعالی برای این صفحه وجود ندارد.</p>{% endfor %}
+    </div>
+  </section>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pagination" aria-label="صفحه‌بندی آگهی‌های مکان">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" rel="prev">قبلی</a>{% endif %}
+    <span class="current">{{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" rel="next">بعدی</a>{% endif %}
+  </nav>
+  {% endif %}
+</section>
+{% endblock %}

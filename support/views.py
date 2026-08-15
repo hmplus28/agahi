@@ -5,6 +5,8 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
+from core.rate_limit import rate_limit
+
 from .forms import TicketCreateForm, TicketMessageForm
 from .models import Ticket, TicketMessage
 
@@ -16,6 +18,7 @@ def ticket_list(request):
 
 
 @login_required
+@rate_limit('ticket-create', limit=8, period=3600)
 def ticket_create(request):
     form = TicketCreateForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -30,6 +33,7 @@ def ticket_create(request):
 
 
 @login_required
+@rate_limit('ticket-reply', limit=20, period=3600)
 def ticket_detail(request, pk):
     ticket = get_object_or_404(Ticket.objects.prefetch_related('messages__sender'), pk=pk)
     if ticket.user_id != request.user.id and not request.user.is_staff:

@@ -6,7 +6,8 @@
 {% block og_title %}{{ ad.title }}{% endblock %}
 {% block og_description %}{{ ad.description|truncatechars:155 }}{% endblock %}
 {% block structured_data %}
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"{{ ad.title|escapejs }}","description":"{{ ad.description|truncatechars:155|escapejs }}","url":"{{ canonical_url|escapejs }}","offers":{"@type":"Offer","priceCurrency":"IRR","availability":"https://schema.org/InStock"{% if ad.price %},"price":"{{ ad.price }}"{% endif %}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"{{ ad.title|escapejs }}","description":"{{ ad.description|truncatechars:155|escapejs }}","url":"{{ canonical_url|escapejs }}","offers":{"@type":"Offer","priceCurrency":"IRR","availability":"{% if is_expired_ad %}https://schema.org/OutOfStock{% else %}https://schema.org/InStock{% endif %}"{% if ad.price %},"price":"{{ ad.price }}"{% endif %}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"خانه","item":"{{ request.scheme }}://{{ request.get_host }}{% url 'core:home' %}"}{% if ad.category %},{"@type":"ListItem","position":2,"name":"{{ ad.category.title|escapejs }}","item":"{{ request.scheme }}://{{ request.get_host }}{{ ad.category.get_absolute_url }}"},{"@type":"ListItem","position":3,"name":"{{ ad.title|escapejs }}","item":"{{ canonical_url|escapejs }}"}{% else %},{"@type":"ListItem","position":2,"name":"{{ ad.title|escapejs }}","item":"{{ canonical_url|escapejs }}"}{% endif %}]}</script>
 {% endblock %}
 
 {% block content %}
@@ -16,6 +17,7 @@
     <span aria-hidden="true">/</span>
     {% if ad.category %}<a href="{% url 'taxonomy:category_detail_slug' ad.category.pk ad.category.slug %}">{{ ad.category.title }}</a>{% endif %}
   </nav>
+  {% if is_expired_ad %}<p class="alert alert-warning" role="status">این آگهی منقضی شده است. اطلاعات تماس آن برای بازدیدکنندگان عمومی نمایش داده نمی‌شود.</p>{% endif %}
   <header class="ad-detail-header">
     <p class="eyebrow">کد آگهی: {{ ad.code }}</p>
     <h1>{{ ad.title }}</h1>
@@ -42,14 +44,33 @@
 
   <aside class="contact-card" aria-label="اطلاعات تماس">
     <h2>اطلاعات تماس</h2>
-    {% if ad.show_mobile_1 %}<a href="tel:{{ ad.mobile_1 }}">{{ ad.mobile_1 }}</a>{% else %}<p>شمارهٔ تماس توسط ثبت‌کننده نمایش داده نشده است.</p>{% endif %}
-    {% if ad.phone_1 %}<a href="tel:{{ ad.phone_1 }}">{{ ad.phone_1 }}</a>{% endif %}
-    {% if ad.email %}<a href="mailto:{{ ad.email }}">{{ ad.email }}</a>{% endif %}
+    {% if mask_contact %}
+      <p>اطلاعات تماس این آگهی پس از انقضا نمایش داده نمی‌شود.</p>
+    {% else %}
+      {% if ad.full_name %}<p>{{ ad.full_name }}</p>{% endif %}
+      {% if ad.business_name %}<p>{{ ad.business_name }}</p>{% endif %}
+      {% if ad.show_mobile_1 %}<a href="tel:{{ ad.mobile_1 }}">{{ ad.mobile_1 }}</a>{% else %}<p>شمارهٔ تماس توسط ثبت‌کننده نمایش داده نشده است.</p>{% endif %}
+      {% if ad.mobile_2 %}<a href="tel:{{ ad.mobile_2 }}">{{ ad.mobile_2 }}</a>{% endif %}
+      {% if ad.phone_1 %}<a href="tel:{{ ad.phone_1 }}">{{ ad.phone_1 }}</a>{% endif %}
+      {% if ad.phone_2 %}<a href="tel:{{ ad.phone_2 }}">{{ ad.phone_2 }}</a>{% endif %}
+      {% if ad.email %}<a href="mailto:{{ ad.email }}">{{ ad.email }}</a>{% endif %}
+    {% endif %}
   </aside>
 
-  {% if ad.links.exists %}
+  {% if ad.links.exists and not mask_contact %}
   <section><h2>لینک‌های مرتبط</h2><ul>{% for link in ad.links.all %}{% if link.is_active %}<li><a href="{{ link.url }}" rel="ugc noopener" target="_blank">{{ link.get_type_display }}</a></li>{% endif %}{% endfor %}</ul></section>
   {% endif %}
+
+  <section class="dashboard-section" aria-labelledby="report-ad-title">
+    <h2 id="report-ad-title">گزارش تخلف</h2>
+    <form method="post" action="{% url 'ads:ad_report_create' ad.pk %}" class="ad-form" novalidate>
+      {% csrf_token %}
+      <div class="form-grid">
+        {% for field in report_form %}<div class="form-group"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endfor %}
+      </div>
+      <button class="btn btn-outline" type="submit">ثبت گزارش</button>
+    </form>
+  </section>
 </article>
 
 {% if related_ads %}

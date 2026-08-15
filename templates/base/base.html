@@ -27,6 +27,7 @@
         <li><a href="{% url 'taxonomy:category_list' %}">دسته‌بندی‌ها</a></li>
         {% if user.is_authenticated %}
           <li><a href="{% url 'dashboard:index' %}">پنل کاربری</a></li>
+          {% if user.is_staff %}<li><a href="{% url 'dashboard:staff_overview' %}">مدیریت</a></li>{% endif %}
           <li><form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="link-button" type="submit">خروج</button></form></li>
         {% else %}
           <li><a href="{% url 'accounts:login' %}">ورود</a></li>

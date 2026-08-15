@@ -13,16 +13,24 @@
   </form>
   <div class="card table-wrap">
     <table>
-      <thead><tr><th>آگهی</th><th>شهر</th><th>وضعیت</th><th>بازدید</th><th>اقدام</th></tr></thead>
+      <thead><tr><th>تصویر</th><th>آگهی</th><th>شهر</th><th>تاریخ</th><th>وضعیت</th><th>بازدید</th><th>خدمات</th><th>اقدام</th></tr></thead>
       <tbody>
       {% for ad in page_obj %}
         <tr>
-          <td><a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a><small>{{ ad.code }}</small></td>
+          <td>{% with image=ad.images.all.0 %}{% if image %}<img src="{{ image.image_thumb.url }}" width="56" height="56" alt="" loading="lazy">{% else %}—{% endif %}{% endwith %}</td>
+          <td><a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a><small>کد: {{ ad.code }}</small></td>
           <td>{% if ad.city %}{{ ad.city.name }}{% else %}—{% endif %}</td>
+          <td>{{ ad.created_at|date:'Y/m/d' }}</td>
           <td>{{ ad.get_status_display }}</td><td>{{ ad.views_count }}</td>
-          <td><a href="{% url 'billing:tariff_list' ad.pk %}">خدمات</a> {% if ad.can_edit %}<a href="{% url 'ads:ad_edit' ad.pk %}">ویرایش</a>{% endif %} <form class="inline-form" method="post" action="{% url 'ads:ad_delete' ad.pk %}">{% csrf_token %}<button class="link-button" type="submit">حذف</button></form></td>
+          <td>{% for service in ad.services.all %}{{ service.tariff.title }}{% if not forloop.last %}، {% endif %}{% empty %}—{% endfor %}</td>
+          <td>
+            <a href="{% url 'billing:tariff_list' ad.pk %}">{% if ad.can_renew %}تمدید{% else %}خدمات{% endif %}</a>
+            {% if ad.can_edit %}<a href="{% url 'ads:ad_edit' ad.pk %}">ویرایش</a> <a href="{% url 'ads:ad_links' ad.pk %}">لینک‌ها</a>{% endif %}
+            {% if ad.status == 'needs_permit' or ad.can_renew %}<a href="{% url 'ads:ad_permit_upload' ad.pk %}">مجوز</a>{% endif %}
+            <form class="inline-form" method="post" action="{% url 'ads:ad_delete' ad.pk %}">{% csrf_token %}<button class="link-button" type="submit">حذف</button></form>
+          </td>
         </tr>
-      {% empty %}<tr><td colspan="5">آگهی‌ای یافت نشد.</td></tr>{% endfor %}
+      {% empty %}<tr><td colspan="8">آگهی‌ای یافت نشد.</td></tr>{% endfor %}
       </tbody>
     </table>
   </div>

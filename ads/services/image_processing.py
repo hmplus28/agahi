@@ -1,5 +1,6 @@
-"""Safe image processing for advertisement uploads."""
+"""Safe image processing for advertisement and permit uploads."""
 from io import BytesIO
+from uuid import uuid4
 
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
@@ -33,6 +34,7 @@ def _validate_upload(uploaded_file):
 
 
 def _normalize_image(image):
+    """Correct orientation and strip metadata by creating a clean RGB image."""
     image = ImageOps.exif_transpose(image)
     if image.mode in {'RGBA', 'LA'}:
         background = Image.new('RGB', image.size, 'white')
@@ -71,6 +73,13 @@ def save_ad_image(ad, uploaded_file, *, sort_order=0, is_primary=False):
         sort_order=sort_order,
         is_primary=is_primary,
     )
+
+
+def save_permit_image(ad, uploaded_file):
+    """Return a sanitized WebP permit image without persisting the uploaded original."""
+    source = _normalize_image(_validate_upload(uploaded_file))
+    _image, optimized_file = _resized_webp(source, DISPLAY_MAX_SIZE)
+    return ContentFile(optimized_file.read(), name=f'permit-{ad.code}-{uuid4().hex[:12]}.webp')
 
 
 def validate_ad_image(uploaded_file):

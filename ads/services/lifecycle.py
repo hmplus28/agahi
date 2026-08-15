@@ -11,7 +11,7 @@ ALLOWED_TRANSITIONS = {
     AdStatus.ACTIVE: {AdStatus.PENDING_APPROVAL, AdStatus.INACTIVE, AdStatus.EXPIRED, AdStatus.DELETED},
     AdStatus.NEEDS_PERMIT: {AdStatus.PENDING_APPROVAL, AdStatus.ACTIVE, AdStatus.INACTIVE, AdStatus.DELETED},
     AdStatus.INACTIVE: {AdStatus.PENDING_APPROVAL, AdStatus.ACTIVE, AdStatus.DELETED},
-    AdStatus.EXPIRED: {AdStatus.PENDING_APPROVAL, AdStatus.DELETED},
+    AdStatus.EXPIRED: {AdStatus.PENDING_APPROVAL, AdStatus.ACTIVE, AdStatus.DELETED},
     AdStatus.DELETED: {AdStatus.INACTIVE},
 }
 

@@ -4,11 +4,13 @@ import re
 from django import forms
 from django.core.exceptions import ValidationError
 
+from core.models import SiteSettings
+from core.services.duplicate_detection import detect_duplicate_ads
 from core.services.persian_normalization import normalize_persian_text
 from locations.models import City, Country, Province
 from taxonomy.models import Category
 
-from .models import Ad
+from .models import Ad, AdReport, ForbiddenWord
 
 
 class MultipleFileInput(forms.ClearableFileInput):
@@ -22,11 +24,11 @@ class MultipleImageField(forms.FileField):
         if not data:
             return []
         files = data if isinstance(data, (list, tuple)) else [data]
-        return [super(MultipleImageField, self).clean(item, initial) for item in files]
+        return [super().clean(item, initial) for item in files]
 
 
 class AdForm(forms.ModelForm):
-    """Validate the public fields allowed in an advertisement workflow."""
+    """Validate public ad data consistently for create and edit flows."""
 
     class Meta:
         model = Ad
@@ -48,8 +50,8 @@ class AdForm(forms.ModelForm):
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'mobile_1': forms.TextInput(attrs={'class': 'form-control', 'dir': 'ltr', 'maxlength': 11}),
             'mobile_2': forms.TextInput(attrs={'class': 'form-control', 'dir': 'ltr', 'maxlength': 11}),
-            'phone_1': forms.TextInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
-            'phone_2': forms.TextInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
+            'phone_1': forms.TextInput(attrs={'class': 'form-control', 'dir': 'ltr', 'maxlength': 20}),
+            'phone_2': forms.TextInput(attrs={'class': 'form-control', 'dir': 'ltr', 'maxlength': 20}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
             'full_name': forms.TextInput(attrs={'class': 'form-control'}),
             'business_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -64,7 +66,9 @@ class AdForm(forms.ModelForm):
             'business_name': 'نام کسب‌وکار',
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, allow_duplicate=False, **kwargs):
+        """Allow a specifically-authorized workflow to override duplicate blocking."""
+        self.allow_duplicate = allow_duplicate
         super().__init__(*args, **kwargs)
         self.fields['category'].queryset = Category.objects.filter(is_active=True).order_by('sort_order', 'title')
         self.fields['country'].queryset = Country.objects.filter(is_active=True).order_by('sort_order', 'name')
@@ -100,6 +104,42 @@ class AdForm(forms.ModelForm):
             raise ValidationError('شماره موبایل باید با ۰۹ شروع و ۱۱ رقم باشد.')
         return value
 
+    def _validate_forbidden_words(self, cleaned_data):
+        """Reject configured forbidden expressions in every user-editable text field."""
+        haystack = normalize_persian_text(' '.join([
+            cleaned_data.get('title', ''),
+            cleaned_data.get('description', ''),
+            cleaned_data.get('keywords', ''),
+            cleaned_data.get('business_name', ''),
+        ])).casefold()
+        if not haystack:
+            return
+        forbidden_words = ForbiddenWord.objects.filter(is_active=True).only('word', 'normalized_word')
+        for forbidden in forbidden_words:
+            normalized_word = normalize_persian_text(forbidden.normalized_word or forbidden.word).casefold()
+            if not normalized_word:
+                continue
+            pattern = rf'(?<!\w){re.escape(normalized_word)}(?!\w)'
+            if re.search(pattern, haystack):
+                raise ValidationError('متن آگهی شامل عبارت غیرمجاز «%s» است.' % forbidden.word)
+
+    def _validate_duplicate(self, cleaned_data):
+        """Block likely duplicate ads while excluding the record currently being edited."""
+        if self.allow_duplicate or not cleaned_data.get('title') or not cleaned_data.get('description'):
+            return
+        is_duplicate, _duplicates = detect_duplicate_ads(
+            title=cleaned_data['title'],
+            description=cleaned_data['description'],
+            mobile=cleaned_data.get('mobile_1', ''),
+            category_id=getattr(cleaned_data.get('category'), 'pk', None),
+            city_id=getattr(cleaned_data.get('city'), 'pk', None),
+            exclude_ad_id=self.instance.pk or None,
+        )
+        if is_duplicate:
+            raise ValidationError(
+                'آگهی مشابهی اخیراً ثبت شده است. لطفاً پیش از ارسال، آگهی‌های موجود را بررسی کنید.'
+            )
+
     def clean(self):
         cleaned = super().clean()
         country = cleaned.get('country')
@@ -111,15 +151,70 @@ class AdForm(forms.ModelForm):
             self.add_error('province', 'استان انتخاب‌شده متعلق به کشور انتخاب‌شده نیست.')
         if not city:
             self.add_error('city', 'انتخاب شهر الزامی است.')
+        if not self.errors:
+            self._validate_forbidden_words(cleaned)
+            self._validate_duplicate(cleaned)
         return cleaned
 
 
 class AdImageForm(forms.Form):
-    """Receive optional new images while keeping upload handling in the view."""
+    """Receive optional new images while keeping persistence in the service layer."""
 
     images = MultipleImageField(
         label='تصاویر آگهی',
         required=False,
         widget=MultipleFileInput(attrs={'accept': 'image/jpeg,image/png,image/webp', 'class': 'form-control'}),
-        help_text='حداکثر پنج تصویر با فرمت JPEG، PNG یا WebP انتخاب کنید.',
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        settings_obj = SiteSettings.objects.only('max_images').first()
+        max_images = settings_obj.max_images if settings_obj else 5
+        self.fields['images'].help_text = f'حداکثر {max_images} تصویر با فرمت JPEG، PNG یا WebP انتخاب کنید.'
+
+    def clean_images(self):
+        images = self.cleaned_data['images']
+        settings_obj = SiteSettings.objects.only('max_images').first()
+        max_images = settings_obj.max_images if settings_obj else 5
+        if len(images) > max_images:
+            raise ValidationError(f'حداکثر {max_images} تصویر را می‌توانید هم‌زمان انتخاب کنید.')
+        return images
+
+
+class AdPermitForm(forms.Form):
+    """Owner-facing submission form for a permit requested by moderation."""
+
+    permit_number = forms.CharField(label='شماره مجوز', max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    issuer = forms.CharField(label='مرجع صدور', max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    issued_at = forms.DateField(label='تاریخ صدور', required=False, widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
+    image = forms.ImageField(label='تصویر مجوز', widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/jpeg,image/png,image/webp'}))
+
+
+class AdLinkForm(forms.Form):
+    """Simple bounded form for adding one user-generated external link."""
+
+    type = forms.ChoiceField(label='نوع لینک', choices=Ad.LINK_TYPES if hasattr(Ad, 'LINK_TYPES') else [], required=False)
+    url = forms.URLField(label='نشانی لینک', max_length=500, required=False, widget=forms.URLInput(attrs={'class': 'form-control', 'dir': 'ltr'}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from .models import AdLink
+        self.fields['type'].choices = AdLink.LINK_TYPES
+
+    def clean(self):
+        cleaned = super().clean()
+        if bool(cleaned.get('type')) != bool(cleaned.get('url')):
+            raise ValidationError('برای ثبت لینک، نوع و نشانی را با هم وارد کنید.')
+        return cleaned
+
+
+class AdReportForm(forms.Form):
+    """Minimal public report form; reporter identity is captured server-side when available."""
+
+    reason = forms.ChoiceField(label='دلیل گزارش', choices=AdReport.REASON_CHOICES)
+    description = forms.CharField(
+        label='توضیحات',
+        required=False,
+        max_length=1000,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
     )

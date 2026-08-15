@@ -1,5 +1,6 @@
 import hashlib
 from django.db import models
+from django.db.models import Q
 from django.conf import settings
 from django.utils import timezone
 from django.utils.text import slugify
@@ -98,8 +99,8 @@ class Ad(models.Model):
     mobile_1 = models.CharField(_('mobile 1'), max_length=11)
     show_mobile_1 = models.BooleanField(_('show mobile 1'), default=True)
     mobile_2 = models.CharField(_('mobile 2'), max_length=11, blank=True)
-    phone_1 = models.CharField(_('phone 1'), max_length=11, blank=True)
-    phone_2 = models.CharField(_('phone 2'), max_length=11, blank=True)
+    phone_1 = models.CharField(_('phone 1'), max_length=20, blank=True)
+    phone_2 = models.CharField(_('phone 2'), max_length=20, blank=True)
     email = models.EmailField(_('email'), blank=True)
     
     # Classification
@@ -171,6 +172,12 @@ class Ad(models.Model):
             models.Index(fields=['normalized_title_hash']),
             models.Index(fields=['normalized_description_hash']),
         ]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(price__isnull=True) | Q(price__gte=0),
+                name='ads_price_is_nonnegative',
+            ),
+        ]
     
     def __str__(self):
         return f"{self.code} - {self.title}"
@@ -202,8 +209,9 @@ class Ad(models.Model):
                 return code
 
     def get_absolute_url(self):
+        """Return the canonical public URL; code keeps the identity stable after title edits."""
         from django.urls import reverse
-        return reverse('ads:ad_detail', kwargs={'pk': self.pk})
+        return reverse('ad_detail', kwargs={'code': self.code, 'slug': self.slug})
     
     @property
     def is_active(self):
@@ -300,6 +308,13 @@ class AdImage(models.Model):
         verbose_name = _('ad image')
         verbose_name_plural = _('ad images')
         ordering = ['sort_order', 'created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['ad'],
+                condition=Q(is_primary=True),
+                name='ads_one_primary_image_per_ad',
+            ),
+        ]
     
     def __str__(self):
         return f"Image for {self.ad.code}"

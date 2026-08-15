@@ -38,6 +38,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'core.security.PublicSecurityHeadersMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
@@ -71,12 +72,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
 _cache_url = os.environ.get('CACHE_URL', '')
+_cache_dir = os.environ.get('CACHE_DIR', '')
 if _cache_url:
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.redis.RedisCache',
             'LOCATION': _cache_url,
             'TIMEOUT': 300,
+            'KEY_PREFIX': 'agahi',
+        }
+    }
+elif _cache_dir:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': _cache_dir,
+            'TIMEOUT': 300,
+            'OPTIONS': {'MAX_ENTRIES': 5000, 'CULL_FREQUENCY': 3},
             'KEY_PREFIX': 'agahi',
         }
     }
@@ -99,7 +111,7 @@ DATABASES = {
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
-        'CONN_MAX_AGE': 600,
+        'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '600')),
         'OPTIONS': {'connect_timeout': 10},
     }
 }
@@ -143,9 +155,34 @@ EMAIL_BACKEND = os.environ.get(
 )
 
 SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000').rstrip('/')
+SEO_LANDING_MIN_ADS = int(os.environ.get('SEO_LANDING_MIN_ADS', '3'))
 DEFAULT_PAYMENT_GATEWAY = os.environ.get('DEFAULT_PAYMENT_GATEWAY', 'zarinpal')
 ZARINPAL_MERCHANT_ID = os.environ.get('ZARINPAL_MERCHANT_ID', '')
 ZARINPAL_SANDBOX = os.environ.get('PAYMENT_SANDBOX', 'true').lower() in {'1', 'true', 'yes'}
+NEXTPAY_API_KEY = os.environ.get('NEXTPAY_API_KEY', '')
+NEXTPAY_SANDBOX = os.environ.get('NEXTPAY_SANDBOX', 'true').lower() in {'1', 'true', 'yes'}
+PAYMENT_HTTP_TIMEOUT = int(os.environ.get('PAYMENT_HTTP_TIMEOUT', '20'))
+SMS_ENABLED = os.environ.get('SMS_ENABLED', 'false').lower() in {'1', 'true', 'yes'}
+SMS_PROVIDER = os.environ.get('SMS_PROVIDER', 'disabled')
+SMS_SENDER_ID = os.environ.get('SMS_SENDER_ID', '')
+SMS_HTTP_TIMEOUT = int(os.environ.get('SMS_HTTP_TIMEOUT', '15'))
+SMS_MAX_ATTEMPTS = int(os.environ.get('SMS_MAX_ATTEMPTS', '3'))
+KAVENEGAR_API_KEY = os.environ.get('KAVENEGAR_API_KEY', '')
+
+# Backup: local gzip is always available; encryption/remote transfer require explicit credentials.
+BACKUP_DIR = os.environ.get('BACKUP_DIR', str(BASE_DIR / 'var' / 'backups'))
+BACKUP_RETENTION_DAYS = int(os.environ.get('BACKUP_RETENTION_DAYS', '30'))
+BACKUP_RETENTION_COUNT = int(os.environ.get('BACKUP_RETENTION_COUNT', '30'))
+BACKUP_ENCRYPTION_KEY = os.environ.get('BACKUP_ENCRYPTION_KEY', '')
+BACKUP_REMOTE_PROVIDER = os.environ.get('BACKUP_REMOTE_PROVIDER', '')
+BACKUP_REMOTE_HOST = os.environ.get('BACKUP_REMOTE_HOST', '')
+BACKUP_REMOTE_PORT = int(os.environ.get('BACKUP_REMOTE_PORT', '21'))
+BACKUP_REMOTE_USERNAME = os.environ.get('BACKUP_REMOTE_USERNAME', '')
+BACKUP_REMOTE_PASSWORD = os.environ.get('BACKUP_REMOTE_PASSWORD', '')
+BACKUP_REMOTE_PATH = os.environ.get('BACKUP_REMOTE_PATH', '')
+BACKUP_PG_DUMP_BIN = os.environ.get('BACKUP_PG_DUMP_BIN', 'pg_dump')
+BACKUP_PSQL_BIN = os.environ.get('BACKUP_PSQL_BIN', 'psql')
+BACKUP_OPENSSL_BIN = os.environ.get('BACKUP_OPENSSL_BIN', 'openssl')
 
 # This project performs Jalali conversion only at presentation time; database
 # timestamps remain timezone-aware Gregorian values.

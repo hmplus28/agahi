@@ -1,0 +1,47 @@
+{% extends 'base/base.html' %}
+
+{% block title %}مدیریت لینک‌های آگهی | {{ site_settings.site_name|default:'نیازمندی‌ها' }}{% endblock %}
+
+{% block content %}
+<section class="container narrow-container page-section">
+  <header class="page-heading">
+    <h1>لینک‌های آگهی</h1>
+    <p>لینک‌های مرتبط با «{{ ad.title }}» را مدیریت کنید. هر تغییر برای آگهی فعال دوباره بررسی می‌شود.</p>
+  </header>
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>نوع</th><th>نشانی</th><th>عملیات</th></tr></thead>
+      <tbody>
+        {% for link in ad.links.all %}
+        <tr>
+          <td>{{ link.get_type_display }}</td>
+          <td><a href="{{ link.url }}" rel="ugc noopener" target="_blank">{{ link.url }}</a></td>
+          <td><form method="post" action="{% url 'ads:ad_link_delete' ad.pk link.pk %}" class="inline-form">{% csrf_token %}<button type="submit" class="link-button">حذف</button></form></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">هنوز لینکی ثبت نشده است.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <section class="card page-section">
+    <h2>افزودن لینک</h2>
+    <form method="post" class="ad-form" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="form-grid">
+        {% for field in form %}
+        <div class="form-group">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-primary">افزودن لینک</button>
+      <a href="{% url 'dashboard:my_ads' %}" class="btn btn-outline">بازگشت</a>
+    </form>
+  </section>
+</section>
+{% endblock %}
