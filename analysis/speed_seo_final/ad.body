@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="M3XONPVSNsWqE98pPHquflzZBo4fN5ZBCWxl0YPx">
+    <meta name="robots" content="index, follow">
+    <title>تعمیرات تخصصی لوازم خانگی در تهران در تهران | Laravel</title>
+    <meta name="description" content="خدمات تعمیر و سرویس لوازم خانگی با هماهنگی تلفنی در شهر تهران.">
+    <link rel="canonical" href="http://127.0.0.1:8000/ad/DEMO123456/tamirat-lavazem-khanegi">
+    <link rel="stylesheet" href="/assets/app.css">
+            <meta property="og:type" content="website">
+        <meta property="og:title" content="تعمیرات تخصصی لوازم خانگی در تهران در تهران | Laravel">
+        <meta property="og:description" content="خدمات تعمیر و سرویس لوازم خانگی با هماهنگی تلفنی در شهر تهران.">
+        <meta property="og:url" content="http://127.0.0.1:8000/ad/DEMO123456/tamirat-lavazem-khanegi">
+                <meta name="twitter:card" content="summary_large_image">
+        <script type="application/ld+json">{"<?php $__contextArgs = [];\nif (context()->has($__contextArgs[0])) :\nif (isset($value)) { $__contextPrevious[] = $value; }\n$value = context()->get($__contextArgs[0]); ?>":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"خانه","item":"http://127.0.0.1:8000"},{"@type":"ListItem","position":2,"name":"تعمیرات","item":"http://127.0.0.1:8000/category/repair"},{"@type":"ListItem","position":3,"name":"تعمیرات تخصصی لوازم خانگی در تهران","item":"http://127.0.0.1:8000/ad/DEMO123456/tamirat-lavazem-khanegi"}]}</script></head>
+<body>
+<header class="site-header">
+    <div class="container nav">
+        <a class="brand" href="http://127.0.0.1:8000">Laravel</a>
+        <nav aria-label="ناوبری اصلی">
+            <a href="http://127.0.0.1:8000/search">جست‌وجو</a>
+            <a href="http://127.0.0.1:8000/user/ads/create">ثبت آگهی</a>
+                            <a href="http://127.0.0.1:8000/login">ورود</a>
+                <a class="button button-small" href="http://127.0.0.1:8000/register">ثبت‌نام</a>
+                    </nav>
+    </div>
+</header>
+<main class="container">
+            <nav class="breadcrumb" aria-label="مسیر صفحه"><a href="http://127.0.0.1:8000">خانه</a><span>/</span><a href="http://127.0.0.1:8000/category/repair">تعمیرات</a><span>/</span><span>تعمیرات تخصصی لوازم خانگی در تهران</span></nav><article class="ad-detail"><section class="gallery"><div class="image-placeholder">تصویری برای این آگهی ثبت نشده است.</div></section><section><div class="ad-detail-heading"><h1>تعمیرات تخصصی لوازم خانگی در تهران</h1><span class="badge">ویژه</span></div><p class="detail-price">توافقی</p><dl class="details"><dt>شهر</dt><dd>تهران</dd><dt>تاریخ انتشار</dt><dd>2026/08/20</dd><dt>کد آگهی</dt><dd>DEMO123456</dd><dt>بازدید</dt><dd>25</dd></dl><a class="button" href="tel:09120000000">تماس با آگهی‌دهنده</a></section><section class="description"><h2>توضیحات</h2><p>خدمات تعمیر و سرویس لوازم خانگی با هماهنگی تلفنی در شهر تهران.</p></section><section class="report-box"><h2>گزارش تخلف</h2><form method="post" action="http://127.0.0.1:8000/ad/DEMO123456/report"><input type="hidden" name="_token" value="M3XONPVSNsWqE98pPHquflzZBo4fN5ZBCWxl0YPx" autocomplete="off"><label>دلیل<select name="reason" required><option value="">انتخاب کنید</option><option value="no_response">عدم پاسخگویی</option><option value="fraud">کلاهبرداری</option><option value="false_information">خلاف واقع</option><option value="illegal">محتوای غیرمجاز</option><option value="inappropriate">محتوای نامناسب</option><option value="overpriced">گران‌فروشی</option><option value="other">سایر</option></select></label><label>توضیح (اختیاری)<textarea name="description" rows="3" maxlength="2000"></textarea></label><button class="button button-small">ثبت گزارش</button></form></section></article><section><div class="section-heading"><h2>آگهی‌های مرتبط</h2></div><div class="ad-grid"><p>آگهی مرتبطی یافت نشد.</p></div></section>
+</main>
+<footer class="site-footer"><div class="container"><p>© 2026 Laravel — آگهی‌ها با رعایت حریم خصوصی و قوانین منتشر می‌شوند.</p></div></footer>
+</body>
+</html>

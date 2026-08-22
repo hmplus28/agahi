@@ -1,0 +1,7 @@
+@extends('layouts.app',['title'=>'مدیریت داده‌ها | '.config('app.name'),'robots'=>'noindex, nofollow'])
+@section('content')
+@php($labels=['categories'=>'دسته‌بندی','countries'=>'کشور','provinces'=>'استان','cities'=>'شهر','tariffs'=>'تعرفه','forbidden-words'=>'لغت غیرمجاز'])
+<div class="section-heading"><div><h1>مدیریت {{ $labels[$type] }}</h1><p class="muted">داده‌های عمومی و تنظیمات قابل مدیریت سامانه.</p></div><a href="{{ route('admin.dashboard') }}">داشبورد</a></div>
+<section class="panel"><h2>افزودن رکورد</h2><form method="post" action="{{ route('admin.catalog.store',$type) }}" class="form-grid">@csrf @include('admin.catalog.fields')<div><button class="button">ثبت</button></div></form></section>
+<section><h2>رکوردها</h2><div class="table-wrap"><table><thead><tr><th>عنوان</th><th>شناسه / slug</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody>@forelse($records as $record)<tr><td>{{ $record->title ?? $record->name ?? $record->word }}</td><td>{{ $record->slug ?? $record->code ?? $record->normalized_word }}</td><td>{{ $record->is_active ? 'فعال' : 'غیرفعال' }}</td><td><form method="post" action="{{ route('admin.catalog.toggle',[$type,$record->id]) }}">@csrf @method('PATCH')<button class="link-button">{{ $record->is_active ? 'غیرفعال‌کردن' : 'فعال‌کردن' }}</button></form></td></tr>@empty<tr><td colspan="4">رکوردی وجود ندارد.</td></tr>@endforelse</tbody></table></div>{{ $records->links() }}</section>
+@endsection

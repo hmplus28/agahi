@@ -1,0 +1,24 @@
+category,score_percent
+performance,100
+seo,100
+
+metric,id,numeric_value,display_value
+FCP,first-contentful-paint,846.3072499999998,0.8 s
+LCP,largest-contentful-paint,846.3072499999998,0.8 s
+Speed Index,speed-index,846.3072499999998,0.8 s
+TBT,total-blocking-time,0,0 ms
+CLS,cumulative-layout-shift,0,0
+TTI,interactive,846.3072499999998,0.8 s
+
+seo_audit,id,score,title
+is-crawlable,1,Page isn’t blocked from indexing
+document-title,1,Document has a `<title>` element
+meta-description,1,Document has a meta description
+http-status-code,1,Page has successful HTTP status code
+link-text,1,Links have descriptive text
+crawlable-anchors,1,Links are crawlable
+robots-txt,1,robots.txt is valid
+image-alt,None,Image elements have `[alt]` attributes
+hreflang,1,Document has a valid `hreflang`
+canonical,1,Document has a valid `rel=canonical`
+structured-data,None,Structured data is valid

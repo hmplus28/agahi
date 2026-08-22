@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="7LeaR15aACEVqFTfJRJdSi0Z9NP3GxUujs97hFcS">
+    <meta name="robots" content="noindex, follow">
+    <title>آگهی خدمات | Laravel</title>
+    <meta name="description" content="سامانهٔ سریع و امن ثبت آگهی در ایران">
+    <link rel="canonical" href="http://127.0.0.1:8000/category/services">
+    <link rel="stylesheet" href="/assets/app.css">
+        </head>
+<body>
+<header class="site-header">
+    <div class="container nav">
+        <a class="brand" href="http://127.0.0.1:8000">Laravel</a>
+        <nav aria-label="ناوبری اصلی">
+            <a href="http://127.0.0.1:8000/search">جست‌وجو</a>
+            <a href="http://127.0.0.1:8000/user/ads/create">ثبت آگهی</a>
+                            <a href="http://127.0.0.1:8000/login">ورود</a>
+                <a class="button button-small" href="http://127.0.0.1:8000/register">ثبت‌نام</a>
+                    </nav>
+    </div>
+</header>
+<main class="container">
+            <nav class="breadcrumb" aria-label="مسیر صفحه"><a href="http://127.0.0.1:8000">خانه</a><span>/</span><span>خدمات</span></nav><h1>آگهی‌های خدمات</h1><section class="subcategories"><h2>زیر‌دسته‌ها</h2><a href="http://127.0.0.1:8000/category/repair">تعمیرات</a></section><div class="ad-grid"><p>در این دسته هنوز آگهی فعالی وجود ندارد.</p></div>
+</main>
+<footer class="site-footer"><div class="container"><p>© 2026 Laravel — آگهی‌ها با رعایت حریم خصوصی و قوانین منتشر می‌شوند.</p></div></footer>
+</body>
+</html>

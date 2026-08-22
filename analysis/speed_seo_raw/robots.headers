@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Host: 127.0.0.1:8000
+Date: Thu, 20 Aug 2026 20:03:45 GMT
+Connection: close
+Content-Type: text/plain; charset=UTF-8
+Content-Length: 24
+

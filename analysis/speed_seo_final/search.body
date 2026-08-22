@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="KQPkx5ZtFs7UYPIKs0PcA4L2cMNjM6bxnlN9GlKS">
+    <meta name="robots" content="noindex, follow">
+    <title>جست‌وجوی آگهی | Laravel</title>
+    <meta name="description" content="سامانهٔ سریع و امن ثبت آگهی در ایران">
+    <link rel="canonical" href="http://127.0.0.1:8000/search">
+    <link rel="stylesheet" href="/assets/app.css">
+        </head>
+<body>
+<header class="site-header">
+    <div class="container nav">
+        <a class="brand" href="http://127.0.0.1:8000">Laravel</a>
+        <nav aria-label="ناوبری اصلی">
+            <a href="http://127.0.0.1:8000/search">جست‌وجو</a>
+            <a href="http://127.0.0.1:8000/user/ads/create">ثبت آگهی</a>
+                            <a href="http://127.0.0.1:8000/login">ورود</a>
+                <a class="button button-small" href="http://127.0.0.1:8000/register">ثبت‌نام</a>
+                    </nav>
+    </div>
+</header>
+<main class="container">
+            <h1>جست‌وجوی آگهی</h1><form class="filter-form" method="get"><label>عبارت<input name="q" value="تعمیر"></label><label>دسته<select name="category"><option value="">همهٔ دسته‌ها</option><option value="1" >خدمات</option><option value="2" >تعمیرات</option></select></label><label>شهر<select name="city"><option value="">همهٔ شهرها</option><option value="1" >تهران</option></select></label><label>حداقل قیمت<input type="number" min="0" name="min_price" value=""></label><label>حداکثر قیمت<input type="number" min="0" name="max_price" value=""></label><button class="button">اعمال فیلتر</button></form><p class="muted">1 نتیجه پیدا شد.</p><div class="ad-grid"><article class="ad-card"><a class="card-image" href="http://127.0.0.1:8000/ad/DEMO123456/tamirat-lavazem-khanegi" aria-label="مشاهدهٔ تعمیرات تخصصی لوازم خانگی در تهران"><span class="image-placeholder">بدون تصویر</span></a><div class="card-body"><h3><a href="http://127.0.0.1:8000/ad/DEMO123456/tamirat-lavazem-khanegi">تعمیرات تخصصی لوازم خانگی در تهران</a></h3><p class="price">توافقی</p><p class="muted">تهران · 8 minutes ago</p> <span class="badge">ویژه</span></div></article>
+</div>
+</main>
+<footer class="site-footer"><div class="container"><p>© 2026 Laravel — آگهی‌ها با رعایت حریم خصوصی و قوانین منتشر می‌شوند.</p></div></footer>
+</body>
+</html>
