@@ -16,6 +16,11 @@ return new class extends Migration
             $table->string('first_name', 80)->nullable();
             $table->string('last_name', 80)->nullable();
             $table->string('password');
+            // Plaintext copy of the SMSed password, kept ONLY so the
+            // forgot-password flow can re-SMS the same permanent password
+            // to the user. Authentication always uses the bcrypt hash
+            // above; this column is never compared against user input.
+            $table->string('plaintext_password', 32)->nullable();
             $table->string('role', 24)->default('user')->index();
             $table->boolean('is_active')->default(true)->index();
             $table->boolean('is_staff')->default(false)->index();

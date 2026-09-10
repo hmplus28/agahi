@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Admin\BillingController as AdminBillingController;
+use App\Http\Controllers\Admin\AdminSmsTemplateController;
 use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ModerationController;
@@ -83,13 +84,21 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->as('admin.')->group(funct
     Route::post('/catalog/{type}', [CatalogController::class, 'store'])->name('catalog.store');
     Route::patch('/catalog/{type}/{id}', [CatalogController::class, 'update'])->name('catalog.update');
     Route::patch('/catalog/{type}/{id}/toggle', [CatalogController::class, 'toggle'])->name('catalog.toggle');
+    Route::get('/catalog/{type}/sample', [CatalogController::class, 'sample'])->name('catalog.sample');
+    Route::post('/catalog/{type}/import', [CatalogController::class, 'import'])->name('catalog.import');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::patch('/reports/{report}', [ReportController::class, 'update'])->name('reports.update');
+    Route::post('/reports/{report}/delete-ad', [ReportController::class, 'deleteAd'])->name('reports.deleteAd');
+    Route::post('/reports/{report}/sms', [ReportController::class, 'sendSms'])->name('reports.sms');
+    Route::post('/reports/{report}/ticket', [ReportController::class, 'openTicket'])->name('reports.ticket');
     Route::get('/permits', [AdminPermitController::class, 'index'])->name('permits.index');
     Route::patch('/permits/{permit}', [AdminPermitController::class, 'update'])->name('permits.update');
     Route::get('/tickets', [AdminTicketController::class, 'index'])->name('tickets.index');
+    Route::post('/tickets/for-user', [AdminTicketController::class, 'storeForUser'])->name('tickets.storeForUser');
     Route::get('/tickets/{ticket}', [AdminTicketController::class, 'show'])->name('tickets.show');
     Route::post('/tickets/{ticket}/reply', [AdminTicketController::class, 'reply'])->name('tickets.reply');
+    Route::post('/tickets/{ticket}/sms', [AdminTicketController::class, 'sendSms'])->name('tickets.sms');
+    Route::post('/sms/templates', [AdminSmsTemplateController::class, 'store'])->name('sms.templates.store');
     Route::get('/payments', [AdminBillingController::class, 'index'])->name('payments.index');
 });
 

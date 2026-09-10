@@ -54,37 +54,27 @@ class XlsxReader
             mkdir($this->extractDir, 0700, true);
         }
 
-        $phar = new \PharData($path);
+        // Some XLSX writers (Excel itself, Apple Numbers) emit the file as a
+        // proper ZIP archive that PharData can iterate. Other writers (e.g.
+        // PHPSpreadsheet) emit it in a way that needs a PharData wrapper
+        // with the .zip extension. We normalize to .zip in a temp copy so
+        // both shapes work.
+        $zipCopy = $this->extractDir . '/source.zip';
+        copy($path, $zipCopy);
+
+        $phar = new \PharData($zipCopy);
         self::extractAll($phar, $this->extractDir);
     }
 
-    private static function extractAll(\PharData|\Phar $phar, string $targetDir): void
+    private static function extractAll(\PharData $phar, string $targetDir): void
     {
-        $realTargetDir = realpath($targetDir);
-
-        foreach (new \RecursiveIteratorIterator($phar) as $file) {
-            $pharUrl = $file->getPathname();
-            $pos = strpos($pharUrl, '.xlsx');
-            if ($pos === false) {
-                continue;
-            }
-            $relative = ltrim(substr($pharUrl, $pos + strlen('.xlsx')), '/\\');
-
-            if ($relative === '' || substr($relative, -1) === '/' || $file->isDir()) {
-                continue;
-            }
-
-            $target = $targetDir.'/'.$relative;
-            $realTarget = realpath(dirname($target));
-            if ($realTarget === false || strpos($realTarget, $realTargetDir) !== 0) {
-                throw new \RuntimeException('فایل نامعتبر: مسیر خارج از پوشه مجاز است.');
-            }
-
-            $dir = dirname($target);
-            if (!is_dir($dir)) {
-                @mkdir($dir, 0700, true);
-            }
-            @file_put_contents($target, file_get_contents($file->getPathname()));
+        // Use the PharData's built-in extractTo() which handles all the ZIP
+        // member iteration safely. We pass a list of files (null = all) and
+        // pass overwrite=true so re-runs don't fail on existing files.
+        try {
+            $phar->extractTo($targetDir, null, true);
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('فایل اکسل قابل استخراج نیست: ' . $e->getMessage(), 0, $e);
         }
     }
 
