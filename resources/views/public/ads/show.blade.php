@@ -5,6 +5,12 @@
 @endpush
 
 @section('content')
+@if($ad->status === \App\Domains\Ads\Enums\AdStatus::Expired || ($ad->expires_at && $ad->expires_at->isPast()))
+<div class="expired-banner" role="alert">
+    <strong>این آگهی منقضی شده است.</strong>
+    <span>برای اطلاع از شرایط جدید با آگهی‌دهنده تماس بگیرید.</span>
+</div>
+@endif
 <nav class="breadcrumb" aria-label="مسیر صفحه"><a href="{{ route('home') }}">خانه</a><span>/</span>@if($ad->category)<a href="{{ route('categories.show',$ad->category) }}">{{ $ad->category->title }}</a><span>/</span>@endif<span>{{ $ad->title }}</span></nav>
 <article class="ad-detail">
     <section class="gallery" aria-label="تصاویر آگهی">

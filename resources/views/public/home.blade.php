@@ -6,10 +6,25 @@
         <p class="eyebrow">بازار آگهی‌های محلی، ساده و مطمئن</p>
         <h1>هر چیزی که نیاز دارید، نزدیک شما پیدا کنید.</h1>
         <p class="hero-copy">میان آگهی‌ها جست‌وجو کنید یا در چند دقیقه آگهی خودتان را ثبت کنید.</p>
-        <form class="home-search" method="get" action="{{ route('search') }}" role="search">
+        <form class="home-search home-search-section" method="get" action="{{ route('search') }}" role="search">
             <label class="sr-only" for="home-query">جست‌وجوی آگهی</label>
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.25 4.25"/></svg>
             <input id="home-query" type="search" name="q" placeholder="مثلاً: تعمیرات کولر، استخدام، لوازم خانه" autocomplete="off">
+
+            <label class="sr-only" for="home-category">دسته‌بندی</label>
+            <select id="home-category" name="category">
+                <option value="">همهٔ دسته‌ها</option>
+                @foreach($categories as $category)
+                    <option value="{{ $category['id'] ?? '' }}">{{ $category['title'] }}</option>
+                @endforeach
+            </select>
+
+            <label class="sr-only" for="home-min-price">حداقل قیمت</label>
+            <input id="home-min-price" type="number" name="min_price" min="0" placeholder="حداقل قیمت">
+
+            <label class="sr-only" for="home-max-price">حداکثر قیمت</label>
+            <input id="home-max-price" type="number" name="max_price" min="0" placeholder="حداکثر قیمت">
+
             <button class="button" type="submit">جست‌وجو</button>
         </form>
         <div class="quick-links" aria-label="دسته‌های پرمراجعه">@forelse(array_slice($categories,0,4) as $category)<a href="{{ route('categories.show',['category'=>$category['slug']]) }}">{{ $category['title'] }}</a>@empty<a href="{{ route('search') }}">همهٔ آگهی‌ها</a>@endforelse</div>

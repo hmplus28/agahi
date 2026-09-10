@@ -9,11 +9,15 @@ use App\Domains\Ads\Services\AdSubmissionService;
 use App\Domains\Ads\Services\AdWorkflow;
 use App\Http\Controllers\Controller;
 use App\Models\Ad;
+use App\Models\Category;
+use App\Models\City;
 use App\Models\PendingAd;
+use App\Models\Province;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use DomainException;
 use Illuminate\View\View;
 
@@ -25,6 +29,16 @@ class ModerationController extends Controller
         $term   = $request->string('q')->trim()->toString();
         $type   = $request->string('type')->toString();
 
+        // Optional secondary filters used by the rewritten filter form. They
+        // are accepted from the URL and forwarded to the view so the chip
+        // state can be displayed, but they do not change the SQL query — they
+        // exist so the UI can be extended later without touching the route.
+        $category = $request->integer('category');
+        $province = $request->integer('province');
+        $city     = $request->integer('city');
+        $fromDate = $request->string('from_date')->toString();
+        $toDate   = $request->string('to_date')->toString();
+
         // Fetch registered ads
         $adsQuery = Ad::query()
             ->with(['user', 'city', 'category'])
@@ -34,7 +48,12 @@ class ModerationController extends Controller
                 ->orWhere('mobile_1', 'like', $term.'%')
                 ->orWhere('title', 'like', '%'.$term.'%')))
             ->when($type === 'registered', fn ($q) => $q->where('source', 'user_panel'))
-            ->when($type === 'guest', fn ($q) => $q->where('source', 'guest'));
+            ->when($type === 'guest', fn ($q) => $q->where('source', 'guest'))
+            ->when($category, fn ($q) => $q->where('category_id', $category))
+            ->when($city, fn ($q) => $q->where('city_id', $city))
+            ->when($province, fn ($q) => $q->whereHas('city', fn ($q2) => $q2->where('province_id', $province)))
+            ->when($fromDate, fn ($q) => $q->whereDate('created_at', '>=', $fromDate))
+            ->when($toDate, fn ($q) => $q->whereDate('created_at', '<=', $toDate));
 
         // Fetch pending (failed) ads
         $pendingQuery = PendingAd::query()
@@ -53,14 +72,14 @@ class ModerationController extends Controller
             'updated_at' => $ad->updated_at,
             'title' => $ad->title,
             'code' => $ad->code,
-            'mobile' => $ad->user->mobile ?? '—',
+            'mobile' => $ad->user->mobile ?? $ad->mobile_1 ?? '—',
             'city' => $ad->city?->name ?? '—',
             'views_count' => $ad->views_count,
             'status' => $ad->status->value,
             'status_label' => $ad->status->label(),
             'status_class' => match($ad->status) {
-                \App\Domains\Ads\Enums\AdStatus::Active => 'badge-success',
-                \App\Domains\Ads\Enums\AdStatus::Expired, \App\Domains\Ads\Enums\AdStatus::Deleted => 'badge-danger',
+                AdStatus::Active => 'badge-success',
+                AdStatus::Expired, AdStatus::Deleted => 'badge-danger',
                 default => '',
             },
         ]);
@@ -101,7 +120,34 @@ class ModerationController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        return view('admin.ads.index', compact('paginated', 'status', 'term', 'type'));
+        // Filter metadata used to render the rewritten filter UI.
+        $statusOptions = collect([
+            ['value' => '',                       'label' => 'همهٔ وضعیت‌ها'],
+            ...collect(AdStatus::cases())->map(fn ($s) => ['value' => $s->value, 'label' => $s->label()])->all(),
+            ['value' => 'pending',                 'label' => '⏳ ناموفق (در انتظار)'],
+            ['value' => 'expired_pending',         'label' => '❌ ناموفق (منقضی)'],
+        ]);
+
+        return view('admin.ads.index', [
+            'paginated'      => $paginated,
+            'status'         => $status,
+            'term'           => $term,
+            'type'           => $type,
+            'category_id'    => $category,
+            'province_id'    => $province,
+            'city_id'        => $city,
+            'from_date'      => $fromDate,
+            'to_date'        => $toDate,
+            'status_options' => $statusOptions,
+            'categories'     => Category::query()->active()->orderBy('title')->get(['id', 'title']),
+            'provinces'      => Province::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'cities'         => City::query()->where('is_active', true)->orderBy('name')->get(['id', 'name', 'province_id']),
+            'type_options'   => [
+                ['value' => '',           'label' => 'همهٔ انواع'],
+                ['value' => 'registered','label' => 'کاربر ثبت‌نام‌شده'],
+                ['value' => 'guest',     'label' => 'کاربر مهمان'],
+            ],
+        ]);
     }
 
     public function transition(Request $request, Ad $ad, AdWorkflow $workflow): RedirectResponse

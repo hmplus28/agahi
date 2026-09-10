@@ -1,2 +1,21 @@
 @extends('layouts.app',['title'=>'ورود | '.config('app.name'),'robots'=>'noindex, nofollow'])
-@section('content')<section class="auth-card"><h1>ورود به حساب کاربری</h1><form method="post">@csrf<label>شمارهٔ موبایل<input name="mobile" value="{{ old('mobile') }}" inputmode="numeric" required autocomplete="tel"></label><label>گذرواژه<input name="password" type="password" required autocomplete="current-password"></label><label class="check"><input type="checkbox" name="remember" value="1"> ورود مرا به خاطر بسپار</label><button class="button">ورود</button></form><p>حساب ندارید؟ <a href="{{ route('register') }}">ثبت‌نام کنید.</a></p></section>@endsection
+@section('content')
+<section class="auth-card">
+    <h1>ورود به حساب کاربری</h1>
+    <form method="post">
+        @csrf
+        <label>شمارهٔ موبایل
+            <input name="mobile" value="{{ old('mobile') }}" inputmode="numeric" required autocomplete="tel">
+        </label>
+        <label>گذرواژه
+            <input name="password" type="password" required autocomplete="current-password">
+        </label>
+        <label class="check">
+            <input type="checkbox" name="remember" value="1"> ورود مرا به خاطر بسپار
+        </label>
+        <button class="button">ورود</button>
+    </form>
+    <p>حساب ندارید؟ <a href="{{ route('register') }}">ثبت‌نام کنید.</a></p>
+    <p><a href="{{ route('password.request') }}">رمز خود را فراموش کرده‌اید؟</a></p>
+</section>
+@endsection

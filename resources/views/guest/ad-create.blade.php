@@ -74,6 +74,14 @@
                 <input name="mobile_2" value="{{ old('mobile_2') }}" inputmode="numeric">
             </label>
 
+            <label>موبایل همراه (تکراری برای تماس)
+                <input name="hamrah_1" value="{{ old('hamrah_1') }}" inputmode="numeric" placeholder="09123456789">
+            </label>
+
+            <label>تلفن ثابت ثبت‌کننده
+                <input name="sobit_1" value="{{ old('sobit_1') }}" inputmode="numeric">
+            </label>
+
             <label>تلفن ثابت
                 <input name="phone_1" value="{{ old('phone_1') }}">
             </label>

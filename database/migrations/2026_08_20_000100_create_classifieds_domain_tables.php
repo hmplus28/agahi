@@ -86,7 +86,7 @@ return new class extends Migration
             $table->id();
             $table->string('code', 24)->unique();
             $table->string('slug', 190)->index();
-            $table->foreignId('user_id')->constrained()->restrictOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title', 300);
             $table->string('normalized_title', 300)->index();
             $table->char('normalized_title_hash', 64)->index();

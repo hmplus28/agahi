@@ -1,6 +1,14 @@
 <?php
 
 /**
+ * Convert Latin digits in a string to Persian digits.
+ */
+function to_persian_digits(string $value): string
+{
+    return strtr($value, ['0' => '۰', '1' => '۱', '2' => '۲', '3' => '۳', '4' => '۴', '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹']);
+}
+
+/**
  * ─── مجموعه توابع تاریخ شمسی ───────────────────────── */
 /**
  * سال شمسی متناظر با سال میلادی.

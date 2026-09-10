@@ -17,8 +17,9 @@ final class AdWorkflow
     /** @var array<string, list<AdStatus>> */
     private const TRANSITIONS = [
         'draft' => [AdStatus::PendingApproval, AdStatus::Deleted],
-        'pending_approval' => [AdStatus::Active, AdStatus::NeedsPermit, AdStatus::Inactive, AdStatus::Deleted],
-        'active' => [AdStatus::PendingApproval, AdStatus::Inactive, AdStatus::Expired, AdStatus::Deleted],
+        'pending_approval' => [AdStatus::Active, AdStatus::NeedsPermit, AdStatus::Inactive, AdStatus::Deleted, AdStatus::PendingPayment],
+        'pending_payment' => [AdStatus::PendingApproval, AdStatus::Active, AdStatus::Deleted],
+        'active' => [AdStatus::PendingApproval, AdStatus::Inactive, AdStatus::Expired, AdStatus::Deleted, AdStatus::PendingPayment],
         'needs_permit' => [AdStatus::PendingApproval, AdStatus::Active, AdStatus::Inactive, AdStatus::Deleted],
         'inactive' => [AdStatus::PendingApproval, AdStatus::Active, AdStatus::Deleted],
         'expired' => [AdStatus::Active, AdStatus::Deleted],

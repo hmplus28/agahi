@@ -13,6 +13,7 @@ enum AdStatus: string
     case Inactive = 'inactive';
     case Expired = 'expired';
     case Deleted = 'deleted';
+    case PendingPayment = 'pending_payment';
 
     public function label(): string
     {
@@ -24,6 +25,7 @@ enum AdStatus: string
             self::Inactive => 'غیرفعال',
             self::Expired => 'منقضی',
             self::Deleted => 'حذف‌شده',
+            self::PendingPayment => 'در انتظار پرداخت',
         };
     }
 }
