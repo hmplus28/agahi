@@ -1,0 +1,25 @@
+# محافظت از فایل‌های حساس پروژه
+# این فایل باید در ریشه پروژه (بیرون public_html) قرار گیرد
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # مسدود کردن دسترسی مستقیم به فایل‌های حساس
+    RewriteRule ^\.env - [F,L]
+    RewriteRule ^composer\.(json|lock) - [F,L]
+    RewriteRule ^package(-lock)?\.json - [F,L]
+    RewriteRule ^artisan - [F,L]
+    RewriteRule ^phpunit\.xml - [F,L]
+
+    # مسدود کردن پوشه‌های حساس
+    RewriteRule ^(vendor|node_modules|storage|tests|database|bootstrap)/ - [F,L]
+</IfModule>
+
+# جلوگیری از listing پوشه‌ها
+Options -Indexes
+
+# افزایش حجم مجاز آپلود تصاویر
+php_value upload_max_filesize 10M
+php_value post_max_size 32M
+php_value max_execution_time 120
+php_value max_input_time 120
