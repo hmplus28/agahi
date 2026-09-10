@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        require_once __DIR__ . '/../helpers.php';
         // Resolve the payment gateway based on config('payment.gateway').
         $this->app->bind(PaymentGateway::class, function ($app) {
             return match (config('payment.gateway', 'fake')) {

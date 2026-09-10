@@ -26,7 +26,7 @@
         <div class="ad-detail-heading"><h1>{{ $ad->title }}</h1>@if($ad->is_featured)<span class="badge">ویژه</span>@endif</div>
         <p class="detail-price" dir="auto">{{ $ad->priceLabel() }}</p>
         <p class="ad-date">{{ $ad->published_at?->diffForHumans() }} در {{ $ad->city?->name ?? '—' }}</p>
-        <dl class="details"><dt>کد آگهی</dt><dd dir="ltr">{{ $ad->code }}</dd><dt>بازدید</dt><dd>{{ number_format($ad->views_count) }}</dd><dt>تاریخ انتشار</dt><dd>{{ $ad->published_at?->format('Y/m/d') }}</dd></dl>
+        <dl class="details"><dt>کد آگهی</dt><dd dir="ltr">{{ $ad->code }}</dd><dt>بازدید</dt><dd>{{ number_format($ad->views_count) }}</dd><dt>تاریخ انتشار</dt><dd>{{ jdate($ad->published_at) }}</dd></dl>
         @if($ad->mobile_1)<a class="button contact-action" href="tel:{{ $ad->mobile_1 }}">تماس با آگهی‌دهنده</a>@endif
     </aside>
     <section class="description"><h2>توضیحات آگهی</h2><p>{!! nl2br(e($ad->description)) !!}</p>@if($ad->links->isNotEmpty())<h2 style="margin-top:22px">لینک‌های مرتبط</h2><ul>@foreach($ad->links as $link)<li><a rel="ugc" target="_blank" href="{{ $link->url }}">{{ $link->url }}</a></li>@endforeach</ul>@endif</section>

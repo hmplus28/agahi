@@ -10,6 +10,6 @@ return [
 
     // Branding & contact info rendered in the site header and footer.
     'brand_name' => env('BRAND_NAME', 'آگهی'),
-    'support_phone' => env('SUPPORT_PHONE', '021-00000000'),
-    'support_phone_href' => env('SUPPORT_PHONE_HREF', '02100000000'),
+    'support_phone' => env('SUPPORT_PHONE', '02166248174'),
+    'support_phone_href' => env('SUPPORT_PHONE_HREF', '02166248174'),
 ];

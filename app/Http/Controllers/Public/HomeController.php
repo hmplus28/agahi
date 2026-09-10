@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Ad;
 use App\Models\Category;
+use App\Support\HomeBanner;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
@@ -35,8 +36,12 @@ class HomeController extends Controller
         });
 
         $featured = Ad::query()->publiclyVisible()->with(['city', 'images'])->where('is_featured', true)->orderedForListing()->limit(8)->get();
-        $latest = Ad::query()->publiclyVisible()->with(['city', 'images'])->orderedForListing()->limit(12)->get();
+        $latest = Ad::query()->publiclyVisible()->with(['city', 'images'])->orderedForListing()->paginate(30);
+        $banner = HomeBanner::get();
 
-        return view('public.home', compact('categories', 'featured', 'latest'));
+        /** Flat collection for the 3-level category modal */
+        $allCategories = Category::query()->active()->select(['id', 'parent_id', 'title'])->orderBy('title')->get();
+
+        return view('public.home', compact('categories', 'featured', 'latest', 'banner', 'allCategories'));
     }
 }

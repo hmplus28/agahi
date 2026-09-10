@@ -56,9 +56,24 @@
             <label class="wide">کلمات کلیدی (اختیاری)
                 <input type="hidden" name="keywords_json" id="keywords-json" value="{{ old('keywords_json', is_array(old('keywords')) ? json_encode(old('keywords')) : '') }}">
             </label>
-            <label class="wide">تصاویر (حداکثر ۵ فایل، JPG/PNG/WebP)
-                <input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple>
+            <label class="wide file-upload-area">
+                <span class="file-upload-label">تصاویر (حداکثر ۵ فایل، JPG/PNG/WebP)</span>
+                <input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple id="ad-images-input" hidden>
+                <span class="file-upload-btn" onclick="document.getElementById('ad-images-input').click()">انتخاب فایل</span>
+                <span class="file-upload-name" id="ad-images-name">فایلی انتخاب نشده</span>
             </label>
+            <style>
+            .file-upload-area{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;cursor:pointer}
+            .file-upload-btn{background:#0d9488;color:#fff;padding:.4rem 1rem;border-radius:.5rem;font-size:.85rem;cursor:pointer;display:inline-block}
+            .file-upload-btn:hover{background:#0f766e}
+            .file-upload-name{color:#6b7280;font-size:.8rem}
+            </style>
+            <script>
+            document.getElementById('ad-images-input').addEventListener('change',function(){
+                var n=this.files.length;
+                document.getElementById('ad-images-name').textContent=n?n+' فایل انتخاب شد':'فایلی انتخاب نشده';
+            });
+            </script>
         </div>
         <button class="button">ثبت و ارسال برای تأیید</button>
     </form>

@@ -9,7 +9,7 @@
     <div>
         <h1>مدیریت آگهی‌ها</h1>
         <p>تمام آگهی‌ها (ثبت‌شده و ناموفق) و کد دیتابیس، تصویر و صفحه‌نمایش در یک صفحه.</p>
-        <p class="muted">هر صفحه ۱۵ ردیف نمایش داده می‌شود؛ بقیه در صفحه‌های بعدی.</p>
+
     </div>
     <a class="button button-outline" href="{{ route('admin.dashboard') }}">بازگشت به داشبورد</a>
 </div>
@@ -103,12 +103,14 @@
 
         <label class="field-label">
             <span>از تاریخ</span>
-            <input type="date" name="from_date" value="{{ $from_date }}" autocomplete="off">
+            <input type="text" name="from_date_display" class="jalali-date-input" data-jalali-input="from_date" value="{{ $from_date ? jdate($from_date) : '' }}" autocomplete="off" placeholder="۱۴۰۳/۰۱/۰۱">
+            <input type="hidden" name="from_date" value="{{ $from_date }}">
         </label>
 
         <label class="field-label">
             <span>تا تاریخ</span>
-            <input type="date" name="to_date" value="{{ $to_date }}" autocomplete="off">
+            <input type="text" name="to_date_display" class="jalali-date-input" data-jalali-input="to_date" value="{{ $to_date ? jdate($to_date) : '' }}" autocomplete="off" placeholder="۱۴۰۳/۱۲/۳۰">
+            <input type="hidden" name="to_date" value="{{ $to_date }}">
         </label>
     </div>
 
@@ -125,7 +127,7 @@
     @if($activeChips->isNotEmpty())
     <div class="filter-chips" role="list" aria-label="فیلترهای فعال">
         @foreach($activeChips as $chip)
-            <a class="filter-chip" role="listitem" href="{{ route('admin.ads.index', request()->query()->except($chip['key'])) }}" aria-label="حذف {{ $chip['label'] }}">
+            <a class="filter-chip" role="listitem" href="{{ route('admin.ads.index', collect(request()->query())->except($chip['key'])->all()) }}" aria-label="حذف {{ $chip['label'] }}">
                 <span>{{ $chip['label'] }}</span>
                 <span aria-hidden="true">✕</span>
             </a>
@@ -374,7 +376,7 @@
     var label = document.querySelector('[data-filter-toggle-label]');
     if (toggle && collapse){
         // Auto-open advanced row when any advanced field is set.
-        var advancedSet = (city && city.value) || (document.querySelector('[name=from_date]') && document.querySelector('[name=from_date]').value) || (document.querySelector('[name=to_date]') && document.querySelector('[name=to_date]').value);
+        var advancedSet = (city && city.value) || (document.querySelector('input[name=from_date]') && document.querySelector('input[name=from_date]').value) || (document.querySelector('input[name=to_date]') && document.querySelector('input[name=to_date]').value);
         if (advancedSet){
             collapse.hidden = false;
             if (label) label.textContent = 'فیلترهای پیشرفته －';
@@ -390,6 +392,26 @@
         sel.addEventListener('change', function(){
             sel.form.submit();
         });
+    });
+
+    // Initialize Persian datepicker on filter inputs.
+    document.querySelectorAll('.jalali-date-input').forEach(function(el){
+        var hiddenName = el.getAttribute('data-jalali-input');
+        var hidden = el.parentElement.querySelector('input[name="'+hiddenName+'"]');
+        if (typeof $ !== 'undefined' && $.fn.persianDatepicker) {
+            $(el).persianDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                initialValue: false,
+                onSelect: function(unix){
+                    var d = new Date(unix);
+                    var gy = d.getFullYear();
+                    var gm = String(d.getMonth()+1).padStart(2,'0');
+                    var gd = String(d.getDate()).padStart(2,'0');
+                    if (hidden) hidden.value = gy+'-'+gm+'-'+gd;
+                }
+            });
+        }
     });
 })();
 </script>

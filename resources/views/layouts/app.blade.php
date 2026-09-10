@@ -185,8 +185,7 @@
         </div>
 
         <a class="brand" href="{{ route('home') }}" aria-label="صفحهٔ اصلی {{ config('app.name') }}">
-            <span class="brand-mark" aria-hidden="true">آ</span>
-            <img class="brand-logo" src="/img/logo.png" alt="{{ config('app.name') }}" onerror="this.style.display='none';document.querySelector('.brand-mark').style.display='inline-flex'">
+            <img class="brand-logo" src="/img/logo.png" alt="{{ config('app.name') }}">
         </a>
 
         @auth
