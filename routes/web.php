@@ -21,6 +21,7 @@ use App\Http\Controllers\User\AdController as UserAdController;
 use App\Http\Controllers\User\BillingController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\GuestAdController;
+use App\Http\Controllers\User\PasswordController;
 use App\Http\Controllers\User\PermitController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\TicketController;
@@ -66,6 +67,8 @@ Route::middleware('auth')->prefix('user')->as('user.')->group(function (): void 
     Route::post('/payments/callback/{authority}', [BillingController::class, 'callback']);
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/password', [PasswordController::class, 'edit'])->name('password.edit');
+    Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::post('/tickets', [TicketController::class, 'store'])->middleware('throttle:5,1')->name('tickets.store');
 });

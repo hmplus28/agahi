@@ -116,40 +116,73 @@ class AuthController extends Controller
     }
 
     /**
-     * Forgot-password flow: re-SMS the user's EXISTING permanent password.
-     * We never reset/rotate the password — the same one stays valid forever.
+     * Forgot-password flow. Two modes:
+     *
+     *   • action=remind (default) — re-SMS the user's EXISTING permanent
+     *     password. The credential does not change; the user just gets
+     *     the same one again because they forgot what it was.
+     *
+     *   • action=rotate — generate a NEW permanent password, invalidate
+     *     the old one, and SMS the new one. This is the equivalent of a
+     *     "force password change" without the user being logged in.
      */
     public function forgotSend(Request $request): RedirectResponse
     {
-        $request->validate(['mobile' => ['required', 'regex:/^09\d{9}$/']]);
-        $mobile = PersianNormalizer::mobile($request->input('mobile'));
+        $data = $request->validate([
+            'mobile' => ['required', 'regex:/^09\d{9}$/'],
+            'action' => ['nullable', 'in:remind,rotate'],
+        ]);
+        $mobile = PersianNormalizer::mobile($data['mobile']);
+        $action = $data['action'] ?? 'remind';
 
         $user = User::query()->where('mobile', $mobile)->first();
 
         // Always return a positive message even when the user is not found,
         // to avoid leaking which mobile numbers are registered.
         if ($user) {
-            // The user's permanent password is plaintext_password (set at
-            // registration time). If for any reason it's missing (e.g. legacy
-            // user created via the seeder), generate a new one, store it,
-            // and SMS that — effectively rotating the password ONCE.
-            $password = $user->plaintext_password ?: $this->passwords->generate();
-            if (!$user->plaintext_password) {
+            if ($action === 'rotate') {
+                // Generate a fresh permanent password and replace both the
+                // bcrypt hash and the plaintext copy.
+                $newPassword = $this->passwords->generate();
                 $user->forceFill([
-                    'password'            => $password,
-                    'plaintext_password' => $password,
+                    'password'            => $newPassword,
+                    'plaintext_password' => $newPassword,
                 ])->save();
-            }
 
-            $this->sms->send(
-                key: 'forgot-password:'.$user->id.':'.Str::random(8),
-                type: 'forgot_password',
-                mobile: $user->mobile,
-                message: $this->passwords->smsBody($password, isReset: true),
-                user: $user,
-            );
+                $this->sms->send(
+                    key:     'forgot-rotate:' . $user->id . ':' . Str::random(8),
+                    type:    'password_changed',
+                    mobile:  $user->mobile,
+                    message: $this->passwords->smsBody($newPassword, isReset: true),
+                    user:    $user,
+                );
+            } else {
+                // Remind mode: re-SMS the existing permanent password.
+                // For legacy users without a plaintext_password (e.g. seeded),
+                // generate one now and SMS it — effectively rotating ONCE
+                // so subsequent reminders work normally.
+                $password = $user->plaintext_password ?: $this->passwords->generate();
+                if (!$user->plaintext_password) {
+                    $user->forceFill([
+                        'password'            => $password,
+                        'plaintext_password' => $password,
+                    ])->save();
+                }
+
+                $this->sms->send(
+                    key:     'forgot-remind:' . $user->id . ':' . Str::random(8),
+                    type:    'forgot_password',
+                    mobile:  $user->mobile,
+                    message: $this->passwords->smsBody($password, isReset: true),
+                    user:    $user,
+                );
+            }
         }
 
-        return back()->with('success', 'در صورت وجود حساب، رمز عبور ثابت شما پیامک خواهد شد.');
+        $success = $action === 'rotate'
+            ? 'در صورت وجود حساب، رمز عبور جدید ساخته و پیامک خواهد شد.'
+            : 'در صورت وجود حساب، رمز عبور ثابت شما پیامک خواهد شد.';
+
+        return back()->with('success', $success);
     }
 }
