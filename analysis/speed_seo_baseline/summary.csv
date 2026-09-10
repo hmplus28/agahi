@@ -1,0 +1,8 @@
+name,avg_size_bytes,avg_ttfb_s,avg_total_s,p95_total_s
+home    /,0,0.0000,0.0001,0.0001
+search  /search?q=%D8%AA%D8%B9%D9%85%DB%8C%D8%B1,0,0.0000,0.0001,0.0001
+category        /category/services,0,0.0000,0.0001,0.0001
+ad      /ad/DEMO123456/tamirat-lavazem-khanegi,0,0.0000,0.0001,0.0001
+robots  /robots.txt,0,0.0000,0.0001,0.0001
+sitemap_index   /sitemap.xml,0,0.0000,0.0001,0.0001
+sitemap_categories      /sitemaps/categories.xml,0,0.0000,0.0001,0.0001

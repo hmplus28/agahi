@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\EnsureStaff;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,6 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(web: __DIR__.'/../routes/web.php', commands: __DIR__.'/../routes/console.php', health: '/up')
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias(['staff' => EnsureStaff::class]);
+
+        // Append security headers to every response. Same policy applies to
+        // HTML pages, sitemap XML and robots.txt so crawlers/browsers see a
+        // consistent posture across the site.
+        $middleware->append(SecurityHeaders::class);
+
         // Sadad auto-POSTs the user's browser to the payment callback without
         // a CSRF token. We exclude that route from CSRF protection and rely
         // on the HMAC signature on the ?signature= query parameter instead.

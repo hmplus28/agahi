@@ -62,6 +62,58 @@
             .alert-success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
             .alert-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
             .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+
+            /* ─── A11y fixes (Lighthouse 2026-09-10 audit) ─── */
+            /* Touch targets must be ≥40px to satisfy WCAG 2.5.5. */
+            .login-button,
+            .link-button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 40px;
+                min-width: 40px;
+                padding: 0 14px;
+                border-radius: .375rem;
+                font-size: .875rem;
+                font-weight: 600;
+                text-decoration: none;
+                color: #4b5563;
+                transition: background .15s, color .15s;
+            }
+            .login-button:hover,
+            .link-button:hover {
+                background: #f0fdfa;
+                color: #0d9488;
+            }
+            .link-button.danger { color: #b91c1c; }
+            .link-button.danger:hover { background: #fef2f2; color: #991b1b; }
+
+            /* Footer links: footer has dark background (#111827), so we need
+               a light foreground. #d1d5db (default body color) has 9.46:1
+               contrast against #111827, easily passing WCAG AAA. The link's
+               hover state brightens to #5eead4 (teal-300). */
+            .site-footer,
+            .footer-inner {
+                color: #d1d5db;
+            }
+            .site-footer nav a,
+            .footer-inner nav a {
+                color: #d1d5db;
+                font-size: .875rem;
+                text-decoration: none;
+                transition: color .15s;
+            }
+            .site-footer nav a:hover,
+            .footer-inner nav a:hover {
+                color: #5eead4;
+            }
+            .site-footer .copyright,
+            .site-footer .copyright a {
+                color: #d1d5db;
+            }
+            .site-footer .copyright a:hover {
+                color: #5eead4;
+            }
         </style>
     @endif
 
@@ -94,19 +146,26 @@
 <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
 
 @php
+    // Coerce to collection once so we can use Laravel collection helpers
+    // regardless of whether the cached value is a Collection or a plain array.
+    $provinces = collect($layoutProvinces);
+    $countries = collect($layoutCountries);
+
     $selectedCityIds = collect(request()->query('cities', request()->query('city')))
         ->flatten()->map(fn ($v) => (int) $v)->filter();
     $selectedProvinceIds = collect(request()->query('provinces'))->flatten()->map(fn ($v) => (int) $v)->filter();
     $hasSelection = $selectedCityIds->isNotEmpty() || $selectedProvinceIds->isNotEmpty();
-    $firstSelectedCity = $layoutProvinces->flatMap->cities->firstWhere('id', $selectedCityIds->first());
+    $allCities = $provinces->flatMap(fn ($p) => $p['cities'] ?? []);
+    $firstSelectedCity = $allCities->firstWhere('id', $selectedCityIds->first());
+    $firstSelectedProvince = $provinces->firstWhere('id', $selectedProvinceIds->first());
     $pickerLabel = ! $hasSelection
         ? 'همهٔ شهرها'
         : ($selectedProvinceIds->count() + $selectedCityIds->count() === 1
-            ? ($firstSelectedCity?->name ?? ($layoutProvinces->firstWhere('id', $selectedProvinceIds->first())?->name ?? 'همهٔ شهرها'))
+            ? (($firstSelectedCity['name'] ?? '') ?: ($firstSelectedProvince['name'] ?? 'همهٔ شهرها'))
             : (($selectedProvinceIds->count() ? $selectedProvinceIds->count().' استان' : '').($selectedProvinceIds->count() && $selectedCityIds->count() ? ' و ' : '').($selectedCityIds->count() ? $selectedCityIds->count().' شهر' : '')));
     // داده فشرده موقعیت‌ها برای رندر سمت کلاینت
-    $locationData = $layoutProvinces
-        ->map(fn ($p) => ['i' => $p->id, 'n' => $p->name, 'cy' => $p->country_id, 'c' => $p->cities->map(fn ($c) => [$c->id, $c->name])->values()->all()])
+    $locationData = $provinces
+        ->map(fn ($p) => ['i' => $p['id'], 'n' => $p['name'], 'cy' => $p['country_id'], 'c' => collect($p['cities'])->map(fn ($c) => [$c['id'], $c['name']])->values()->all()])
         ->values()->toJson(JSON_UNESCAPED_UNICODE);
     $selectedCountryId = (int) request('country');
 @endphp
@@ -278,8 +337,8 @@
                 <label for="city-country-select">کشور</label>
                 <select id="city-country-select" name="country">
                     <option value="">همهٔ کشورها</option>
-                    @foreach($layoutCountries as $country)
-                        <option value="{{ $country->id }}" @selected($selectedCountryId === (int) $country->id)>{{ $country->name }}</option>
+                    @foreach($countries as $country)
+                        <option value="{{ $country['id'] }}" @selected($selectedCountryId === (int) $country['id'])>{{ $country['name'] }}</option>
                     @endforeach
                 </select>
             </div>

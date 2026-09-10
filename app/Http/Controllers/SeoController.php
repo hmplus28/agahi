@@ -14,7 +14,17 @@ class SeoController extends Controller
 {
     public function robots(): Response
     {
-        return response("User-agent: *\nDisallow: /admin\nDisallow: /user\nDisallow: /login\nDisallow: /register\nSitemap: ".route('sitemap.index')."\n", 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+        // robots.txt rarely changes — let proxies and browsers cache it
+        // for 1 hour so a Google crawl doesn't have to re-fetch it for
+        // every URL it discovers on our site.
+        return response(
+            "User-agent: *\nDisallow: /admin\nDisallow: /user\nDisallow: /login\nDisallow: /register\nSitemap: ".route('sitemap.index')."\n",
+            200,
+            [
+                'Content-Type'  => 'text/plain; charset=UTF-8',
+                'Cache-Control' => 'public, max-age=3600',
+            ],
+        );
     }
 
     public function sitemapIndex(SeoPolicy $seo): Response

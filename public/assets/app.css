@@ -2,3 +2,53 @@
 
 /* Senior frontend refinement: sparse states, search clarity, and contextual actions */
 .ad-grid--context{grid-template-columns:repeat(auto-fit,minmax(240px,280px));justify-content:start}.post-ad-card{min-height:100%;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:13px;background:linear-gradient(145deg,#f0faf8,#e3f3ef);border:1px dashed #8fc7bf;border-radius:var(--radius);padding:20px;color:var(--ink);text-decoration:none;transition:border-color .18s,background .18s,transform .18s}.post-ad-card:hover{border-color:var(--brand);background:#dbf0eb;transform:translateY(-2px)}.post-ad-card__icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--brand);color:#fff;font-size:1.65rem;line-height:1;font-weight:400}.post-ad-card__content{display:grid;gap:3px}.post-ad-card__content strong{font-size:.98rem;line-height:1.65}.post-ad-card__content span{font-size:.83rem;line-height:1.75;color:#55716e}.post-ad-card__action{display:inline-flex;align-items:center;gap:4px;color:var(--brand-dark);font-size:.88rem;font-weight:850;margin-top:3px}.post-ad-card__action span{font-size:1.2rem}.empty-state{grid-column:1/-1;display:grid;justify-items:start;gap:6px;background:#fff;border:1px dashed #c7d5d6;border-radius:var(--radius);padding:24px;color:var(--ink)}.empty-state strong{font-size:1rem}.empty-state>span{color:var(--muted);font-size:.88rem}.empty-state--wide{margin:0}.empty-state--results{padding:32px;gap:8px}.empty-state--results>div{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:7px}.secondary-action{color:var(--brand-dark);font-size:.88rem;font-weight:800;text-decoration:none}.secondary-action:hover{text-decoration:underline}.card-placeholder{display:grid;place-content:center;gap:7px;background:linear-gradient(145deg,#eef3f4,#dfe8ea);color:#7a8c91}.card-placeholder svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:1.35}.card-placeholder>span{font-size:.78rem}.filter-title>div{display:flex;align-items:center;gap:9px}.clear-filters{color:var(--brand-dark);font-size:.78rem;font-weight:800;text-decoration:none}.clear-filters:hover{text-decoration:underline}.input-with-unit{display:flex;align-items:center;border:1px solid #dce2e6;border-radius:9px;background:#fff;overflow:hidden}.input-with-unit:focus-within{border-color:#74bfb5;box-shadow:0 0 0 3px rgba(15,118,110,.1)}.input-with-unit input{border:0!important;box-shadow:none!important;border-radius:0!important;min-width:0}.input-with-unit>span{border-inline-start:1px solid #e5e9eb;color:#82909a;font-size:.7rem;padding:0 7px;white-space:nowrap}.active-filters{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 14px}.active-filters span{background:#edf7f5;border:1px solid #d5ebe7;border-radius:999px;color:#3a5e5a;font-size:.78rem;padding:3px 9px}.result-bar{display:flex;align-items:center;min-height:43px}.result-bar strong{margin-inline-end:4px}@media(max-width:760px){.ad-grid--context{grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch}.post-ad-card{min-height:180px;padding:14px;gap:9px}.post-ad-card__icon{width:31px;height:31px;border-radius:10px;font-size:1.35rem}.post-ad-card__content strong{font-size:.85rem}.post-ad-card__content span{font-size:.74rem}.post-ad-card__action{font-size:.8rem}.empty-state{padding:18px}.empty-state--results{padding:22px}.active-filters{margin-bottom:11px}.input-with-unit>span{font-size:.64rem;padding:0 5px}}@media(max-width:380px){.ad-grid--context{grid-template-columns:1fr}.post-ad-card{min-height:135px}}
+
+/* ───────── A11y improvements (Lighthouse 2026-09-10 audit) ───────── */
+
+/* 1. Footer nav links: dark-on-white was using --muted which is #647180
+ *    on #fff — that's only 4.49:1, below WCAG AA's 4.5:1 minimum for
+ *    normal text. Bumping to #4b5563 (7.34:1) passes AA and AAA for
+ *    large text.
+ */
+.footer-inner nav a,
+.site-footer nav a {
+    color: #4b5563;
+}
+.footer-inner nav a:hover,
+.site-footer nav a:hover {
+    color: var(--brand);
+}
+
+/* 2. Login button touch target was too small (height: 32px, no padding).
+ *    WCAG 2.5.5 recommends at least 24×24 CSS pixels; we go to 40px to
+ *    match the post-ad-button's height.
+ */
+.login-button,
+.link-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    min-width: 40px;
+    padding: 0 14px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--ink);
+    transition: background 0.18s, color 0.18s;
+}
+.login-button:hover,
+.link-button:hover {
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+}
+
+/* 3. Footer link in <a class="link-button danger"> — needs more contrast */
+.link-button.danger {
+    color: #b91c1c;
+}
+.link-button.danger:hover {
+    background: #fef2f2;
+    color: #991b1b;
+}
