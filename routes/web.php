@@ -42,6 +42,7 @@ Route::post('/guest/ad/create', [GuestAdController::class, 'store'])->middleware
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::get('/terms', [PageController::class, 'terms'])->name('terms');
+Route::get('/site-ads', [PageController::class, 'siteAds'])->name('site-ads');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/register', [AuthController::class, 'create'])->name('register');

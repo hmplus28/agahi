@@ -27,4 +27,9 @@ class PageController extends Controller
     {
         return view('public.pages.terms');
     }
+
+    public function siteAds(): View
+    {
+        return view('public.pages.site-ads');
+    }
 }

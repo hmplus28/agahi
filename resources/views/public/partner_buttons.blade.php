@@ -13,29 +13,61 @@
   display: inline-flex;
   align-items: center;
   gap: .3rem;
-  padding: .35rem .75rem;
+  padding: .4rem .85rem;
   border-radius: 999px;
   font-size: .78rem;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
-  color: #374151;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  transition: all .15s;
-  white-space: nowrap;
-}
-.partner-strip a:hover {
-  background: #0d9488;
   color: #fff;
-  border-color: #0d9488;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(13,148,136,.2);
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  animation: partnerPop .4s ease-out both;
 }
+.partner-strip a:nth-child(1) { background: #0d9488; animation-delay: .0s; }
+.partner-strip a:nth-child(2) { background: #2563eb; animation-delay: .06s; }
+.partner-strip a:nth-child(3) { background: #7c3aed; animation-delay: .12s; }
+.partner-strip a:nth-child(4) { background: #ea580c; animation-delay: .18s; }
+.partner-strip a:nth-child(5) { background: #16a34a; animation-delay: .24s; }
+.partner-strip a:nth-child(6) { background: #dc2626; animation-delay: .30s; }
+.partner-strip a:nth-child(7) { background: #0891b2; animation-delay: .36s; }
+
+.partner-strip a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,.25) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity .25s;
+}
+.partner-strip a:hover::after { opacity: 1; }
+
+.partner-strip a:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 14px rgba(0,0,0,.22);
+  filter: brightness(1.1);
+}
+.partner-strip a:active {
+  transform: translateY(0) scale(.97);
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+}
+
 .partner-strip a svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
+  transition: transform .25s;
 }
+.partner-strip a:hover svg {
+  transform: rotate(-8deg) scale(1.15);
+}
+
+@keyframes partnerPop {
+  0% { opacity: 0; transform: translateY(8px) scale(.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @media (max-width: 760px) {
   .partner-strip { gap: .35rem; padding: .5rem 0; }
   .partner-strip a { font-size: .7rem; padding: .3rem .6rem; }
@@ -64,8 +96,7 @@
         ایران یافت
     </a>
     <a href="https://brahmat.ir/" target="_blank" rel="noopener sponsored">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M21.2 8a10 10 0 0 0-9.2-6v8h9.2z"/></svg>
-        برحمت
+        📿 برحمت
     </a>
     <a href="https://modirap.ir/" target="_blank" rel="noopener sponsored">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
