@@ -70,7 +70,7 @@ class SecurityHeaders
                 "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net{$hostDirective}",
                 "img-src 'self' data: https: http:{$hostDirective}",
                 "font-src 'self' data:",
-                "connect-src 'self' {$hostDirective}",
+                "connect-src 'self' https://cdn.jsdelivr.net{$hostDirective}",
                 "frame-ancestors 'self'",
                 "form-action 'self'",
                 "base-uri 'self'",

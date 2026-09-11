@@ -11,6 +11,11 @@
     <a href="{{ route('admin.reports.index') }}">⚠️ گزارش‌ها</a>
     <a href="{{ route('admin.tickets.index') }}">💬 تیکت‌ها</a>
     <a href="{{ route('admin.payments.index') }}">💳 پرداخت‌ها</a>
+    @if($pendingReminders > 0)
+        <a href="{{ route('admin.expiry-reminders.index') }}" class="stat-link-alert">⏰ یادآوری انقضا <span class="badge badge-warning">{{ number_format($pendingReminders) }}</span></a>
+    @else
+        <a href="{{ route('admin.expiry-reminders.index') }}">⏰ یادآوری انقضا</a>
+    @endif
 </nav>
 
 @php
@@ -42,5 +47,8 @@
 <style>
 .stat-link{text-decoration:none;color:inherit;display:block;transition:transform .15s,box-shadow .15s}
 .stat-link:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.stat-link-alert{background:#fef3c7;border:1px solid #fbbf24;border-radius:.5rem;padding:.5rem .75rem}
+.badge{display:inline-block;padding:.1rem .4rem;border-radius:999px;font-size:.7rem;font-weight:600;margin-inline-start:.25rem;}
+.badge-warning{background:#fef3c7;color:#92400e;}
 </style>
 @endsection

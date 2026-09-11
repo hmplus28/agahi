@@ -37,6 +37,7 @@ class Ad extends Model
     public function primaryImage(): HasMany { return $this->hasMany(AdImage::class)->where('is_primary', true); }
     public function statusHistory(): HasMany { return $this->hasMany(AdStatusHistory::class); }
     public function links(): HasMany { return $this->hasMany(AdLink::class)->where('is_active', true)->orderBy('sort_order'); }
+    public function expiryReminders(): HasMany { return $this->hasMany(AdExpiryReminder::class); }
 
     public function scopePubliclyVisible(Builder $query): Builder
     {

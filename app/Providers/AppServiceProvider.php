@@ -8,6 +8,7 @@ use App\Domains\Billing\Contracts\PaymentGateway;
 use App\Domains\Billing\Gateways\FakePaymentGateway;
 use App\Domains\Billing\Gateways\SadadGateway;
 use App\Domains\Notifications\Contracts\SmsProvider;
+use App\Domains\Notifications\Providers\IpPanelSmsProvider;
 use App\Domains\Notifications\Providers\LogSmsProvider;
 use App\Models\Country;
 use App\Models\Province;
@@ -28,7 +29,12 @@ class AppServiceProvider extends ServiceProvider
             };
         });
 
-        $this->app->bind(SmsProvider::class, LogSmsProvider::class);
+        $this->app->bind(SmsProvider::class, function ($app) {
+            return match (config('sms.provider', 'log')) {
+                'ippanel' => $app->make(IpPanelSmsProvider::class),
+                default   => $app->make(LogSmsProvider::class),
+            };
+        });
     }
 
     public function boot(): void

@@ -103,6 +103,9 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->as('admin.')->group(funct
     Route::post('/tickets/{ticket}/sms', [AdminTicketController::class, 'sendSms'])->name('tickets.sms');
     Route::post('/sms/templates', [AdminSmsTemplateController::class, 'store'])->name('sms.templates.store');
     Route::get('/payments', [AdminBillingController::class, 'index'])->name('payments.index');
+    Route::get('/expiry-reminders', [\App\Http\Controllers\Admin\ExpiryReminderController::class, 'index'])->name('expiry-reminders.index');
+    Route::post('/expiry-reminders/{reminder}/approve', [\App\Http\Controllers\Admin\ExpiryReminderController::class, 'approve'])->name('expiry-reminders.approve');
+    Route::post('/expiry-reminders/{reminder}/reject', [\App\Http\Controllers\Admin\ExpiryReminderController::class, 'reject'])->name('expiry-reminders.reject');
 });
 
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
