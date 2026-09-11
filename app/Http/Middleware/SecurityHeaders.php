@@ -60,15 +60,17 @@ class SecurityHeaders
         // picker, the keyword tag input, etc.). For production hardening
         // we should switch to nonces, but for now 'unsafe-inline' unblocks
         // everything without breaking functionality.
+        $host = $request->getHost();
+        $hostDirective = $host === 'localhost' ? '' : " {$host}";
         $response->headers->set(
             'Content-Security-Policy',
             implode('; ', [
                 "default-src 'self'",
-                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-                "img-src 'self' data: https:",
+                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net{$hostDirective}",
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net{$hostDirective}",
+                "img-src 'self' data: https: http:{$hostDirective}",
                 "font-src 'self' data:",
-                "connect-src 'self'",
+                "connect-src 'self' {$hostDirective}",
                 "frame-ancestors 'self'",
                 "form-action 'self'",
                 "base-uri 'self'",
