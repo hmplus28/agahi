@@ -158,16 +158,18 @@
     $allCities = $provinces->flatMap(fn ($p) => $p['cities'] ?? []);
     $firstSelectedCity = $allCities->firstWhere('id', $selectedCityIds->first());
     $firstSelectedProvince = $provinces->firstWhere('id', $selectedProvinceIds->first());
+    $selectedCountryId = (int) request('country', 1);
+    $countryMatch = collect($layoutCountries)->firstWhere('id', $selectedCountryId);
+    $selectedCountryName = $countryMatch['name'] ?? null;
     $pickerLabel = ! $hasSelection
-        ? 'همهٔ شهرها'
+        ? ($selectedCountryName ?? 'همهٔ شهرها')
         : ($selectedProvinceIds->count() + $selectedCityIds->count() === 1
-            ? (($firstSelectedCity['name'] ?? '') ?: ($firstSelectedProvince['name'] ?? 'همهٔ شهرها'))
+            ? (($firstSelectedCity['name'] ?? '') ?: ($firstSelectedProvince['name'] ?? ($selectedCountryName ?? 'همهٔ شهرها')))
             : (($selectedProvinceIds->count() ? $selectedProvinceIds->count().' استان' : '').($selectedProvinceIds->count() && $selectedCityIds->count() ? ' و ' : '').($selectedCityIds->count() ? $selectedCityIds->count().' شهر' : '')));
     // داده فشرده موقعیت‌ها برای رندر سمت کلاینت
     $locationData = $provinces
         ->map(fn ($p) => ['i' => $p['id'], 'n' => $p['name'], 'cy' => $p['country_id'], 'c' => collect($p['cities'])->map(fn ($c) => [$c['id'], $c['name']])->values()->all()])
         ->values()->toJson(JSON_UNESCAPED_UNICODE);
-    $selectedCountryId = (int) request('country');
 @endphp
 
 <header class="site-header" role="banner">
