@@ -43,6 +43,12 @@ Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/site-ads', [PageController::class, 'siteAds'])->name('site-ads');
+Route::get('/site-ads/licenses', [PageController::class, 'siteAdsLicenses'])->name('site-ads.licenses');
+Route::get('/site-ads/rules', [PageController::class, 'siteAdsRules'])->name('site-ads.rules');
+Route::get('/site-ads/samples', [PageController::class, 'siteAdsSamples'])->name('site-ads.samples');
+Route::get('/site-ads/report', [PageController::class, 'siteAdsReport'])->name('site-ads.report');
+Route::get('/site-ads/pricing', [PageController::class, 'siteAdsPricing'])->name('site-ads.pricing');
+Route::get('/site-ads/sites', [PageController::class, 'siteAdsSites'])->name('site-ads.sites');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/register', [AuthController::class, 'create'])->name('register');

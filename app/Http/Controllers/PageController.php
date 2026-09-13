@@ -32,4 +32,34 @@ class PageController extends Controller
     {
         return view('public.pages.site-ads');
     }
+
+    public function siteAdsLicenses(): View
+    {
+        return view('public.pages.site-ads-licenses');
+    }
+
+    public function siteAdsRules(): View
+    {
+        return view('public.pages.site-ads-rules');
+    }
+
+    public function siteAdsSamples(): View
+    {
+        return view('public.pages.site-ads-samples');
+    }
+
+    public function siteAdsReport(): View
+    {
+        return view('public.pages.site-ads-report');
+    }
+
+    public function siteAdsPricing(): View
+    {
+        return view('public.pages.site-ads-pricing');
+    }
+
+    public function siteAdsSites(): View
+    {
+        return view('public.pages.site-ads-sites');
+    }
 }

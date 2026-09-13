@@ -62,15 +62,18 @@ class SecurityHeaders
         // everything without breaking functionality.
         $host = $request->getHost();
         $hostDirective = $host === 'localhost' ? '' : " {$host}";
+        // Allow any Cloudflare tunnel subdomain (tunnels rotate dynamically)
+        // HTTP and HTTPS both needed — tunnel assets may be served over either
+        $cfTunnel = ' http://*.trycloudflare.com https://*.trycloudflare.com';
         $response->headers->set(
             'Content-Security-Policy',
             implode('; ', [
                 "default-src 'self'",
-                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net{$hostDirective}",
-                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net{$hostDirective}",
-                "img-src 'self' data: https: http:{$hostDirective}",
+                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net{$hostDirective}{$cfTunnel}",
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net{$hostDirective}{$cfTunnel}",
+                "img-src 'self' data: https: http:{$hostDirective}{$cfTunnel}",
                 "font-src 'self' data:",
-                "connect-src 'self' https://cdn.jsdelivr.net{$hostDirective}",
+                "connect-src 'self' https://cdn.jsdelivr.net{$hostDirective}{$cfTunnel}",
                 "frame-ancestors 'self'",
                 "form-action 'self'",
                 "base-uri 'self'",

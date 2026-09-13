@@ -39,6 +39,19 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Force asset URLs to HTTPS when behind Cloudflare tunnel.
+        // Cloudflare terminates TLS and forwards as HTTP internally, so
+        // request()->getScheme() returns 'http'. Check X-Forwarded-Proto
+        // or the CF-Connecting-IP header to detect HTTPS.
+        $host = request()->getHost();
+        $isTunnel = str_ends_with($host, '.trycloudflare.com');
+        $isHttps = request()->getScheme() === 'https'
+            || request()->header('X-Forwarded-Proto') === 'https'
+            || request()->header('CF-Connecting-IP') !== null;
+        if ($isTunnel && $isHttps) {
+            config(['app.asset_url' => "https://{$host}"]);
+        }
+
         // Share location data with all views that use the main layout.
         // The layout uses $layoutProvinces and $layoutCountries to render the
         // city-picker modal, so they must be available on every request.
