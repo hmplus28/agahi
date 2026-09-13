@@ -14,11 +14,16 @@ class SeoController extends Controller
 {
     public function robots(): Response
     {
-        // robots.txt rarely changes — let proxies and browsers cache it
-        // for 1 hour so a Google crawl doesn't have to re-fetch it for
-        // every URL it discovers on our site.
         return response(
-            "User-agent: *\nDisallow: /admin\nDisallow: /user\nDisallow: /login\nDisallow: /register\nSitemap: ".route('sitemap.index')."\n",
+            "User-agent: *\n".
+            "Disallow: /admin\n".
+            "Disallow: /user\n".
+            "Disallow: /login\n".
+            "Disallow: /register\n".
+            "Disallow: /password\n".
+            "Disallow: /search?*\n".
+            "\n".
+            "Sitemap: ".route('sitemap.index')."\n",
             200,
             [
                 'Content-Type'  => 'text/plain; charset=UTF-8',
@@ -31,8 +36,26 @@ class SeoController extends Controller
     {
         $pages = Cache::remember('seo.sitemap.pages.v1', now()->addMinutes(15), fn (): int => max(1, (int) ceil(Ad::query()->publiclyVisible()->count() / 1000)));
 
-        return response()->view('seo.sitemap-index', ['pages' => range(1, $pages)], 200, [
-            'Content-Type' => 'application/xml; charset=UTF-8',
+        // Static "always indexable" pages — listed in a dedicated
+        // sitemap entry so Google sees them in the index.
+        $staticPages = [
+            ['loc' => route('home'),                'lastmod' => now()->toAtomString(), 'priority' => '1.0'],
+            ['loc' => route('search'),              'lastmod' => now()->toAtomString(), 'priority' => '0.9'],
+            ['loc' => route('about'),               'lastmod' => now()->toAtomString(), 'priority' => '0.6'],
+            ['loc' => route('contact'),             'lastmod' => now()->toAtomString(), 'priority' => '0.6'],
+            ['loc' => route('terms'),               'lastmod' => now()->toAtomString(), 'priority' => '0.5'],
+            ['loc' => route('site-ads'),            'lastmod' => now()->toAtomString(), 'priority' => '0.8'],
+            ['loc' => route('site-ads.pricing'),    'lastmod' => now()->toAtomString(), 'priority' => '0.7'],
+            ['loc' => route('site-ads.rules'),       'lastmod' => now()->toAtomString(), 'priority' => '0.5'],
+            ['loc' => route('site-ads.sites'),       'lastmod' => now()->toAtomString(), 'priority' => '0.7'],
+            ['loc' => route('site-ads.samples'),    'lastmod' => now()->toAtomString(), 'priority' => '0.5'],
+        ];
+
+        return response()->view('seo.sitemap-index', [
+            'pages'       => range(1, $pages),
+            'staticPages' => $staticPages,
+        ], 200, [
+            'Content-Type'  => 'application/xml; charset=UTF-8',
             'Cache-Control' => 'public, max-age=900',
         ]);
     }
@@ -40,10 +63,23 @@ class SeoController extends Controller
     public function adsSitemap(int $page, SeoPolicy $seo): Response
     {
         abort_if($page < 1, 404);
-        $ads = Ad::query()->publiclyVisible()->with(['city'])->orderedForListing()->forPage($page, 1000)->get();
+
+        // Load ads with the ladder service so we can use last_ladder_at
+        // as the lastmod for ladder ads — that way Google sees fresh
+        // timestamps every time the daily cron bumps them.
+        $ads = Ad::query()
+            ->publiclyVisible()
+            ->with(['city', 'adServices.tariff'])
+            ->orderedForListing()
+            ->forPage($page, 1000)
+            ->get();
+
         abort_if($ads->isEmpty() && $page > 1, 404);
 
-        return response()->view('seo.ads-sitemap', compact('ads', 'seo'), 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
+        return response()->view('seo.ads-sitemap', compact('ads', 'seo'), 200, [
+            'Content-Type' => 'application/xml; charset=UTF-8',
+            'Cache-Control' => 'public, max-age=900',
+        ]);
     }
 
     public function categoriesSitemap(): Response

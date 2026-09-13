@@ -243,4 +243,86 @@ class ModerationController extends Controller
 
         return back()->with('success', 'وضعیت آگهی ناموفق به‌روزرسانی شد.');
     }
+
+    /**
+     * Inline edit of an ad's display fields + status flags by an admin.
+     * Lets the admin correct typos, toggle featured/urgent/ladder flags,
+     * adjust expires_at, etc. — without having to go through the user's
+     * edit form.
+     */
+    public function edit(Request $request, Ad $ad): RedirectResponse
+    {
+        $data = $request->validate([
+            'title'           => ['required', 'string', 'max:300'],
+            'description'     => ['required', 'string', 'max:6000'],
+            'price'           => ['nullable', 'integer', 'min:0'],
+            'mobile_1'        => ['nullable', 'string', 'max:30'],
+            'mobile_2'        => ['nullable', 'string', 'max:30'],
+            'phone_1'         => ['nullable', 'string', 'max:30'],
+            'phone_2'         => ['nullable', 'string', 'max:30'],
+            'email'           => ['nullable', 'email', 'max:255'],
+            'full_name'       => ['nullable', 'string', 'max:160'],
+            'business_name'   => ['nullable', 'string', 'max:160'],
+            'address'         => ['nullable', 'string', 'max:500'],
+            'category_id'     => ['required', 'exists:categories,id'],
+            'city_id'         => ['required', 'exists:cities,id'],
+            'is_featured'     => ['nullable', 'boolean'],
+            'is_urgent'       => ['nullable', 'boolean'],
+            'is_colored'      => ['nullable', 'boolean'],
+            'auto_ladder'     => ['nullable', 'boolean'],
+            'show_mobile_1'   => ['nullable', 'boolean'],
+            'expires_at'      => ['nullable', 'date'],
+        ]);
+
+        $flags = ['is_featured', 'is_urgent', 'is_colored', 'auto_ladder', 'show_mobile_1'];
+        foreach ($flags as $flag) {
+            $data[$flag] = $request->boolean($flag);
+        }
+        if (!empty($data['expires_at'])) {
+            $data['expires_at'] = \Carbon\Carbon::parse($data['expires_at']);
+        }
+
+        $ad->update($data);
+
+        return back()->with('success', 'آگهی به‌روزرسانی شد.');
+    }
+
+    /**
+     * Manual "refresh ladder" — bumps last_ladder_at and sort_at for all
+     * active ads that have the ladder service, WITHOUT waiting for the
+     * daily cron job. This is the "run it now" button on the admin
+     * dashboard so the operator can refresh ladders immediately before
+     * asking Google to re-crawl the sitemap.
+     *
+     * Also invalidates the sitemap cache so the next request returns
+     * fresh <lastmod> dates.
+     */
+    public function refreshLadders(Request $request): RedirectResponse
+    {
+        $updated = 0;
+        $now = now();
+
+        // Ads with the ladder ad_service active.
+        $ads = Ad::query()
+            ->where('status', AdStatus::Active)
+            ->whereHas('adServices', function ($q): void {
+                $q->where('status', 'active')->whereHas('tariff', function ($q2): void {
+                    $q2->where('service_type', 'ladder')->orWhere('service_type', 'auto_ladder');
+                });
+            })
+            ->get();
+
+        foreach ($ads as $ad) {
+            $ad->forceFill([
+                'last_ladder_at' => $now,
+                'sort_at' => $now,
+            ])->save();
+            $updated++;
+        }
+
+        // Invalidate sitemap cache so Google gets fresh lastmod values.
+        \Illuminate\Support\Facades\Cache::forget('seo.sitemap.pages.v1');
+
+        return back()->with('success', "نردبان {$updated} آگهی به‌روزرسانی شد و سایت‌مپ بازسازی خواهد شد.");
+    }
 }

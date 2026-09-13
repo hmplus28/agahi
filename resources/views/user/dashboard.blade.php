@@ -11,8 +11,9 @@
 
 <div class="dashboard-links">
     <a href="{{ route('user.payments.index') }}">پرداخت‌ها و تمدید</a>
+    <a href="{{ route('user.expired-ads.index') }}">آگهی‌های منقضی</a>
     <a href="{{ route('user.tickets.index') }}">تیکت‌ها</a>
-    <a href="{{ route('user.profile.edit') }}">پروفایل</a>
+    <a href="{{ route('user.password.edit') }}">تغییر رمز</a>
 </div>
 
 <div class="tabs">

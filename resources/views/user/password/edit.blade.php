@@ -41,7 +41,7 @@
         <button class="button" type="submit">تولید رمز جدید و ارسال پیامک</button>
     </form>
 
-    <p><a href="{{ route('user.profile.edit') }}">بازگشت به پروفایل</a></p>
+    <p><a href="{{ route("user.dashboard") }}">بازگشت به پروفایل</a></p>
 </section>
 
 <style>

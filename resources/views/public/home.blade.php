@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+<h1>{{ config('agahi.brand_name', 'سامانه آگهی') }} — هر چیزی که نیاز دارید، نزدیک شما پیدا کنید</h1>
+
 <section class="home-hero" aria-label="بنر تبلیغاتی">
     @if($banner)
         @if($banner['type'] === 'html')
@@ -94,7 +96,7 @@
 @endif
 
 <section class="section" aria-labelledby="latest-title">
-    <div class="section-heading"><div><h2 id="latest-title">همهٔ آگهی‌ها</h2></div></div>
+    <div class="section-heading"><div><h2 id="latest-title">تازه‌ترین آگهی‌ها</h2></div></div>
     @if($latest->isNotEmpty())
         <div class="ad-grid ad-grid--context">@foreach($latest as $ad)<x-ad-card :ad="$ad" />@endforeach</div>
         @if($latest->hasPages())

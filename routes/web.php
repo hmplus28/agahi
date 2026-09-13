@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\PermitController as AdminPermitController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Public\AdController as PublicAdController;
@@ -16,14 +17,15 @@ use App\Http\Controllers\Public\AdReportController;
 use App\Http\Controllers\Public\CategoryController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\SearchController;
+use App\Http\Controllers\Public\TagController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\User\AdController as UserAdController;
 use App\Http\Controllers\User\BillingController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\User\ExpiredAdsController;
 use App\Http\Controllers\User\GuestAdController;
 use App\Http\Controllers\User\PasswordController;
 use App\Http\Controllers\User\PermitController;
-use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\TicketController;
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +33,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 Route::get('/search', SearchController::class)->name('search');
 Route::get('/category/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
+Route::get('/tag/{keyword}', [TagController::class, 'show'])->name('tag.show')->where('keyword', '.*');
 Route::get('/ad/{ad}/{slug}', [PublicAdController::class, 'show'])->where('ad', '[A-Za-z0-9]+')->name('ads.show');
 Route::post('/ad/{ad}/report', [AdReportController::class, 'store'])->where('ad', '[A-Za-z0-9]+')->middleware('throttle:3,10')->name('ads.reports.store');
 
@@ -72,8 +75,8 @@ Route::middleware('auth')->prefix('user')->as('user.')->group(function (): void 
     Route::post('/payments/purchase', [BillingController::class, 'purchase'])->middleware('throttle:5,1')->name('payments.purchase');
     Route::get('/payments/callback/{authority}', [BillingController::class, 'callback'])->name('payments.callback');
     Route::post('/payments/callback/{authority}', [BillingController::class, 'callback']);
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/expired-ads', [ExpiredAdsController::class, 'index'])->name('expired-ads.index');
+    Route::post('/expired-ads/renew-all', [ExpiredAdsController::class, 'renewAll'])->name('expired-ads.renewAll');
     Route::get('/password', [PasswordController::class, 'edit'])->name('password.edit');
     Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
@@ -84,6 +87,7 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->as('admin.')->group(funct
     Route::get('/', AdminDashboardController::class)->name('dashboard');
     Route::get('/ads', [ModerationController::class, 'index'])->name('ads.index');
     Route::patch('/ads/{ad}/status', [ModerationController::class, 'transition'])->name('ads.transition');
+    Route::patch('/ads/{ad}/edit', [ModerationController::class, 'edit'])->name('ads.edit');
 
     // Pending (guest/incomplete) ads — quick actions from the admin ads index page.
     Route::post('/pending-ads/{pending}/finalize', [ModerationController::class, 'finalizePending'])->name('pending-ads.finalize');
@@ -113,9 +117,24 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->as('admin.')->group(funct
     Route::get('/expiry-reminders', [\App\Http\Controllers\Admin\ExpiryReminderController::class, 'index'])->name('expiry-reminders.index');
     Route::post('/expiry-reminders/{reminder}/approve', [\App\Http\Controllers\Admin\ExpiryReminderController::class, 'approve'])->name('expiry-reminders.approve');
     Route::post('/expiry-reminders/{reminder}/reject', [\App\Http\Controllers\Admin\ExpiryReminderController::class, 'reject'])->name('expiry-reminders.reject');
+
+    // Settings — admin-configurable pricing & branding.
+    Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
+    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    // Manual ladder refresh — bumps last_ladder_at for active ladder ads
+    // without waiting for the daily cron. Useful before a Google re-crawl.
+    Route::post('/ads/ladder/refresh', [ModerationController::class, 'refreshLadders'])->name('ads.ladder.refresh');
 });
 
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 Route::get('/sitemap.xml', [SeoController::class, 'sitemapIndex'])->name('sitemap.index');
 Route::get('/sitemaps/ads-{page}.xml', [SeoController::class, 'adsSitemap'])->whereNumber('page')->name('sitemap.ads');
 Route::get('/sitemaps/categories.xml', [SeoController::class, 'categoriesSitemap'])->name('sitemap.categories');
+
+// Catch-all fallback: any URL that doesn't match a defined route above
+// redirects to the homepage instead of returning a 404. This keeps users
+// (and crawlers) on the site rather than bouncing them with an error page.
+Route::fallback(function () {
+    return redirect()->route('home', [], 302);
+});
