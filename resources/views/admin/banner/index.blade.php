@@ -1,5 +1,6 @@
 @extends('layouts.app',['title'=>'مدیریت بنر | '.config('app.name'),'robots'=>'noindex, nofollow'])
 @section('content')
+@include('admin._toolbar')
 <div class="section-heading"><div><h1>بنر صفحهٔ اصلی</h1><p class="muted">تصویر یا فایل HTML دلخواه را برای نمایش در بالای صفحهٔ اصلی بارگذاری کنید.</p></div><a class="button button-outline back-button" href="{{ route('admin.dashboard') }}">داشبورد</a></div>
 
 <section class="panel">

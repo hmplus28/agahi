@@ -1,6 +1,7 @@
 @extends('layouts.app',['title'=>'آگهی‌های ناموفق | '.config('app.name'),'robots'=>'noindex, nofollow'])
 
 @section('content')
+@include('admin._toolbar')
 <div class="page-top">
     <div>
         <h1>آگهی‌های ناموفق</h1>

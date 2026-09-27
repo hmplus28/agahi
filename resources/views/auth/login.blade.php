@@ -10,8 +10,9 @@
         <label>گذرواژه
             <input name="password" type="password" required autocomplete="current-password">
         </label>
-        <label class="check">
-            <input type="checkbox" name="remember" value="1"> ورود مرا به خاطر بسپار
+        <label class="check-label">
+            <input type="checkbox" name="remember" value="1">
+            <span>ورود مرا به خاطر بسپار</span>
         </label>
         <button class="button">ورود</button>
     </form>

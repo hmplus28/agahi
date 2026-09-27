@@ -1,6 +1,7 @@
 @extends('layouts.app', ['title' => 'تنظیمات سامانه | ' . config('app.name'), 'robots' => 'noindex, nofollow'])
 
 @section('content')
+@include('admin._toolbar')
 <div class="page-top">
     <div><h1>تنظیمات سامانه</h1><p class="muted">قیمت‌های جانبی، برندینگ و اطلاعات تماس.</p></div>
     <a class="button button-outline" href="{{ route('admin.dashboard') }}">بازگشت به داشبورد</a>
@@ -77,8 +78,6 @@
 .settings-section .field-label select,
 .settings-section .field-label textarea{width:100%;padding:.5rem .7rem;border:1px solid #d1d5db;border-radius:.375rem;font-size:.9rem;}
 .field-hint{display:block;font-size:.7rem;color:#9ca3af;margin-top:.25rem;}
-.check-label{display:flex;gap:.5rem;align-items:flex-start;margin-top:1rem;font-size:.875rem;color:#374151;}
-.check-label input{margin-top:.2rem;}
-.check-label span{flex:1;}
+
 </style>
 @endsection

@@ -1,6 +1,7 @@
 @extends('layouts.app', ['title' => 'گزارش‌های تخلف | ' . config('app.name'), 'robots' => 'noindex, nofollow'])
 
 @section('content')
+@include('admin._toolbar')
 <div class="page-top"><div><h1>گزارش‌های تخلف</h1></div><a class="button button-outline" href="{{ route('admin.dashboard') }}">بازگشت به داشبورد</a></div>
 
 <div class="table-wrap">

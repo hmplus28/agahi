@@ -1,6 +1,7 @@
 @extends('layouts.app', ['title' => 'مدیریت آگهی‌ها | ' . config('app.name'), 'robots' => 'noindex, nofollow'])
 
 @section('content')
+@include('admin._toolbar')
 <div class="screenshot-preview" hidden id="screenshot-preview">
     <img id="screenshot-preview-img" src="" alt="نمایش تصویر آگهی" style="max-width:90vw;max-height:70vh;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.15);">
 </div>

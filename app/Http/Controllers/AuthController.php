@@ -8,7 +8,6 @@ use App\Domains\Accounts\Enums\UserRole;
 use App\Domains\Notifications\SmsService;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Models\Profile;
 use App\Models\User;
 use App\Support\PasswordService;
 use App\Support\PersianNormalizer;
@@ -57,7 +56,6 @@ class AuthController extends Controller
             'is_active'           => true,
             'is_staff'            => false,
         ]);
-        Profile::query()->create(['user_id' => $user->id]);
 
         // SMS the permanent password to the user. We use an idempotency key
         // scoped to (user, registration) so a double-submit doesn't double-send.

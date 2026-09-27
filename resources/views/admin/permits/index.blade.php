@@ -1,6 +1,7 @@
 @extends('layouts.app', ['title' => 'مجوزها | ' . config('app.name'), 'robots' => 'noindex, nofollow'])
 
 @section('content')
+@include('admin._toolbar')
 <div class="page-top">
     <div><h1>مجوزهای آگهی</h1><p class="muted">بررسی و تأیید تصاویر مجوز آپلود‌شده توسط کاربران.</p></div>
     <a class="button button-outline" href="{{ route('admin.dashboard') }}">بازگشت به داشبورد</a>
@@ -55,6 +56,26 @@
                         @else
                             <span class="muted">تصویری ثبت نشده</span>
                         @endif
+                        @if($permit->image2_path)
+                            <div style="margin-top:6px;">
+                                <a href="{{ asset('storage/' . $permit->image2_path) }}"
+                                   target="_blank" rel="noopener"
+                                   class="permit-image-thumb"
+                                   title="مشاهده تصویر دوم مجوز">
+                                    <img src="{{ asset('storage/' . $permit->image2_path) }}"
+                                         alt="تصویر دوم مجوز آگهی"
+                                         loading="lazy"
+                                         style="width:80px;height:60px;object-fit:cover;border:1px solid #e5e7eb;border-radius:6px;cursor:pointer;">
+                                </a>
+                                <div style="margin-top:4px;">
+                                    <a href="{{ asset('storage/' . $permit->image2_path) }}"
+                                       target="_blank" rel="noopener"
+                                       class="link-button link-button--small">
+                                        مشاهده کامل (۲)
+                                    </a>
+                                </div>
+                            </div>
+                        @endif
                     </td>
                     <td>{{ $permit->issued_at ? jdate($permit->issued_at) : '—' }}</td>
                     <td>
@@ -98,11 +119,6 @@
 {{ $permits->links() }}
 
 <style>
-.permits-table th,
-.permits-table td {
-    padding: .75rem;
-    vertical-align: top;
-}
 .permit-row.permit-status-pending  { background: #fef9c3; }
 .permit-row.permit-status-approved { background: #f0fdf4; }
 .permit-row.permit-status-rejected { background: #fef2f2; }

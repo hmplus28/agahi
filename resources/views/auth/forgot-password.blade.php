@@ -39,8 +39,6 @@
 .auth-info-note span{display:block;line-height:1.5;margin-top:.25rem;}
 .action-choice{border:1px solid #e5e7eb;border-radius:.5rem;padding:.75rem 1rem;margin:.5rem 0 1.25rem;}
 .action-choice legend{font-size:.75rem;font-weight:600;color:#374151;padding:0 .25rem;}
-.check-label{display:flex;gap:.5rem;align-items:flex-start;font-size:.85rem;color:#374151;margin-top:.5rem;}
-.check-label input{margin-top:.2rem;}
-.check-label span{flex:1;}
+
 </style>
 @endsection

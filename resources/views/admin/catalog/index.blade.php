@@ -1,6 +1,7 @@
 @extends('layouts.app', ['title' => 'مدیریت داده‌ها | ' . config('app.name'), 'robots' => 'noindex, nofollow'])
 
 @section('content')
+@include('admin._toolbar')
 @php
     $labels = ['categories' => 'دسته‌بندی', 'countries' => 'کشور', 'provinces' => 'استان', 'cities' => 'شهر', 'tariffs' => 'تعرفه', 'forbidden-words' => 'لغت غیرمجاز'];
     $importHints = [

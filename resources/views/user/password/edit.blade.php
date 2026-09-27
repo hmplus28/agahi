@@ -48,8 +48,6 @@
 .auth-info-note{background:#f0fdfa;border:1px solid #99f6e4;border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.85rem;color:#0f766e;}
 .auth-info-note strong{display:block;margin-bottom:.25rem;}
 .auth-info-note span{display:block;line-height:1.5;}
-.check-label{display:flex;gap:.5rem;align-items:flex-start;margin-bottom:1rem;font-size:.875rem;color:#374151;}
-.check-label input{margin-top:.2rem;}
-.check-label span{flex:1;}
+
 </style>
 @endsection

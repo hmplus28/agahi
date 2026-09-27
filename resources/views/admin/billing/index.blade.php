@@ -1,6 +1,7 @@
 @extends('layouts.app', ['title' => 'پرداخت‌های مدیریت | ' . config('app.name'), 'robots' => 'noindex, nofollow'])
 
 @section('content')
+@include('admin._toolbar')
 <div class="page-top">
     <div><h1>پرداخت‌ها</h1><p class="muted">به‌طور پیش‌فرض فقط پرداخت‌های موفق نمایش داده می‌شوند.</p></div>
     <a class="button button-outline" href="{{ route('admin.dashboard') }}">بازگشت به داشبورد</a>

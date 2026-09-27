@@ -111,7 +111,7 @@ class ModerationController extends Controller
         $merged = $ads->merge($pendingAds)->sortByDesc('created_at')->values();
 
         $currentPage = $request->integer('page', 1);
-        $perPage = 15;
+        $perPage = 10;
         $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
             $merged->slice(($currentPage - 1) * $perPage, $perPage),
             $merged->count(),

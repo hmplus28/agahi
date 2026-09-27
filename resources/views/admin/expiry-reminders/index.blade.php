@@ -1,6 +1,7 @@
 @extends('layouts.app', ['title' => 'یادآوری انقضای آگهی‌ها | ' . config('app.name'), 'robots' => 'noindex, nofollow'])
 
 @section('content')
+@include('admin._toolbar')
 <div class="page-top"><div><h1>یادآوری انقضای آگهی‌ها</h1><p>آگهی‌هایی که بیش از ۱ سال از ثبت آنها گذشته و منتظر تأیید ارسال پیامک هستند.</p></div><a class="button button-outline" href="{{ route('admin.dashboard') }}">بازگشت به داشبورد</a></div>
 
 <div class="table-wrap">
