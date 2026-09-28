@@ -5,7 +5,8 @@
 @endpush
 
 @section('content')
-@if(auth()->check() && $ad->user_id === auth()->id() && ($ad->status === \App\Domains\Ads\Enums\AdStatus::Expired || ($ad->expires_at && $ad->expires_at->isPast())))
+{{-- auth()->id() returns the user's MOBILE (User::getAuthIdentifierName), so compare against the PK via auth()->user()->id. --}}
+@if(auth()->check() && $ad->user_id === auth()->user()->id && ($ad->status === \App\Domains\Ads\Enums\AdStatus::Expired || ($ad->expires_at && $ad->expires_at->isPast())))
 <div class="expired-banner" role="alert">
     <strong>⚠️ این آگهی منقضی شده است.</strong>
     <span>برای پرداخت مجدد و تمدید خودکار، آگهی را از لیست آگهی‌های منقضی خود انتخاب و پرداخت کنید.</span>

@@ -19,7 +19,9 @@ class BillingController extends Controller
 {
     public function index(): View
     {
-        $userId = auth()->id();
+        // auth()->id() returns the user's MOBILE (see User::getAuthIdentifierName()),
+        // so ownership queries MUST use the primary key via auth()->user()->id.
+        $userId = auth()->user()->id;
 
         // The user-facing payments page only shows SUCCESSFUL payments.
         // Pending and failed payments are admin-only to keep the user's view
