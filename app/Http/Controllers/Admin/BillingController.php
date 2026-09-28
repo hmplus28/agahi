@@ -13,8 +13,8 @@ class BillingController extends Controller
 {
     public function index(Request $request): View
     {
-        // Default to showing only successful payments (per product spec).
-        // Admin can switch the filter via the URL (?status=all|successful|failed|pending).
+
+
         $status = $request->string('status', 'successful')->toString();
 
         $query = Payment::query()->with(['user', 'invoice', 'ad']);

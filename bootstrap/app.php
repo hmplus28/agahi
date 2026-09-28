@@ -13,18 +13,18 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias(['staff' => EnsureStaff::class]);
 
-        // Append security headers to every response. Same policy applies to
-        // HTML pages, sitemap XML and robots.txt so crawlers/browsers see a
-        // consistent posture across the site.
+
+
+
         $middleware->append(SecurityHeaders::class);
 
-        // Sadad auto-POSTs the user's browser to the payment callback without
-        // a CSRF token. We exclude that route from CSRF protection and rely
-        // on the HMAC signature on the ?signature= query parameter instead.
+
+
+
         $middleware->validateCsrfTokens(except: [
             'user/payments/callback/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Error rendering uses Laravel's production-safe exception handling.
+
     })->create();

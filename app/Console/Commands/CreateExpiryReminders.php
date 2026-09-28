@@ -20,7 +20,7 @@ class CreateExpiryReminders extends Command
         $oneYearAgo = now()->subYear();
         $threeDaysAgo = now()->subDays(3);
 
-        // آگهی‌های فعالی که ۱ سال پیش ثبت شدن و هنوز reminder ندارن
+
         $ads = Ad::query()
             ->where('status', AdStatus::Active)
             ->where('created_at', '<=', $oneYearAgo)

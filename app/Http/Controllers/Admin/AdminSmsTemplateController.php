@@ -9,13 +9,6 @@ use App\Support\SmsTemplates;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
-/**
- * Lets the admin staff maintain reusable SMS templates (label + body) that
- * are then offered as a dropdown on the ticket and report pages.
- *
- * Templates are stored in the `site_settings` table via the SmsTemplates
- * helper so the staff can edit them without a code deploy.
- */
 class AdminSmsTemplateController extends Controller
 {
     public function store(Request $request): RedirectResponse

@@ -11,14 +11,10 @@ use App\Support\PersianNormalizer;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
-/**
- * ورود اطلاعات جغرافیایی (کشور/استان/شهر) از فایل اکسل.
- */
 class XlsxImportService
 {
-    /**
-     * @return array{created:int,updated:int,skipped:int,errors:array<int,string>}
-     */
+
+
     public function run(UploadedFile $file, string $type): array
     {
         $path = $file->getRealPath();
@@ -33,7 +29,7 @@ class XlsxImportService
         $errors = [];
 
         foreach ($rows as $index => $row) {
-            $line = $index + 2; // سطر واقعی فایل (هدر در سطر ۱)
+            $line = $index + 2; 
 
             try {
                 $result = match ($type) {

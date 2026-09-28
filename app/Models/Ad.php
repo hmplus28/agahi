@@ -53,20 +53,12 @@ class Ad extends Model
 
     public function publicUrl(): string { return route('ads.show', ['ad' => $this->code, 'slug' => $this->slug]); }
 
-    /**
-     * Display price including admin-configured surcharges for extra links
-     * and extra images. When the apply_pricing_to_display setting is off,
-     * the original base price is returned unchanged.
-     *
-     * Pricing rules:
-     *   • Base ad price: $this->price (null = "توافقی"/negotiable)
-     *   • + (number of active links × price_per_link)
-     *   • + (max(0, image count - 1) × price_per_extra_image)
-     */
+
+
     public function displayPrice(): ?int
     {
-        // Negotiable ads stay negotiable even with surcharges — adding
-        // surcharges to a null price doesn't make sense.
+
+
         if ($this->price === null) {
             return null;
         }
@@ -79,7 +71,7 @@ class Ad extends Model
         $perLink = (int) \App\Models\SiteSetting::get('pricing.price_per_link', config('agahi.price_per_link', 10));
         $perImage = (int) \App\Models\SiteSetting::get('pricing.price_per_extra_image', config('agahi.price_per_extra_image', 20));
 
-        // links() filters to is_active=true so we don't charge for soft-deleted links.
+
         $linkCount = $this->relationLoaded('links') ? $this->links->count() : $this->links()->count();
         $imageCount = $this->relationLoaded('images') ? $this->images->count() : $this->images()->count();
 

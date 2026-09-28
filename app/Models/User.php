@@ -33,12 +33,8 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * ⚠️ auth()->id() returns the user's MOBILE (not the primary key).
-     * Any ownership query on a user_id column MUST use auth()->user()->id
-     * (the PK) instead of auth()->id(), otherwise the query silently
-     * returns no rows.
-     */
+
+
     public function getAuthIdentifierName(): string
     {
         return 'mobile';

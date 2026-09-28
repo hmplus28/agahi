@@ -29,17 +29,17 @@ class ModerationController extends Controller
         $term   = $request->string('q')->trim()->toString();
         $type   = $request->string('type')->toString();
 
-        // Optional secondary filters used by the rewritten filter form. They
-        // are accepted from the URL and forwarded to the view so the chip
-        // state can be displayed, but they do not change the SQL query — they
-        // exist so the UI can be extended later without touching the route.
+
+
+
+
         $category = $request->integer('category');
         $province = $request->integer('province');
         $city     = $request->integer('city');
         $fromDate = $request->string('from_date')->toString();
         $toDate   = $request->string('to_date')->toString();
 
-        // Fetch registered ads
+
         $adsQuery = Ad::query()
             ->with(['user', 'city', 'category'])
             ->when($status && !in_array($status, ['pending', 'expired_pending'], true), fn ($q) => $q->where('status', $status))
@@ -55,7 +55,7 @@ class ModerationController extends Controller
             ->when($fromDate, fn ($q) => $q->whereDate('created_at', '>=', $fromDate))
             ->when($toDate, fn ($q) => $q->whereDate('created_at', '<=', $toDate));
 
-        // Fetch pending (failed) ads
+
         $pendingQuery = PendingAd::query()
             ->when($status === 'pending', fn ($q) => $q->where('status', 'pending'))
             ->when($status === 'expired_pending', fn ($q) => $q->where('status', 'expired'))
@@ -120,7 +120,7 @@ class ModerationController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        // Filter metadata used to render the rewritten filter UI.
+
         $statusOptions = collect([
             ['value' => '',                       'label' => 'همهٔ وضعیت‌ها'],
             ...collect(AdStatus::cases())->map(fn ($s) => ['value' => $s->value, 'label' => $s->label()])->all(),
@@ -244,12 +244,8 @@ class ModerationController extends Controller
         return back()->with('success', 'وضعیت آگهی ناموفق به‌روزرسانی شد.');
     }
 
-    /**
-     * Inline edit of an ad's display fields + status flags by an admin.
-     * Lets the admin correct typos, toggle featured/urgent/ladder flags,
-     * adjust expires_at, etc. — without having to go through the user's
-     * edit form.
-     */
+
+
     public function edit(Request $request, Ad $ad): RedirectResponse
     {
         $data = $request->validate([
@@ -287,22 +283,14 @@ class ModerationController extends Controller
         return back()->with('success', 'آگهی به‌روزرسانی شد.');
     }
 
-    /**
-     * Manual "refresh ladder" — bumps last_ladder_at and sort_at for all
-     * active ads that have the ladder service, WITHOUT waiting for the
-     * daily cron job. This is the "run it now" button on the admin
-     * dashboard so the operator can refresh ladders immediately before
-     * asking Google to re-crawl the sitemap.
-     *
-     * Also invalidates the sitemap cache so the next request returns
-     * fresh <lastmod> dates.
-     */
+
+
     public function refreshLadders(Request $request): RedirectResponse
     {
         $updated = 0;
         $now = now();
 
-        // Ads with the ladder ad_service active.
+
         $ads = Ad::query()
             ->where('status', AdStatus::Active)
             ->whereHas('adServices', function ($q): void {
@@ -320,7 +308,7 @@ class ModerationController extends Controller
             $updated++;
         }
 
-        // Invalidate sitemap cache so Google gets fresh lastmod values.
+
         \Illuminate\Support\Facades\Cache::forget('seo.sitemap.pages.v1');
 
         return back()->with('success', "نردبان {$updated} آگهی به‌روزرسانی شد و سایت‌مپ بازسازی خواهد شد.");

@@ -36,8 +36,8 @@ class SeoController extends Controller
     {
         $pages = Cache::remember('seo.sitemap.pages.v1', now()->addMinutes(15), fn (): int => max(1, (int) ceil(Ad::query()->publiclyVisible()->count() / 1000)));
 
-        // Static "always indexable" pages — listed in a dedicated
-        // sitemap entry so Google sees them in the index.
+
+
         $staticPages = [
             ['loc' => route('home'),                'lastmod' => now()->toAtomString(), 'priority' => '1.0'],
             ['loc' => route('search'),              'lastmod' => now()->toAtomString(), 'priority' => '0.9'],
@@ -64,9 +64,9 @@ class SeoController extends Controller
     {
         abort_if($page < 1, 404);
 
-        // Load ads with the ladder service so we can use last_ladder_at
-        // as the lastmod for ladder ads — that way Google sees fresh
-        // timestamps every time the daily cron bumps them.
+
+
+
         $ads = Ad::query()
             ->publiclyVisible()
             ->with(['city', 'adServices.tariff'])
@@ -84,7 +84,7 @@ class SeoController extends Controller
 
     public function categoriesSitemap(): Response
     {
-        /** @var array<int,array{slug:string,lastmod:string}> $categories */
+
         $categories = Cache::remember('seo.sitemap.categories.v2', now()->addMinutes(15), function (): array {
             return Category::query()->active()->orderBy('id')->get(['slug', 'updated_at'])->map(fn (Category $category): array => [
                 'slug' => $category->slug,

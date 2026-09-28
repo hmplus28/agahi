@@ -24,10 +24,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CatalogController extends Controller
 {
-    /** Types that can be bulk-imported from an XLSX file. */
+
     private const IMPORTABLE = ['countries', 'provinces', 'cities'];
 
-    /** Map of catalog type → Eloquent model class. */
+
     private const MAP = [
         'categories'      => Category::class,
         'countries'       => Country::class,
@@ -86,10 +86,8 @@ class CatalogController extends Controller
         return back()->with('success', 'وضعیت رکورد تغییر کرد.');
     }
 
-    /**
-     * Download the bundled sample XLSX so the admin can see the expected
-     * columns before importing their own file.
-     */
+
+
     public function sample(string $type): StreamedResponse
     {
         abort_unless(in_array($type, self::IMPORTABLE, true), 404);
@@ -104,11 +102,8 @@ class CatalogController extends Controller
         ]);
     }
 
-    /**
-     * Bulk-import location data from an uploaded XLSX file. Only the
-     * geo types (countries / provinces / cities) are supported — other
-     * types return 404.
-     */
+
+
     public function import(Request $request, string $type): RedirectResponse
     {
         abort_unless(in_array($type, self::IMPORTABLE, true), 404);
@@ -117,7 +112,7 @@ class CatalogController extends Controller
             'file' => ['required', 'file', 'mimes:xlsx,xls'],
         ]);
 
-        /** @var UploadedFile $file */
+
         $file = $data['file'];
 
         $result = app(XlsxImportService::class)->run($file, $type);

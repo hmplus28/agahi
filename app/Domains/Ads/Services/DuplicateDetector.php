@@ -9,7 +9,7 @@ use App\Support\PersianNormalizer;
 
 final class DuplicateDetector
 {
-    /** @return array{title:string,description:string,title_hash:string,description_hash:string} */
+
     public function fingerprints(string $title, string $description): array
     {
         $normalizedTitle = PersianNormalizer::text($title);

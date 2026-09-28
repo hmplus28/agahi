@@ -10,12 +10,6 @@ use App\Models\Province;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-/**
- * Seeder کامل شهرهای ایران بر اساس آخرین تقسیمات کشوری رسمی.
- * منبع داده: sajaddp/list-of-cities-in-Iran (بر اساس مرکز آمار ایران)
- *
- * php artisan db:seed --class=IranCitiesSeeder
- */
 class IranCitiesSeeder extends Seeder
 {
     public function run(): void
@@ -35,8 +29,8 @@ class IranCitiesSeeder extends Seeder
 
         $iran = Country::query()->firstOrCreate(['slug' => 'iran'], ['name' => 'ایران', 'is_active' => true]);
 
-        // ── استان‌ها ─────────────────────────────────
-        $provinceMap = []; // dataset id => local id
+
+        $provinceMap = []; 
         foreach ($provincesData as $p) {
             $province = Province::query()->updateOrCreate(
                 ['name' => $p['name']],
@@ -45,13 +39,13 @@ class IranCitiesSeeder extends Seeder
             $provinceMap[$p['id']] = $province->id;
         }
 
-        // ── شهرها ────────────────────────────────────
+
         $validCityKeys = [];
         $sort = [];
         $now = now();
         $rows = [];
 
-        // نام پایه هر استان برای شناسایی ناحیه‌های شماره‌دار (مثل «مشهد ۱»)
+
         $baseNamesByProvince = [];
         foreach ($citiesData as $c) {
             $localId = $provinceMap[$c['province_id']] ?? null;
@@ -68,7 +62,7 @@ class IranCitiesSeeder extends Seeder
 
             $name = trim($c['name']);
 
-            // حذف نواحی/مناطق شهری شماره‌دار مثل «اراک 1» یا «اسلام شهر2»
+
             if (preg_match('/^(.*?)[\s\x{200c}]*[0-9۰-۹]+$/u', $name, $m) && isset($baseNamesByProvince[$localProvinceId][$this->normalizeBase($m[1])])) {
                 continue;
             }
@@ -76,7 +70,7 @@ class IranCitiesSeeder extends Seeder
             $key = $localProvinceId.'|'.$name;
 
             if (isset($validCityKeys[$key])) {
-                continue; // حذف تکراری‌ها درون یک استان
+                continue; 
             }
             $validCityKeys[$key] = true;
             $sort[$localProvinceId] = ($sort[$localProvinceId] ?? 0) + 1;
@@ -106,7 +100,7 @@ class IranCitiesSeeder extends Seeder
             DB::table('cities')->insertOrIgnore($chunk);
         }
 
-        // ── پاک‌سازی: غیرفعال کردن داده‌های قدیمی خارج از لیست رسمی ──
+
         $stale = City::query()
             ->whereNotIn(DB::raw("CONCAT(province_id,'|',name)"), array_keys($validCityKeys))
             ->whereDoesntHave('ads')

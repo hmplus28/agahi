@@ -15,7 +15,7 @@ class HomeController extends Controller
 {
     public function __invoke(): View
     {
-        /** @var array<int,array{title:string,slug:string,children:array<int,array{title:string,slug:string}>}> $categories */
+
         $categories = Cache::remember('public.root_categories.v2', now()->addHour(), function (): array {
             return Category::query()
                 ->active()
@@ -39,7 +39,7 @@ class HomeController extends Controller
         $latest = Ad::query()->publiclyVisible()->with(['city', 'images'])->orderedForListing()->paginate(30);
         $banner = HomeBanner::get();
 
-        /** Flat collection for the 3-level category modal */
+
         $allCategories = Category::query()->active()->select(['id', 'parent_id', 'title'])->orderBy('title')->get();
 
         return view('public.home', compact('categories', 'featured', 'latest', 'banner', 'allCategories'));

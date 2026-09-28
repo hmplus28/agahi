@@ -63,10 +63,8 @@ class TicketController extends Controller
         return back()->with('success', 'پاسخ ثبت شد.');
     }
 
-    /**
-     * Admin creates a new ticket on behalf of a user identified by mobile.
-     * Persian digits in the mobile number are normalized before lookup.
-     */
+
+
     public function storeForUser(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -103,10 +101,8 @@ class TicketController extends Controller
             ->with('success', 'تیکت برای کاربر ایجاد شد.');
     }
 
-    /**
-     * Send a templated SMS to the ticket owner. Useful when the admin wants
-     * to communicate outside the ticket thread (e.g. to remind them).
-     */
+
+
     public function sendSms(Request $request, Ticket $ticket): RedirectResponse
     {
         $data = $request->validate([

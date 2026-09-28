@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 final class AdWorkflow
 {
-    /** @var array<string, list<AdStatus>> */
+
     private const TRANSITIONS = [
         'draft' => [AdStatus::PendingApproval, AdStatus::Deleted],
         'pending_approval' => [AdStatus::Active, AdStatus::NeedsPermit, AdStatus::Inactive, AdStatus::Deleted, AdStatus::PendingPayment],

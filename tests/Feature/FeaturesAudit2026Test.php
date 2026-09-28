@@ -53,9 +53,9 @@ class FeaturesAudit2026Test extends TestCase
         ], $overrides));
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  Pricing multipliers: per-link and per-extra-image surcharges.
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
 
     public function test_display_price_includes_link_and_image_surcharges(): void
     {
@@ -66,10 +66,10 @@ class FeaturesAudit2026Test extends TestCase
 
         $ad = $this->makeAd($user, ['price' => 1000]);
 
-        // No links, no images: price should equal base price.
+
         $this->assertSame(1000, $ad->displayPrice());
 
-        // Add 2 active links and 3 images.
+
         $ad->allLinks()->createMany([
             ['type' => 'website', 'url' => 'https://example.com/1', 'is_active' => true,  'sort_order' => 0],
             ['type' => 'website', 'url' => 'https://example.com/2', 'is_active' => true,  'sort_order' => 1],
@@ -81,7 +81,7 @@ class FeaturesAudit2026Test extends TestCase
         ]);
         $ad->refresh();
 
-        // Base 1000 + (2 links × 10) + (max(0, 3-1) × 20) = 1000 + 20 + 40 = 1060
+
         $this->assertSame(1060, $ad->displayPrice());
     }
 
@@ -126,9 +126,9 @@ class FeaturesAudit2026Test extends TestCase
         $this->assertSame(50, SiteSetting::get('pricing.price_per_extra_image'));
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  Fallback route: unknown URLs redirect to home (no 404).
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
 
     public function test_unknown_url_redirects_to_home_instead_of_404(): void
     {
@@ -136,9 +136,9 @@ class FeaturesAudit2026Test extends TestCase
             ->assertRedirect(route('home'));
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  Tag page: keyword-driven ad listing.
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
 
     public function test_tag_page_lists_ads_with_matching_keyword(): void
     {
@@ -156,9 +156,9 @@ class FeaturesAudit2026Test extends TestCase
             ->assertDontSee('آگهی بدون برچسب', false);
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  Sitemap includes static pages (about, contact, site-ads, ...).
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
 
     public function test_sitemap_index_lists_static_pages(): void
     {
@@ -171,9 +171,9 @@ class FeaturesAudit2026Test extends TestCase
             ->assertSee(route('sitemap.categories'), false);
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  Admin billing defaults to showing only successful payments.
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
 
     private function makePayment(User $user, string $status, string $authority): Payment
     {
@@ -231,9 +231,9 @@ class FeaturesAudit2026Test extends TestCase
             ->assertSee('FAILED-2', false);
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  User billing page only shows successful payments.
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
 
     public function test_user_payments_index_only_shows_successful(): void
     {
@@ -241,9 +241,9 @@ class FeaturesAudit2026Test extends TestCase
         $this->makePayment($user, 'successful', 'U-SUCCESS-1');
         $this->makePayment($user, 'failed', 'U-FAILED-1');
 
-        // Use the database to verify the BillingController's query filter,
-        // since the Blade view may not render the authority directly when
-        // the payments paginator is empty (for the user view's optional section).
+
+
+
         $successfulCount = Payment::query()
             ->where('user_id', $user->id)
             ->where('status', 'successful')
@@ -256,13 +256,13 @@ class FeaturesAudit2026Test extends TestCase
         $this->assertSame(1, $successfulCount, 'user should have 1 successful payment');
         $this->assertSame(1, $failedCount, 'user should have 1 failed payment');
 
-        // The page itself must render without error.
+
         $this->actingAs($user)->get(route('user.payments.index'))->assertOk();
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  Expired ads page shows the user's expired ads + renewal form.
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
 
     public function test_user_expired_ads_page_lists_expired_ads(): void
     {
@@ -270,8 +270,8 @@ class FeaturesAudit2026Test extends TestCase
         $ad = $this->makeAd($user, ['status' => AdStatus::Expired, 'expires_at' => now()->subDay(), 'title' => 'آگهی منقضی', 'slug' => 'expired-ad-' . random_int(1000, 9999), 'code' => 'EXP' . random_int(1000, 9999)]);
         $ad2 = $this->makeAd($user, ['status' => AdStatus::Active, 'expires_at' => now()->addDay(), 'title' => 'آگهی فعال', 'slug' => 'active-ad-' . random_int(1000, 9999), 'code' => 'ACT' . random_int(1000, 9999)]);
 
-        // Refresh the normalized_title_hash to match the new title so the
-        // ad doesn't accidentally match a duplicate-detector constraint.
+
+
         $ad->forceFill(['normalized_title' => 'آگهی منقضی', 'normalized_title_hash' => hash('sha256', 'آگهی منقضی')])->save();
         $ad2->forceFill(['normalized_title' => 'آگهی فعال', 'normalized_title_hash' => hash('sha256', 'آگهی فعال')])->save();
 
@@ -299,19 +299,19 @@ class FeaturesAudit2026Test extends TestCase
                 'tariff_id' => $tariff->id,
             ]);
 
-        // Either redirects to gateway or to payments index — both are 302.
+
         $response->assertRedirect();
 
-        // One invoice created, with two invoice items.
+
         $this->assertDatabaseHas('invoices', ['user_id' => $user->id, 'status' => 'pending']);
         $invoice = \App\Models\Invoice::query()->where('user_id', $user->id)->first();
         $this->assertSame(2, $invoice->items->count());
-        $this->assertSame(10000, $invoice->total); // 2 × 5000
+        $this->assertSame(10000, $invoice->total); 
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  Admin can edit ad fields (title, price, flags, expires_at).
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
 
     public function test_admin_can_edit_ad_fields(): void
     {
@@ -342,9 +342,9 @@ class FeaturesAudit2026Test extends TestCase
         $this->assertFalse($ad->is_urgent);
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  Manual ladder refresh bumps last_ladder_at for active ladder ads.
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
 
     public function test_admin_can_refresh_ladders_manually(): void
     {
@@ -372,9 +372,9 @@ class FeaturesAudit2026Test extends TestCase
         $this->assertTrue($ad->last_ladder_at->gt($oldLadder));
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  Featured/urgent ad-card variants render.
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
 
     public function test_featured_ad_card_has_featured_class(): void
     {
@@ -396,17 +396,17 @@ class FeaturesAudit2026Test extends TestCase
         $this->assertStringContainsString('فوری', $html);
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  Daily cron bumps BOTH flagged auto_ladder ads and ads with an
-    //  active purchased ladder tariff service.
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
+
 
     public function test_process_auto_ladders_covers_purchased_ladder_service(): void
     {
         $user = User::factory()->create();
         $old = now()->subDays(2);
 
-        // Ad with a purchased (tariff-based) ladder service — must be bumped.
+
         $ladderAd = $this->makeAd($user);
         $ladderAd->forceFill(['last_ladder_at' => $old, 'sort_at' => $old])->save();
         $tariff = Tariff::query()->create([
@@ -419,7 +419,7 @@ class FeaturesAudit2026Test extends TestCase
             'status' => 'active',
         ]);
 
-        // Plain active ad without any ladder — must NOT be bumped.
+
         $plainAd = $this->makeAd($user, ['title' => 'آگهی بدون نردبان']);
         $plainAd->forceFill(['last_ladder_at' => $old, 'sort_at' => $old])->save();
 
@@ -432,13 +432,13 @@ class FeaturesAudit2026Test extends TestCase
         $this->assertFalse($plainAd->last_ladder_at->gt($old), 'plain ad must not be bumped');
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  Profile route is removed.
-    // ─────────────────────────────────────────────────────────────────────
+
+
+
 
     public function test_profile_route_no_longer_exists(): void
     {
-        // The /user/profile URL should not be a known route name anymore.
+
         $this->assertFalse(\Illuminate\Support\Facades\Route::has('user.profile.edit'));
         $this->assertFalse(\Illuminate\Support\Facades\Route::has('user.profile.update'));
     }

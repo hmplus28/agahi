@@ -1,6 +1,6 @@
 @if ($paginator->hasPages())
     <nav role="navigation" aria-label="صفحه‌بندی" class="pagination-wrap">
-        {{-- Previous --}}
+        
         @if ($paginator->onFirstPage())
             <span class="pg-btn pg-prev pg-disabled" aria-disabled="true" aria-label="صفحهٔ قبل">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
@@ -11,7 +11,7 @@
             </a>
         @endif
 
-        {{-- Pages --}}
+        
         @foreach ($elements as $element)
             @if (is_string($element))
                 <span class="pg-ellipsis">{{ $element }}</span>
@@ -28,7 +28,7 @@
             @endif
         @endforeach
 
-        {{-- Next --}}
+        
         @if ($paginator->hasMorePages())
             <a href="{{ $paginator->nextPageUrl() }}" rel="next" class="pg-btn pg-next" aria-label="صفحهٔ بعد">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>

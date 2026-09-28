@@ -37,11 +37,9 @@ Route::get('/tag/{keyword}', [TagController::class, 'show'])->name('tag.show')->
 Route::get('/ad/{ad}/{slug}', [PublicAdController::class, 'show'])->where('ad', '[A-Za-z0-9]+')->name('ads.show');
 Route::post('/ad/{ad}/report', [AdReportController::class, 'store'])->where('ad', '[A-Za-z0-9]+')->middleware('throttle:3,10')->name('ads.reports.store');
 
-// Guest ad submission — multi-step flow: guest fills ad form, then registers/logs in.
 Route::get('/guest/ad/create', [GuestAdController::class, 'create'])->name('guest.ad.create');
 Route::post('/guest/ad/create', [GuestAdController::class, 'store'])->middleware('throttle:10,1')->name('guest.ad.store');
 
-// Static public pages
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::get('/terms', [PageController::class, 'terms'])->name('terms');
@@ -89,7 +87,7 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->as('admin.')->group(funct
     Route::patch('/ads/{ad}/status', [ModerationController::class, 'transition'])->name('ads.transition');
     Route::patch('/ads/{ad}/edit', [ModerationController::class, 'edit'])->name('ads.edit');
 
-    // Pending (guest/incomplete) ads — quick actions from the admin ads index page.
+
     Route::post('/pending-ads/{pending}/finalize', [ModerationController::class, 'finalizePending'])->name('pending-ads.finalize');
     Route::patch('/pending-ads/{pending}/status', [ModerationController::class, 'updatePendingStatus'])->name('pending-ads.status');
     Route::delete('/pending-ads/{pending}', [ModerationController::class, 'destroyPending'])->name('pending-ads.destroy');
@@ -118,12 +116,12 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->as('admin.')->group(funct
     Route::post('/expiry-reminders/{reminder}/approve', [\App\Http\Controllers\Admin\ExpiryReminderController::class, 'approve'])->name('expiry-reminders.approve');
     Route::post('/expiry-reminders/{reminder}/reject', [\App\Http\Controllers\Admin\ExpiryReminderController::class, 'reject'])->name('expiry-reminders.reject');
 
-    // Settings — admin-configurable pricing & branding.
+
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 
-    // Manual ladder refresh — bumps last_ladder_at for active ladder ads
-    // without waiting for the daily cron. Useful before a Google re-crawl.
+
+
     Route::post('/ads/ladder/refresh', [ModerationController::class, 'refreshLadders'])->name('ads.ladder.refresh');
 });
 
@@ -132,9 +130,6 @@ Route::get('/sitemap.xml', [SeoController::class, 'sitemapIndex'])->name('sitema
 Route::get('/sitemaps/ads-{page}.xml', [SeoController::class, 'adsSitemap'])->whereNumber('page')->name('sitemap.ads');
 Route::get('/sitemaps/categories.xml', [SeoController::class, 'categoriesSitemap'])->name('sitemap.categories');
 
-// Catch-all fallback: any URL that doesn't match a defined route above
-// redirects to the homepage instead of returning a 404. This keeps users
-// (and crawlers) on the site rather than bouncing them with an error page.
 Route::fallback(function () {
     return redirect()->route('home', [], 302);
 });

@@ -11,10 +11,10 @@
     <title>{{ $title ?? config('app.name') }}</title>
     <meta name="description" content="{{ $description ?? config('agahi.site_description') }}">
 
-    {{-- Canonical --}}
+    
     <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
 
-    {{-- Open Graph --}}
+    
     @php $ogImage = ($openGraph ?? [])['image'] ?? null; @endphp
     <meta property="og:site_name" content="{{ config('app.name') }}">
     <meta property="og:type" content="website">
@@ -28,18 +28,18 @@
     <meta name="twitter:description" content="{{ $description ?? config('agahi.site_description') }}">
     @if ($ogImage)<meta name="twitter:image" content="{{ $ogImage }}">@endif
 
-    {{-- DNS Prefetch & Preconnect --}}
+    
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
 
-    {{-- Favicon --}}
+    
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📢</text></svg>">
 
-    {{-- Vite Assets --}}
+    
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @else
-        {{-- Fallback: inline critical CSS when Vite dev server is not running --}}
+        
         <style>
             *,:after,:before{box-sizing:border-box;border:0 solid;margin:0;padding:0}
             html{font-family:sans-serif;-webkit-text-size-adjust:100%;tab-size:4;line-height:1.5}
@@ -117,7 +117,7 @@
         </style>
     @endif
 
-    {{-- Structured Data: Organization --}}
+    
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
@@ -136,7 +136,7 @@
 
     @stack('head')
 
-    {{-- ─── Jalali (Shamsi) date picker for permit issue date ─── --}}
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script>
@@ -173,7 +173,7 @@
 @endphp
 
 <header class="site-header" role="banner">
-    {{-- ردیف اول: اکشن‌ها راست، لوگو وسط، ثبت آگهی چپ --}}
+    
     <div class="container header-top">
         <div class="header-actions header-actions--start">
             @auth
@@ -206,7 +206,7 @@
         @endauth
     </div>
 
-    {{-- ردیف دوم: شهر راست، شماره وسط، دراپ‌داون چپ --}}
+    
     <div class="container header-bottom">
         <button class="city-picker" type="button" id="city-picker-trigger" aria-haspopup="dialog" aria-controls="city-modal" aria-expanded="false">
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.33 7-12a7 7 0 1 0-14 0c0 6.67 7 12 7 12Z"/><circle cx="12" cy="9" r="2.25"/></svg>
@@ -301,12 +301,12 @@
     </div>
 </footer>
 
-{{-- Inline tiny JS before asset loads, for instant interaction --}}
+
 <script>
 (function(){var d=document;d.documentElement.classList.remove('no-js');d.addEventListener('click',function(e){var t=e.target.closest('[data-toggle-class]');if(t){e.preventDefault();var el=d.querySelector(t.dataset.target);if(el)el.classList.toggle(t.dataset.toggleClass)}})})();
 </script>
 
-{{-- ─── مودال انتخاب شهر ─── --}}
+
 
 <div class="city-modal" id="city-modal" role="dialog" aria-modal="true" aria-label="انتخاب موقعیت" hidden
      data-locations="{{ $locationData }}"
@@ -641,7 +641,7 @@
 })();
 </script>
 
-{{-- ─── Jalali date picker initialisation ─── --}}
+
 <script>
 $(function () {
     var el = document.getElementById('permit-issued-display');

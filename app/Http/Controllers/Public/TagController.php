@@ -10,19 +10,12 @@ use App\Support\PersianNormalizer;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-/**
- * Keyword tag page.
- *
- * When a user clicks on a keyword shown on an ad page, we take them here
- * — /tag/{keyword} — which lists all publicly visible ads that have that
- * keyword in their `keywords` JSON column.
- */
 class TagController extends Controller
 {
     public function show(Request $request, string $keyword): View
     {
-        // Decode URL-encoded Persian text and normalize so that searches
-        // match regardless of ZWNJ / Arabic-vs-Persian letter differences.
+
+
         $keyword = PersianNormalizer::text(rawurldecode($keyword));
 
         $ads = Ad::query()

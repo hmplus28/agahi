@@ -6,30 +6,20 @@ namespace App\Services;
 
 use SimpleXMLElement;
 
-/**
- * یک خوانندهٔ سبک و خودکفا برای فایل‌های اکسل .xlsx
- *
- * فایل .xlsx در اصل یک بستهٔ ZIP از فایل‌های XML است.
- * این کلاس بدون هیچ وابستگی خارجی (بدون PhpSpreadsheet و بدون
- * افزونهٔ ZipArchive) محتوای سلول‌ها را از بستهٔ OOXML استخراج می‌کند
- * و برای ورود اطلاعات (Import) از اکسل به‌کار می‌رود.
- */
 class XlsxReader
 {
     private const NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
 
-    /** @var array<int,string|null> */
+
     private array $sharedStrings = [];
 
-    /** @var array<int,array<int,string|null>> */
+
     private array $rows = [];
 
     private string $extractDir;
 
-    /**
-     * @param string $path مسیر فایل xlsx
-     * @param int $sheetIndex اندیس برگه (از صفر)
-     */
+
+
     public function __construct(string $path, private readonly int $sheetIndex = 0)
     {
         $this->extractDir = sys_get_temp_dir().'/xlsx_'.bin2hex(random_bytes(16));
@@ -39,7 +29,7 @@ class XlsxReader
         $this->loadSheet($sheetIndex);
     }
 
-    /** استخراج محتوای zip به پوشهٔ موقت */
+
     private function extract(string $path): void
     {
         if (!is_file($path) || !is_readable($path)) {
@@ -54,11 +44,11 @@ class XlsxReader
             mkdir($this->extractDir, 0700, true);
         }
 
-        // Some XLSX writers (Excel itself, Apple Numbers) emit the file as a
-        // proper ZIP archive that PharData can iterate. Other writers (e.g.
-        // PHPSpreadsheet) emit it in a way that needs a PharData wrapper
-        // with the .zip extension. We normalize to .zip in a temp copy so
-        // both shapes work.
+
+
+
+
+
         $zipCopy = $this->extractDir . '/source.zip';
         copy($path, $zipCopy);
 
@@ -68,9 +58,9 @@ class XlsxReader
 
     private static function extractAll(\PharData $phar, string $targetDir): void
     {
-        // Use the PharData's built-in extractTo() which handles all the ZIP
-        // member iteration safely. We pass a list of files (null = all) and
-        // pass overwrite=true so re-runs don't fail on existing files.
+
+
+
         try {
             $phar->extractTo($targetDir, null, true);
         } catch (\Throwable $e) {
@@ -78,7 +68,7 @@ class XlsxReader
         }
     }
 
-    /** بارگذاری رشته‌های مشترک (sharedStrings.xml) */
+
     private function loadSharedStrings(): void
     {
         $file = $this->extractDir.'/xl/sharedStrings.xml';
@@ -105,13 +95,13 @@ class XlsxReader
         }
     }
 
-    /** بارگذاری سلول‌های برگهٔ مشخص شده */
+
     private function loadSheet(int $index): void
     {
         $file = $this->extractDir.'/xl/worksheets/sheet'.($index + 1).'.xml';
 
         if (!is_file($file)) {
-            // برخی فایل‌ها برگه را با prefixed نام می‌سازند
+
             $files = glob($this->extractDir.'/xl/worksheets/sheet*.xml') ?: [];
             sort($files);
             $file = $files[$index] ?? null;
@@ -163,7 +153,7 @@ class XlsxReader
         }
     }
 
-    /** تبدیل حروف ستون (مثل AB) به اندیس عددی از صفر */
+
     private function colToIndex(string $col): int
     {
         $col = strtoupper($col);
@@ -176,13 +166,13 @@ class XlsxReader
         return $result - 1;
     }
 
-    /** همهٔ ردیف‌ها به صورت آرایهٔ آرایه (سطر اول = هدر) */
+
     public function rows(): array
     {
         return $this->rows;
     }
 
-    /** ردیف‌های داده به جز سطر عنوان */
+
     public function dataRows(bool $skipHeader = true): array
     {
         return $skipHeader ? array_slice($this->rows, 1) : $this->rows;

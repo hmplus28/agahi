@@ -46,7 +46,7 @@ class UserFacingPagesTest extends TestCase
             ->assertSee('site-header', false)
             ->assertSee('header-top', false)
             ->assertSee('header-bottom', false)
-            ->assertSee('brand-mark', false)
+            ->assertSee('brand-logo', false)
             ->assertSee('header-phone', false)
             ->assertSee('city-picker', false)
             ->assertSee('header-dropdown', false)
@@ -240,12 +240,12 @@ class UserFacingPagesTest extends TestCase
             'normalized_description_hash' => md5('test'),
         ]);
 
-        // Guests and other visitors must NOT see the owner-only renewal banner.
+
         $this->get($ad->publicUrl())
             ->assertOk()
             ->assertDontSee('این آگهی منقضی شده است');
 
-        // The owner sees the banner with a link to the batch-renewal page.
+
         $this->actingAs($user)->get($ad->publicUrl())
             ->assertOk()
             ->assertSee('expired-banner', false)

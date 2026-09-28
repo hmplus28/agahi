@@ -42,17 +42,17 @@ class PasswordChangeTest extends TestCase
 
         $fresh = $user->fresh();
 
-        // Hash changed (new password generated).
+
         $this->assertNotSame($oldHash, $fresh->password);
         $this->assertNotSame($oldPlain, $fresh->plaintext_password);
 
-        // Old password no longer works for authentication.
+
         $this->assertFalse(auth()->validate([
             'mobile'   => $fresh->mobile,
             'password' => $oldPlain,
         ]));
 
-        // SMS log created with type=password_changed.
+
         $log = SmsLog::query()->where('user_id', $fresh->id)
             ->where('type', 'password_changed')
             ->latest('id')
@@ -69,14 +69,14 @@ class PasswordChangeTest extends TestCase
             'plaintext_password' => 'original',
         ]);
 
-        // 3 changes should succeed.
+
         for ($i = 0; $i < 3; $i++) {
             $this->actingAs($user)
                 ->put(route('user.password.update'), ['confirm' => '1'])
                 ->assertRedirect();
         }
 
-        // 4th attempt should be rate-limited.
+
         $this->actingAs($user)
             ->put(route('user.password.update'), ['confirm' => '1'])
             ->assertSessionHasErrors('password');
@@ -116,7 +116,7 @@ class PasswordChangeTest extends TestCase
         $this->assertNotSame($oldHash, $fresh->password);
         $this->assertNotSame('old-permanent', $fresh->plaintext_password);
 
-        // SMS log created with type=password_changed (rotation).
+
         $this->assertDatabaseHas('sms_logs', [
             'user_id' => $fresh->id,
             'type'    => 'password_changed',
@@ -140,12 +140,12 @@ class PasswordChangeTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        // Hash unchanged in remind mode.
+
         $fresh = $user->fresh();
         $this->assertSame($oldHash, $fresh->password);
         $this->assertSame('stable-pw', $fresh->plaintext_password);
 
-        // SMS log created with type=forgot_password (no rotation).
+
         $this->assertDatabaseHas('sms_logs', [
             'user_id' => $fresh->id,
             'type'    => 'forgot_password',

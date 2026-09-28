@@ -21,15 +21,6 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
-/**
- * Handles the two-step guest ad submission flow:
- *   1. GET  /guest/ad/create  — render the form
- *   2. POST /guest/ad/create  — validate, persist the ad (status = pending_approval),
- *      and redirect to a confirmation page.
- *
- * The guest ad is created without a user account; it is associated only by
- * mobile_1. The moderation team can later finalize it from the admin panel.
- */
 class GuestAdController extends Controller
 {
     public function create(): View
@@ -45,8 +36,8 @@ class GuestAdController extends Controller
 
     public function store(Request $request, AdSubmissionService $service): RedirectResponse
     {
-        // Normalize Persian digits before validation so the regex rules below
-        // match both Latin and Persian inputs.
+
+
         if ($request->filled('mobile_1')) {
             $request->merge(['mobile_1' => PersianNormalizer::mobile((string) $request->input('mobile_1'))]);
         }
@@ -56,8 +47,8 @@ class GuestAdController extends Controller
 
         $data = $this->validateAd($request);
 
-        // Normalize text fields so duplicate detection and search both work
-        // with either Persian or Latin digits.
+
+
         $data['title']       = PersianNormalizer::text($data['title']);
         $data['description'] = PersianNormalizer::text($data['description']);
         if (!empty($data['business_name'])) {

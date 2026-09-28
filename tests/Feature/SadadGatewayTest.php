@@ -55,9 +55,9 @@ class SadadGatewayTest extends TestCase
         return $gateway;
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  API: PaymentRequest (create)
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function create_sends_correct_payload_and_returns_token_redirect(): void
@@ -90,7 +90,7 @@ class SadadGatewayTest extends TestCase
         $result = $this->gateway()->create($this->payment());
 
         $query = parse_url($result['redirect_url'], PHP_URL_QUERY);
-        // ReturnUrl embedded in the request — inspect the fake request instead
+
         Http::assertSent(function ($request) use ($result): bool {
             $returnUrl = $request->data()['ReturnUrl'];
 
@@ -150,9 +150,9 @@ class SadadGatewayTest extends TestCase
         $this->gateway()->create($this->payment());
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  API: Advice/Verify
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function verify_returns_success_on_res_code_zero(): void
@@ -214,9 +214,9 @@ class SadadGatewayTest extends TestCase
         Http::assertNothingSent();
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  SECURITY: full POST callback flow (Sadad posts without CSRF)
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function sadad_post_callback_without_csrf_token_is_accepted_and_settles(): void
@@ -293,7 +293,7 @@ class SadadGatewayTest extends TestCase
             '*Advice/Verify' => Http::response(['ResCode' => 0, 'RetrivalRefNo' => '998877']),
         ]);
 
-        // Sadad auto-POSTs the browser here WITHOUT any CSRF token
+
         $response = $this->actingAs($user)
             ->post(route('user.payments.callback', ['authority' => $payment->authority]) . '?signature=' . $signature, [
                 'ResCode' => 0,

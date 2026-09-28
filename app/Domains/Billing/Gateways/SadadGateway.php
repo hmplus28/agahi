@@ -12,18 +12,6 @@ use Illuminate\Support\Str;
 use LogicException;
 use RuntimeException;
 
-/**
- * Sadad PSP gateway (بانک ملی ایران).
- *
- * - create(): POSTs to /vpg/api/v0/Request/PaymentRequest to obtain a Token,
- *   then returns a redirect URL to the Sadad purchase page.
- * - verify(): POSTs to /vpg/api/v0/Advice/Verify with the Token to confirm
- *   settlement and retrieve RetrivalRefNo as the reference id.
- *
- * The SignData field is derived from the TripleDES-encrypted `TerminalId;OrderId;Amount`+`;\n`
- * payload using the binary transaction_key. For tests we accept any non-empty SignData
- * because the focus is on the request shape and the security flow, not the exact crypto.
- */
 final class SadadGateway implements PaymentGateway
 {
     public function create(Payment $payment): array
@@ -37,7 +25,14 @@ final class SadadGateway implements PaymentGateway
         $orderId = now()->format('YmdHis') . str_pad((string) random_int(0, 999), 3, '0', STR_PAD_LEFT);
 
         $authority = 'S-' . $orderId;
-        $returnUrl = route('user.payments.callback', ['authority' => $authority]);
+
+
+
+        $signature = hash_hmac('sha256', $authority, (string) config('app.key'));
+        $returnUrl = route('user.payments.callback', [
+            'authority' => $authority,
+            'signature' => $signature,
+        ]);
 
         $payload = [
             'MerchantId'  => config('payment.sadad.merchant_id'),
@@ -71,10 +66,10 @@ final class SadadGateway implements PaymentGateway
 
     public function verify(Payment $payment, array $callback = []): array
     {
-        // Allow PaymentService::verify(string) and PaymentService::verify(string, callback) both.
-        // The signature on the contract is verify(Payment), but PaymentService calls with a single
-        // Payment argument and reads callback data from request(). For tests we accept a second
-        // callback argument via a more permissive signature.
+
+
+
+
         if (empty($callback['Token'])) {
             return ['successful' => false, 'reference_id' => null];
         }
@@ -105,16 +100,29 @@ final class SadadGateway implements PaymentGateway
         ];
     }
 
-    /**
-     * Compute a request signature. The real Sadad spec uses TripleDES over
-     * the binary transaction_key, but for offline tests we just need a stable
-     * non-empty string. Real production should swap this with the proper
-     * mcrypt/openssl_*. implementation.
-     */
+
+
     private function sign(string $payload): string
     {
-        $key = (string) config('payment.sadad.transaction_key', '');
-        return base64_encode(hash_hmac('sha256', $payload, $key, true));
+        $keyB64 = (string) config('payment.sadad.transaction_key', '');
+        if ($keyB64 === '') {
+            throw new RuntimeException('کلید تراکنش درگاه سداد تنظیم نشده است.');
+        }
+
+
+
+        $key = base64_decode($keyB64, false);
+        if ($key === false || strlen($key) !== 24) {
+            throw new RuntimeException('کلید تراکنش درگاه سداد معتبر نیست؛ باید base64 معادل ۲۴ بایت باشد.');
+        }
+
+        $iv = str_repeat("\x00", 8);
+        $encrypted = openssl_encrypt($payload, 'DES-EDE3-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        if ($encrypted === false) {
+            throw new RuntimeException('امضای درگاه سداد تولید نشد؛ کلید تراکنش را بررسی کنید.');
+        }
+
+        return base64_encode($encrypted);
     }
 
     private function assertConfigured(): void

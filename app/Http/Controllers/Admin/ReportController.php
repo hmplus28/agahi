@@ -26,9 +26,9 @@ class ReportController extends Controller
 
     public function index(): View
     {
-        // Load active templates so the admin can pick one when sending an SMS.
-        // SmsTemplates::all() returns a plain array; wrap it in a collection
-        // so the Blade view can call ->isNotEmpty() and ->first() fluently.
+
+
+
         return view('admin.reports.index', [
             'reports'   => AdReport::query()->with(['ad', 'ad.user'])->latest()->paginate(50),
             'templates' => collect(SmsTemplates::all()),
@@ -50,9 +50,8 @@ class ReportController extends Controller
         return back()->with('success', 'گزارش به‌روزرسانی شد.');
     }
 
-    /**
-     * Quick action: delete the reported ad and mark the report as resolved.
-     */
+
+
     public function deleteAd(AdReport $report): RedirectResponse
     {
         $ad = $report->ad;
@@ -64,9 +63,8 @@ class ReportController extends Controller
         return back()->with('success', 'آگهی حذف شد و گزارش بسته شد.');
     }
 
-    /**
-     * Quick action: SMS a warning template to the ad owner.
-     */
+
+
     public function sendSms(Request $request, AdReport $report): RedirectResponse
     {
         $data = $request->validate([
@@ -97,10 +95,8 @@ class ReportController extends Controller
         return back()->with('success', 'پیامک هشدار برای کاربر ارسال شد.');
     }
 
-    /**
-     * Quick action: open a ticket for the ad owner so support can talk to
-     * them directly. The report is moved to "reviewing" status while we wait.
-     */
+
+
     public function openTicket(AdReport $report): RedirectResponse
     {
         $ad = $report->ad;

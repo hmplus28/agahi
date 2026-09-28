@@ -5,7 +5,7 @@
 @endpush
 
 @section('content')
-{{-- auth()->id() returns the user's MOBILE (User::getAuthIdentifierName), so compare against the PK via auth()->user()->id. --}}
+
 @if(auth()->check() && $ad->user_id === auth()->user()->id && ($ad->status === \App\Domains\Ads\Enums\AdStatus::Expired || ($ad->expires_at && $ad->expires_at->isPast())))
 <div class="expired-banner" role="alert">
     <strong>⚠️ این آگهی منقضی شده است.</strong>

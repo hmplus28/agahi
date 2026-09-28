@@ -20,17 +20,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
-/**
- * 30+ end-to-end flows across the whole site (public, SEO, user panel,
- * expiry lifecycle, admin). Each test is one numbered user flow.
- */
 class ThirtyFlowsTest extends TestCase
 {
     use RefreshDatabase;
 
     private static int $seq = 0;
 
-    // ───────────────────────── helpers ─────────────────────────
+
 
     private function seedGeo(): array
     {
@@ -81,9 +77,9 @@ class ThirtyFlowsTest extends TestCase
     {
         $ad = Ad::query()->where('user_id', $user->id)->first() ?? $this->makeAd($user);
         $invoice = Invoice::query()->create([
-            // Invoice number is deliberately INDEPENDENT of the payment
-            // authority so the invoices table cannot leak a failed payment's
-            // authority string back onto the user payments page.
+
+
+
             'invoice_number' => 'INV-'.(++self::$seq).'-'.random_int(1000, 9999),
             'user_id'        => $user->id,
             'ad_id'          => $ad->id,
@@ -102,13 +98,13 @@ class ThirtyFlowsTest extends TestCase
             'status'     => $status,
             'gateway'    => 'fake',
             'authority'  => $authority,
-            // Mirror PaymentService::settle(): the gateway returns a
-            // reference id (the admin table renders reference_id).
+
+
             'reference_id' => 'REF-'.$authority,
         ]);
     }
 
-    // ───────────────── 1–10: public browsing flows ─────────────────
+
 
     public function test_flow_01_homepage_renders_search_and_post_ad(): void
     {
@@ -192,7 +188,7 @@ class ThirtyFlowsTest extends TestCase
         $this->assertStringContainsString('ad-card--featured', $html);
         $this->assertStringContainsString('badge-featured', $html);
 
-        // Featured must be ordered before newer plain ads (pinned on top).
+
         $ordered = Ad::query()->publiclyVisible()->orderedForListing()->pluck('id')->all();
         $this->assertSame($featured->id, $ordered[0], 'featured ad must be pinned first');
     }
@@ -229,7 +225,7 @@ class ThirtyFlowsTest extends TestCase
     {
         $user = User::factory()->create();
         $ad = $this->makeAd($user, ['title' => 'آگهی کلید فارسی']);
-        // Store keyword with the PERSIAN ک; request arrives with the ARABIC ك.
+
         $ad->update(['keywords' => ['کلید']]);
 
         $this->get(route('tag.show', ['keyword' => rawurlencode('كليد')]))
@@ -237,7 +233,7 @@ class ThirtyFlowsTest extends TestCase
             ->assertSee('آگهی کلید فارسی', false);
     }
 
-    // ───────────────── 11–14: SEO flows ─────────────────
+
 
     public function test_flow_11_robots_txt_served(): void
     {
@@ -279,7 +275,7 @@ class ThirtyFlowsTest extends TestCase
         }
     }
 
-    // ───────────────── 16–21: user panel flows ─────────────────
+
 
     public function test_flow_16_guest_sees_guest_form_but_user_form_requires_login(): void
     {
@@ -317,7 +313,7 @@ class ThirtyFlowsTest extends TestCase
         $ad->allLinks()->create(['type' => 'website', 'url' => 'https://example.com', 'is_active' => true, 'sort_order' => 0]);
         $ad->refresh();
 
-        // 1000 base + 1 link × 10
+
         $this->assertSame(1010, $ad->displayPrice());
     }
 
@@ -334,7 +330,7 @@ class ThirtyFlowsTest extends TestCase
         ]);
         $ad->refresh();
 
-        // 1000 base + (3 images − 1 free) × 20
+
         $this->assertSame(1040, $ad->displayPrice());
     }
 
@@ -364,7 +360,7 @@ class ThirtyFlowsTest extends TestCase
             ->assertDontSee('تیکت دیگران', false);
     }
 
-    // ───────────────── 22–25: expiry lifecycle flows ─────────────────
+
 
     public function test_flow_22_expired_banner_owner_only(): void
     {
@@ -372,17 +368,17 @@ class ThirtyFlowsTest extends TestCase
         $other = User::factory()->create();
         $ad = $this->makeAd($user, ['title' => 'آگهی منقضی بنردار', 'expires_at' => now()->subDay()]);
 
-        // Guest must NOT see the banner.
+
         $this->get($ad->publicUrl())
             ->assertOk()
             ->assertDontSee('این آگهی منقضی شده است');
 
-        // Another logged-in user must NOT see it either.
+
         $this->actingAs($other)->get($ad->publicUrl())
             ->assertOk()
             ->assertDontSee('این آگهی منقضی شده است');
 
-        // The owner DOES see the banner with the renewal link.
+
         $this->actingAs($user)->get($ad->publicUrl())
             ->assertOk()
             ->assertSee('expired-banner', false)
@@ -412,7 +408,7 @@ class ThirtyFlowsTest extends TestCase
         $invoice = Invoice::query()->where('user_id', $user->id)->latest('id')->first();
         $this->assertNotNull($invoice);
         $this->assertSame(2, $invoice->items->count());
-        $this->assertSame(6000, $invoice->total); // 2 × 3000 in ONE invoice (bulk pay)
+        $this->assertSame(6000, $invoice->total); 
     }
 
     public function test_flow_24_expiry_sms_contains_direct_expired_ads_link(): void
@@ -464,7 +460,7 @@ class ThirtyFlowsTest extends TestCase
         $this->assertFalse($plainAd->last_ladder_at->gt($old), 'plain ad must not be bumped');
     }
 
-    // ───────────────── 26–34: admin flows ─────────────────
+
 
     public function test_flow_26_admin_area_requires_staff(): void
     {
@@ -482,12 +478,12 @@ class ThirtyFlowsTest extends TestCase
         $ad = $this->makeAd($user, ['title' => 'آگهی قابل ویرایش']);
         $admin = $this->makeAdmin();
 
-        // The list page must expose an edit button/form for the ad.
+
         $this->actingAs($admin)->get(route('admin.ads.index'))
             ->assertOk()
             ->assertSee(route('admin.ads.edit', $ad), false);
 
-        // And the edit endpoint must actually persist changes.
+
         $this->actingAs($admin)
             ->patch(route('admin.ads.edit', $ad), [
                 'title'         => 'آگهی ویرایش‌شده',
@@ -520,7 +516,7 @@ class ThirtyFlowsTest extends TestCase
         $ad->refresh();
         $this->assertSame(AdStatus::Active, $ad->status);
 
-        // Status filter on the listing page.
+
         $this->actingAs($admin)->get(route('admin.ads.index', ['status' => AdStatus::Active->value]))
             ->assertOk()
             ->assertSee('آگهی در انتظار', false);
@@ -568,9 +564,9 @@ class ThirtyFlowsTest extends TestCase
         $this->actingAs($admin)->get(route('admin.payments.index'))
             ->assertOk()
             ->assertSee('REF-ADMIN-SUCCESS-1', false)
-            ->assertDontSee('REF-ADMIN-FAILED-1', false); // failed hidden by default
+            ->assertDontSee('REF-ADMIN-FAILED-1', false); 
 
-        // With the explicit "all" filter both rows appear.
+
         $this->actingAs($admin)->get(route('admin.payments.index', ['status' => 'all']))
             ->assertOk()
             ->assertSee('REF-ADMIN-SUCCESS-1', false)

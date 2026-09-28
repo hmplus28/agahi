@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('token', 64)->unique();
             $table->json('ad_data');
-            $table->string('status', 20)->default('pending'); // pending, completed, expired
+            $table->string('status', 20)->default('pending'); 
             $table->timestamp('created_at');
             $table->timestamp('expires_at');
         });

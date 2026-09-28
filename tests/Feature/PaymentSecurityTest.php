@@ -79,9 +79,9 @@ class PaymentSecurityTest extends TestCase
         ]);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  1. PRICE INTEGRITY — price MUST come from DB, never from user
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function invoice_price_comes_from_tariff_not_from_request(): void
@@ -103,7 +103,7 @@ class PaymentSecurityTest extends TestCase
     {
         $service = app(PaymentService::class);
 
-        // Create two tariffs with different prices
+
         $expensive = Tariff::query()->create([
             'code' => 'EXPENSIVE', 'title' => 'گران', 'price' => 999000,
             'service_type' => 'featured', 'is_active' => true,
@@ -116,7 +116,7 @@ class PaymentSecurityTest extends TestCase
         $invoice1 = $service->createInvoice($this->user, $this->ad, $expensive);
         $invoice2 = $service->createInvoice($this->user, $this->ad, $cheap);
 
-        // Each invoice reflects its tariff price, NOT user input
+
         $this->assertSame(999000, $invoice1->total);
         $this->assertSame(1000, $invoice2->total);
     }
@@ -136,9 +136,9 @@ class PaymentSecurityTest extends TestCase
         $service->createInvoice($this->user, $this->ad, $inactive);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  2. OWNERSHIP — user must own the ad they are paying for
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function user_cannot_create_invoice_for_another_users_ad(): void
@@ -159,7 +159,7 @@ class PaymentSecurityTest extends TestCase
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('قابل پرداخت نیست');
 
-        // Try to pay with a different user
+
         $service->begin($invoice, $this->otherUser);
     }
 
@@ -171,7 +171,7 @@ class PaymentSecurityTest extends TestCase
         $result = $service->begin($invoice, $this->user);
         $payment = $result['payment'];
 
-        // Generate a valid signature for the authority
+
         $ref = new \ReflectionClass($service);
         $method = $ref->getMethod('computeSignature');
         $method->setAccessible(true);
@@ -180,13 +180,13 @@ class PaymentSecurityTest extends TestCase
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $this->expectExceptionMessage('متعلق به شما نیست');
 
-        // Try to verify with a different user
+
         $service->verify($payment->authority, $sig, $this->otherUser);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  3. HMAC CALLBACK SIGNATURE — rejects tampered / absent sigs
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function callback_without_signature_is_rejected(): void
@@ -223,7 +223,7 @@ class PaymentSecurityTest extends TestCase
 
         $this->actingAs($this->user);
 
-        // Valid signature but authority doesn't exist
+
         $response = $this->get(route('user.payments.callback', [
             'authority' => 'FAKE-AUTH-123',
             'signature' => $sig,
@@ -246,24 +246,24 @@ class PaymentSecurityTest extends TestCase
         $sigForA = $method->invoke($service, 'AUTHORITY-A');
         $sigForB = $method->invoke($service, 'AUTHORITY-B');
 
-        // Different authorities → different signatures
+
         $this->assertNotSame($sigForA, $sigForB);
 
-        // Valid pair passes
+
         $this->assertTrue($validate->invoke($service, 'AUTHORITY-A', $sigForA));
 
-        // Cross-authority fails (attacker swaps authority, keeps signature)
+
         $this->assertFalse($validate->invoke($service, 'AUTHORITY-B', $sigForA));
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  4. IDEMPOTENCY — double callback does NOT double-settle
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function settle_is_idempotent(): void
     {
-        // Create a pending paid payment (not auto-settled like free)
+
         $invoice = Invoice::query()->create([
             'invoice_number' => 'INV-20260101-IDEM',
             'user_id'        => $this->user->id,
@@ -298,17 +298,17 @@ class PaymentSecurityTest extends TestCase
         $method = $ref->getMethod('settle');
         $method->setAccessible(true);
 
-        // First settle
+
         $first = $method->invoke($service, $payment, 'REF-001');
         $this->assertSame('successful', $first->status);
         $this->assertSame('REF-001', $first->reference_id);
 
-        // Second settle (replay) — idempotent, returns same payment
+
         $second = $method->invoke($service, $payment, 'REF-002');
         $this->assertSame('successful', $second->status);
-        $this->assertSame('REF-001', $second->reference_id); // NOT overwritten
+        $this->assertSame('REF-001', $second->reference_id); 
 
-        // Only one ad_service created
+
         $this->assertDatabaseCount('ad_services', 1);
     }
 
@@ -357,9 +357,9 @@ class PaymentSecurityTest extends TestCase
         $this->assertSame('successful', $payment->refresh()->status);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  5. FREE TARIFF — skips gateway, settles immediately
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function free_tariff_bypasses_gateway_and_settles_immediately(): void
@@ -376,9 +376,9 @@ class PaymentSecurityTest extends TestCase
         $this->assertDatabaseHas('ad_services', ['ad_id' => $this->ad->id, 'tariff_id' => $this->freeTariff->id]);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  6. INVOICE GUARDS — paid invoice cannot be reused
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function already_paid_invoice_cannot_be_paid_again(): void
@@ -386,20 +386,20 @@ class PaymentSecurityTest extends TestCase
         $service = app(PaymentService::class);
         $invoice = $service->createInvoice($this->user, $this->ad, $this->freeTariff);
 
-        // First payment succeeds (free, auto-settles)
+
         $result = $service->begin($invoice, $this->user);
         $this->assertSame('successful', $result['payment']->status);
 
-        // Second attempt on same invoice MUST fail
+
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('قابل پرداخت نیست');
 
         $service->begin($invoice, $this->user);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  7. ROUTE PROTECTION — auth middleware enforcement
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function purchase_route_requires_authentication(): void
@@ -436,9 +436,9 @@ class PaymentSecurityTest extends TestCase
         $this->assertTrue($hasThrottle, 'Purchase route must have throttle middleware');
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  8. SIGNATURE GENERATION — used by the controller for real URLs
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function sign_callback_url_produces_valid_url(): void
@@ -452,12 +452,12 @@ class PaymentSecurityTest extends TestCase
 
         $signed = $service->signCallbackUrl($template, 'REAL-AUTH-001');
 
-        // URL contains the real authority (as route parameter, not query string)
+
         $this->assertStringContainsString('REAL-AUTH-001', $signed);
         $this->assertStringNotContainsString('__AUTHORITY__', $signed);
         $this->assertStringNotContainsString('__SIGNATURE__', $signed);
 
-        // URL is valid and has signature query param
+
         $query = parse_url($signed, PHP_URL_QUERY);
         $this->assertNotNull($query);
         parse_str($query, $params);
@@ -465,32 +465,34 @@ class PaymentSecurityTest extends TestCase
         $this->assertNotEmpty($params['signature']);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    //  9. COMPLETE FLOW — smoke test for end-to-end integrity
-    // ═══════════════════════════════════════════════════════════════
+
+
+
 
     #[Test]
     public function complete_paid_flow_creates_pending_payment(): void
     {
         $service = app(PaymentService::class);
 
-        // Step 1: Create invoice from tariff
+
         $invoice = $service->createInvoice($this->user, $this->ad, $this->paidTariff);
         $this->assertSame('pending', $invoice->status);
         $this->assertSame(500000, $invoice->total);
 
-        // Step 2: Begin payment
+
         $result = $service->begin($invoice, $this->user);
 
-        // Payment exists with correct amount
+
         $this->assertSame(500000, $result['payment']->amount);
         $this->assertSame('online', $result['payment']->method);
         $this->assertNotEmpty($result['payment']->authority);
 
-        // The redirect URL is valid
-        $this->assertStringContainsString(route('user.dashboard'), $result['redirect_url']);
 
-        // Invoice is still pending (not paid yet — waiting for gateway)
+
+        $this->assertStringContainsString('user/payments/callback/', $result['redirect_url']);
+        $this->assertStringContainsString('signature=', $result['redirect_url']);
+
+
         $this->assertDatabaseHas('invoices', ['id' => $invoice->id, 'status' => 'pending']);
     }
 }

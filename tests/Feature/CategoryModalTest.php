@@ -16,7 +16,7 @@ class CategoryModalTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** Seed a 3-level tree: group -> collection -> sub */
+
     private function seedCategories(): array
     {
         $group = Category::query()->create(['title' => 'خدمات', 'slug' => 'services', 'is_active' => true]);
@@ -47,11 +47,11 @@ class CategoryModalTest extends TestCase
             ->assertSee('گروه', false)
             ->assertSee('مجموعه', false)
             ->assertSee('زیرمجموعه', false)
-            // group buttons are pre-rendered server-side
+
             ->assertSee('data-group="' . $c['group']->id . '"', false)
             ->assertSee($c['group']->title);
 
-        // the JSON tree used by JS must contain all three levels
+
         $response->assertSee('"id":' . $c['sub']->id, false)
             ->assertSee('"parent_id":' . $c['collection']->id, false);
     }
@@ -89,11 +89,11 @@ class CategoryModalTest extends TestCase
         $response = $this->actingAs($user)->get(route('user.ads.edit', $ad));
 
         $response->assertOk()
-            // hidden input carries the leaf id
+
             ->assertSee('name="category_id" value="' . $c['sub']->id . '"', false)
-            // the three served levels get the active class
+
             ->assertSee('class="cat-item active" data-group="' . $c['group']->id . '"', false)
-            // JS initial-selection block
+
             ->assertSee('selected.group', false)
             ->assertSee('selected.collection', false)
             ->assertSee('selected.sub', false);
@@ -125,7 +125,7 @@ class CategoryModalTest extends TestCase
 
     public function test_category_modal_static_markup_includes_correct_three_level_ordering(): void
     {
-        // Build the component directly and assert the pre-rendered group list
+
         $c = $this->seedCategories();
         $cats = Category::query()->orderBy('sort_order')->get(['id', 'parent_id', 'title']);
 
@@ -136,17 +136,17 @@ class CategoryModalTest extends TestCase
         ])->render();
 
         $this->assertStringContainsString('data-cat-modal', $html);
-        // group column contains the root, collection/sub lists start empty (populated by JS)
+
         $this->assertStringContainsString('data-group="' . $c['group']->id . '"', $html);
         $this->assertStringContainsString('var tree = ', $html);
-        // the tree JSON must be a real array and contain the leaf
+
         $this->assertStringContainsString('"id":' . $c['sub']->id, $html);
     }
 
     public function test_modal_overlay_starts_closed_and_is_opened_via_class_not_hidden(): void
     {
-        // Regression guard: the overlay must be controlled by an `.open` class,
-        // not rely on the `hidden` attribute which the `.cat-overlay{display:flex}` rule overrides.
+
+
         $this->seedCategories();
         $cats = Category::query()->orderBy('sort_order')->get(['id', 'parent_id', 'title']);
 
@@ -156,7 +156,7 @@ class CategoryModalTest extends TestCase
             'selectedCategoryId' => null,
         ])->render();
 
-        // overlay is present and toggled via openOverlay / closeOverlay classList
+
         $this->assertStringContainsString('data-cat-overlay', $html);
         $this->assertStringContainsString("overlay.classList.add('open')", $html);
         $this->assertStringContainsString("overlay.classList.remove('open')", $html);

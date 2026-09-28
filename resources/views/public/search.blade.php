@@ -27,12 +27,12 @@
                 <input type="search" name="q" value="{{ request('q') }}" placeholder="مثلاً موبایل سامسونگ" autocomplete="off">
             </label>
 
-            {{-- دسته‌بندی --}}
+            
             <div class="field-label">دسته‌بندی
                 <x-category-modal :categories="$allCategories" name="category" :selected-category-id="request('category')" :hide-label="true" />
             </div>
 
-            {{-- کشور --}}
+            
             <label class="field-label">کشور
                 <select name="country" data-filter-select>
                     <option value="">همهٔ کشورها</option>
@@ -42,7 +42,7 @@
                 </select>
             </label>
 
-            {{-- استان --}}
+            
             <label class="field-label">استان
                 <select name="province" data-filter-select data-cascade-province>
                     <option value="">همهٔ استان‌ها</option>
@@ -52,7 +52,7 @@
                 </select>
             </label>
 
-            {{-- شهر --}}
+            
             <label class="field-label">شهر
                 <select name="city" data-filter-select data-cascade-city>
                     <option value="">همهٔ شهرها</option>
@@ -62,7 +62,7 @@
                 </select>
             </label>
 
-            {{-- قیمت --}}
+            
             <div class="price-fields">
                 <label class="field-label">حداقل قیمت
                     <span class="input-with-unit"><input type="number" min="0" name="min_price" value="{{ request('min_price') }}" inputmode="numeric" placeholder="تومان" title="قیمت به تومان"></span>

@@ -22,9 +22,9 @@ class RegisterRequest extends FormRequest
 
     public function rules(): array
     {
-        // No password is required from the user — the system generates one
-        // and SMSs it to them on registration. The mobile number is the user
-        // identifier; the password is delivered via SMS.
+
+
+
         return [
             'mobile'     => ['required', 'regex:/^09\d{9}$/', 'unique:users,mobile'],
             'first_name' => ['required', 'string', 'max:80'],

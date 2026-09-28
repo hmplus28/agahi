@@ -19,13 +19,13 @@ class BillingController extends Controller
 {
     public function index(): View
     {
-        // auth()->id() returns the user's MOBILE (see User::getAuthIdentifierName()),
-        // so ownership queries MUST use the primary key via auth()->user()->id.
+
+
         $userId = auth()->user()->id;
 
-        // The user-facing payments page only shows SUCCESSFUL payments.
-        // Pending and failed payments are admin-only to keep the user's view
-        // clean and focused on the actions that actually completed.
+
+
+
         $payments = Payment::query()
             ->where('user_id', $userId)
             ->where('status', 'successful')
@@ -52,12 +52,8 @@ class BillingController extends Controller
         return redirect()->to($result['redirect_url']);
     }
 
-    /**
-     * Sadad auto-POSTs the user's browser to this URL after a payment
-     * completes (or fails) WITHOUT a CSRF token. We exempt it from CSRF
-     * protection in bootstrap/app.php and rely on the HMAC signature
-     * on the ?signature= query parameter instead.
-     */
+
+
     public function callback(Request $request, string $authority, PaymentService $service): RedirectResponse
     {
         $payment = $service->verify($authority, $request->user(), $request->post());

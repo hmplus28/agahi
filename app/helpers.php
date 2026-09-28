@@ -1,18 +1,10 @@
 <?php
 
-/**
- * Convert Latin digits in a string to Persian digits.
- */
 function to_persian_digits(string $value): string
 {
     return strtr($value, ['0' => '۰', '1' => '۱', '2' => '۲', '3' => '۳', '4' => '۴', '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹']);
 }
 
-/**
- * ─── مجموعه توابع تاریخ شمسی ───────────────────────── */
-/**
- * سال شمسی متناظر با سال میلادی.
- */
 function jalali_year(?int $gregorianYear = null): int
 {
     $year  = $gregorianYear ?? (int) date('Y');
@@ -20,11 +12,6 @@ function jalali_year(?int $gregorianYear = null): int
     return $month >= 4 ? $year - 621 : $year - 622;
 }
 
-/**
- * تاریخ شمسی کامل (Y/m/d).
- *
- * @param  \DateTimeInterface|string|null  $date
- */
 function jdate($date = null, string $format = 'YYYY/MM/DD'): string
 {
     [$y, $m, $d, $H, $i, $s] = explode_date_parts($date);
@@ -36,11 +23,6 @@ function jdate($date = null, string $format = 'YYYY/MM/DD'): string
     );
 }
 
-/**
- * نمایش نسبی (مانند «۳ روز پیش»).
- *
- * @param  \DateTimeInterface|string|null  $date
- */
 function jdate_human($date = null): string
 {
     if (! $date) {
@@ -74,8 +56,6 @@ function jdate_human($date = null): string
     return (int) round($months / 12) . ' سال پیش';
 }
 
-// ──────────── internal ────────────
-
 function explode_date_parts($date): array
 {
     if ($date instanceof \DateTimeInterface) {
@@ -98,9 +78,6 @@ function explode_date_parts($date): array
     return [$jy, $jm, $jd, $H, $i, $s];
 }
 
-/**
- * الگوریتم دقیق میلادی به هجری شمسی
- */
 function gregorian_to_jalali(int $gy, int $gm, int $gd): array
 {
     $g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];

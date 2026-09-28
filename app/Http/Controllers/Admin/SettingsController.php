@@ -10,16 +10,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-/**
- * Admin-configurable pricing & site settings.
- *
- * Stores the per-link surcharge, per-extra-image surcharge, and similar
- * admin-tunable values in the site_settings table so they can be changed
- * without a code deploy.
- */
 class SettingsController extends Controller
 {
-    /** Keys we accept from the form, mapped to validation rules. */
+
     private const RULES = [
         'price_per_link'         => ['required', 'integer', 'min:0', 'max:1000000'],
         'price_per_extra_image'  => ['required', 'integer', 'min:0', 'max:1000000'],

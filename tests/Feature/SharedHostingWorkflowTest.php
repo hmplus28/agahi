@@ -70,7 +70,7 @@ class SharedHostingWorkflowTest extends TestCase
         $this->assertStringContainsString('QUEUE_CONNECTION=sync', file_get_contents(base_path('.env.example')));
     }
 
-    /** @return array{User, Ad} */
+
     private function makeAd(AdStatus $status): array
     {
         $user = User::factory()->create();

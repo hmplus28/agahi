@@ -11,7 +11,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // First, ensure the site_settings row for ad_code_counter exists
+
         $exists = DB::table('site_settings')->where('key', 'ad_code_counter')->exists();
         if (!$exists) {
             DB::table('site_settings')->insert([
@@ -22,14 +22,14 @@ return new class extends Migration
             ]);
         }
 
-        // SQLite doesn't support dropColumn on indexed columns well, so we rebuild the table
+
         $driver = DB::getDriverName();
 
         if ($driver === 'sqlite') {
-            // Disable foreign keys for the table rebuild
+
             DB::statement('PRAGMA foreign_keys = OFF');
 
-            // For SQLite: create new table, copy data, drop old, rename
+
             DB::statement('CREATE TABLE ads_new (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 code INTEGER NOT NULL UNIQUE,
@@ -78,13 +78,13 @@ return new class extends Migration
                 updated_at TIMESTAMP
             )');
 
-            // Copy data with numeric codes
+
             DB::statement('INSERT INTO ads_new (id, code, slug, user_id, title, normalized_title, normalized_title_hash, description, normalized_description, normalized_description_hash, price, full_name, business_name, country_id, province_id, city_id, address, mobile_1, show_mobile_1, mobile_2, phone_1, phone_2, hamrah_1, hamrah_2, sobit_1, sobit_2, email, keywords, category_id, referrer, source, status, submit_ip, published_at, expires_at, sort_at, last_ladder_at, views_count, is_featured, is_colored, is_urgent, auto_ladder, deleted_at, created_at, updated_at) SELECT id, id + 699999, slug, user_id, title, normalized_title, normalized_title_hash, description, normalized_description, normalized_description_hash, price, full_name, business_name, country_id, province_id, city_id, address, mobile_1, show_mobile_1, mobile_2, phone_1, phone_2, hamrah_1, hamrah_2, sobit_1, sobit_2, email, keywords, category_id, referrer, source, status, submit_ip, published_at, expires_at, sort_at, last_ladder_at, views_count, is_featured, is_colored, is_urgent, auto_ladder, deleted_at, created_at, updated_at FROM ads');
 
             DB::statement('DROP TABLE ads');
             DB::statement('ALTER TABLE ads_new RENAME TO ads');
 
-            // Recreate indexes
+
             DB::statement('CREATE INDEX ads_slug_index ON ads (slug)');
             DB::statement('CREATE INDEX ads_normalized_title_index ON ads (normalized_title)');
             DB::statement('CREATE INDEX ads_normalized_title_hash_index ON ads (normalized_title_hash)');
@@ -102,7 +102,7 @@ return new class extends Migration
 
             DB::statement('PRAGMA foreign_keys = ON');
         } else {
-            // For PostgreSQL/MySQL: standard approach
+
             Schema::table('ads', function (Blueprint $table): void {
                 $table->unsignedBigInteger('new_code')->unique()->after('id');
             });
@@ -191,7 +191,7 @@ return new class extends Migration
             DB::statement('DROP TABLE ads');
             DB::statement('ALTER TABLE ads_old RENAME TO ads');
 
-            // Recreate indexes
+
             DB::statement('CREATE INDEX ads_slug_index ON ads (slug)');
             DB::statement('CREATE INDEX ads_normalized_title_index ON ads (normalized_title)');
             DB::statement('CREATE INDEX ads_normalized_title_hash_index ON ads (normalized_title_hash)');

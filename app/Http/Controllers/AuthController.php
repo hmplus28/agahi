@@ -30,11 +30,8 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    /**
-     * Self-service registration. We generate ONE permanent password,
-     * hash it for storage, keep a plaintext copy for re-SMS purposes,
-     * SMS it to the user, and log them in immediately.
-     */
+
+
     public function store(RegisterRequest $request): RedirectResponse
     {
         $mobile = $request->safe()['mobile'];
@@ -50,15 +47,15 @@ class AuthController extends Controller
             'email'               => $request->safe()['email'] ?? null,
             'first_name'          => $request->safe()['first_name'],
             'last_name'           => $request->safe()['last_name'],
-            'password'            => $password,                  // hashed via model cast
-            'plaintext_password' => $password,                  // for re-SMS only
+            'password'            => $password,                  
+            'plaintext_password' => $password,                  
             'role'                => UserRole::User ?? 'user',
             'is_active'           => true,
             'is_staff'            => false,
         ]);
 
-        // SMS the permanent password to the user. We use an idempotency key
-        // scoped to (user, registration) so a double-submit doesn't double-send.
+
+
         $this->sms->send(
             key: 'register-password:'.$user->id,
             type: 'registration',
@@ -113,17 +110,8 @@ class AuthController extends Controller
         return view('auth.forgot-password');
     }
 
-    /**
-     * Forgot-password flow. Two modes:
-     *
-     *   • action=remind (default) — re-SMS the user's EXISTING permanent
-     *     password. The credential does not change; the user just gets
-     *     the same one again because they forgot what it was.
-     *
-     *   • action=rotate — generate a NEW permanent password, invalidate
-     *     the old one, and SMS the new one. This is the equivalent of a
-     *     "force password change" without the user being logged in.
-     */
+
+
     public function forgotSend(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -135,12 +123,12 @@ class AuthController extends Controller
 
         $user = User::query()->where('mobile', $mobile)->first();
 
-        // Always return a positive message even when the user is not found,
-        // to avoid leaking which mobile numbers are registered.
+
+
         if ($user) {
             if ($action === 'rotate') {
-                // Generate a fresh permanent password and replace both the
-                // bcrypt hash and the plaintext copy.
+
+
                 $newPassword = $this->passwords->generate();
                 $user->forceFill([
                     'password'            => $newPassword,
@@ -155,10 +143,10 @@ class AuthController extends Controller
                     user:    $user,
                 );
             } else {
-                // Remind mode: re-SMS the existing permanent password.
-                // For legacy users without a plaintext_password (e.g. seeded),
-                // generate one now and SMS it — effectively rotating ONCE
-                // so subsequent reminders work normally.
+
+
+
+
                 $password = $user->plaintext_password ?: $this->passwords->generate();
                 if (!$user->plaintext_password) {
                     $user->forceFill([

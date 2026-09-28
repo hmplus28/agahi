@@ -232,7 +232,7 @@
                                     </label>
                                     <label class="field-label">
                                         <span>شهر *</span>
-                                        {{-- Options are lazily cloned from the filter's city list by JS to keep the DOM light. --}}
+                                        
                                         <select name="city_id" required data-city-select="{{ $ad->city_id }}">
                                             <option value="">انتخاب شهر</option>
                                         </select>
