@@ -34,7 +34,24 @@ echo "»  نصب composer dependencies (production) …"
 /usr/local/bin/php composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader 2>&1
 echo "✅  composer install done"
 
-# ── ۳. تولید APP_KEY ───────────────────────────────
+# ── ۳. بیلد فرانت‌اند (Vite) ────────────────────────
+# استایل‌های پنل ادمین (تولبار چسبان و…) در resources/css/app.css هستند و
+# بدون این مرحله، نمایش به CSS فالبک محدود می‌شود.
+echo ""
+if command -v npm >/dev/null 2>&1; then
+  echo "»  بیلد فرانت‌اند (npm run build) …"
+  if [ ! -d node_modules ]; then
+    npm ci --no-audit --no-fund 2>&1 || npm install --no-audit --no-fund 2>&1
+  fi
+  npm run build
+  echo "✅  assets build done"
+else
+  echo "⚠️  npm در دسترس نیست؛ فایل‌های Vite بیلد نشدند."
+  echo "    برای استایل کامل (تولبار ادمین و …) روی سیستمی با Node اجرا کنید:"
+  echo "    npm ci && npm run build   و سپس پوشهٔ public/build را کنار پروژه آپلود کنید."
+fi
+
+# ── ۴. تولید APP_KEY ───────────────────────────────
 if grep -q 'APP_KEY=$' .env 2>/dev/null; then
   echo ""
   echo "»  تولید APP_KEY …"
@@ -42,19 +59,19 @@ if grep -q 'APP_KEY=$' .env 2>/dev/null; then
   echo "✅  APP_KEY generated"
 fi
 
-# ── ۴. لینک storage ────────────────────────────────
+# ── ۵. لینک storage ────────────────────────────────
 echo ""
 echo "»  ایجاد symlink storage …"
 /usr/local/bin/php artisan storage:link --force 2>/dev/null || true
 echo "✅  storage linked"
 
-# ── ۵. migration ───────────────────────────────────
+# ── ۶. migration ───────────────────────────────────
 echo ""
 echo "»  اجرای migrationها …"
 /usr/local/bin/php artisan migrate --force
 echo "✅  migrations done"
 
-# ── ۶. پاک‌سازی کش و optimize ──────────────────────
+# ── ۷. پاک‌سازی کش و optimize ──────────────────────
 echo ""
 echo "»  کش‌سازی و optimize …"
 /usr/local/bin/php artisan optimize:clear
@@ -63,13 +80,13 @@ echo "»  کش‌سازی و optimize …"
 /usr/local/bin/php artisan view:cache
 echo "✅  cache & optimize done"
 
-# ── ۷. تنظیم مجوزها ────────────────────────────────
+# ── ۸. تنظیم مجوزها ────────────────────────────────
 echo ""
 echo "»  تنظیم مجوزهای فایل …"
 chmod -R 775 storage bootstrap/cache
 echo "✅  permissions done"
 
-# ── ۸. بررسی نهایی ─────────────────────────────────
+# ── ۹. بررسی نهایی ─────────────────────────────────
 echo ""
 echo "══════════════════════════════════════════════════"
 echo "  ✅  استقرار با موفقیت انجام شد!"

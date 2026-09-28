@@ -189,15 +189,78 @@
                             @endif
                         </td>
                         <td>
-                            <form method="post" action="{{ route('admin.ads.transition', $ad) }}" style="display:flex;gap:.375rem;align-items:center;flex-wrap:wrap;">
+                            <div style="display:flex;gap:.375rem;align-items:center;flex-wrap:wrap;">
+                                <form method="post" action="{{ route('admin.ads.transition', $ad) }}" style="display:flex;gap:.375rem;align-items:center;flex-wrap:wrap;">
+                                    @csrf @method('PATCH')
+                                    <select name="status" style="min-width:100px;font-size:.75rem;border:1px solid #e5e7eb;border-radius:6px;padding:.25rem .5rem;">
+                                        @foreach(\App\Domains\Ads\Enums\AdStatus::cases() as $item2)
+                                            <option value="{{ $item2->value }}" @selected($ad->status === $item2)>{{ $item2->label() }}</option>
+                                        @endforeach
+                                    </select>
+                                    <input name="reason" aria-label="علت" placeholder="علت" style="width:80px;font-size:.75rem;border:1px solid #e5e7eb;border-radius:6px;padding:.25rem .5rem;">
+                                    <button class="button button-small" type="submit">ذخیره</button>
+                                </form>
+                                <button type="button" class="ad-edit-toggle" data-edit-toggle="{{ $ad->id }}" title="ویرایش کامل مشخصات آگهی">✏️ ویرایش</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="ad-edit-row" id="ad-edit-row-{{ $ad->id }}" hidden>
+                        <td colspan="11">
+                            <form method="post" action="{{ route('admin.ads.edit', $ad) }}" class="ad-edit-form">
                                 @csrf @method('PATCH')
-                                <select name="status" style="min-width:100px;font-size:.75rem;border:1px solid #e5e7eb;border-radius:6px;padding:.25rem .5rem;">
-                                    @foreach(\App\Domains\Ads\Enums\AdStatus::cases() as $item2)
-                                        <option value="{{ $item2->value }}" @selected($ad->status === $item2)>{{ $item2->label() }}</option>
-                                    @endforeach
-                                </select>
-                                <input name="reason" aria-label="علت" placeholder="علت" style="width:80px;font-size:.75rem;border:1px solid #e5e7eb;border-radius:6px;padding:.25rem .5rem;">
-                                <button class="button button-small" type="submit">ذخیره</button>
+                                <h4 class="ad-edit-title">ویرایش آگهی «{{ $ad->title }}» — کد {{ $ad->code }}</h4>
+                                <div class="ad-edit-grid">
+                                    <label class="field-label ad-edit-span2">
+                                        <span>عنوان *</span>
+                                        <input name="title" required maxlength="300" value="{{ old('title', $ad->title) }}">
+                                    </label>
+                                    <label class="field-label ad-edit-span2">
+                                        <span>توضیحات *</span>
+                                        <textarea name="description" rows="4" required maxlength="6000">{{ old('description', $ad->description) }}</textarea>
+                                    </label>
+                                    <label class="field-label">
+                                        <span>قیمت (خالی = توافقی)</span>
+                                        <input type="number" name="price" min="0" value="{{ old('price', $ad->price) }}">
+                                    </label>
+                                    <label class="field-label">
+                                        <span>دسته‌بندی *</span>
+                                        <select name="category_id" required>
+                                            @foreach($categories as $cat)
+                                                <option value="{{ $cat->id }}" @selected((int) old('category_id', $ad->category_id) === (int) $cat->id)>{{ $cat->title }}</option>
+                                            @endforeach
+                                        </select>
+                                    </label>
+                                    <label class="field-label">
+                                        <span>شهر *</span>
+                                        {{-- Options are lazily cloned from the filter's city list by JS to keep the DOM light. --}}
+                                        <select name="city_id" required data-city-select="{{ $ad->city_id }}">
+                                            <option value="">انتخاب شهر</option>
+                                        </select>
+                                    </label>
+                                    <label class="field-label">
+                                        <span>تاریخ انقضا (میلادی)</span>
+                                        <input type="date" name="expires_at" value="{{ $ad->expires_at?->format('Y-m-d') }}">
+                                    </label>
+                                    <label class="field-label"><span>موبایل ۱</span><input name="mobile_1" value="{{ old('mobile_1', $ad->mobile_1) }}"></label>
+                                    <label class="field-label"><span>موبایل ۲</span><input name="mobile_2" value="{{ old('mobile_2', $ad->mobile_2) }}"></label>
+                                    <label class="field-label"><span>تلفن ۱</span><input name="phone_1" value="{{ old('phone_1', $ad->phone_1) }}"></label>
+                                    <label class="field-label"><span>تلفن ۲</span><input name="phone_2" value="{{ old('phone_2', $ad->phone_2) }}"></label>
+                                    <label class="field-label"><span>ایمیل</span><input type="email" name="email" value="{{ old('email', $ad->email) }}"></label>
+                                    <label class="field-label"><span>نام و نام خانوادگی</span><input name="full_name" value="{{ old('full_name', $ad->full_name) }}"></label>
+                                    <label class="field-label"><span>نام کسب‌وکار</span><input name="business_name" value="{{ old('business_name', $ad->business_name) }}"></label>
+                                    <label class="field-label ad-edit-span2"><span>آدرس</span><input name="address" value="{{ old('address', $ad->address) }}"></label>
+                                </div>
+                                <div class="ad-edit-flags">
+                                    <label class="check"><input type="checkbox" name="is_featured" value="1" @checked($ad->is_featured)> <span>ویژه</span></label>
+                                    <label class="check"><input type="checkbox" name="is_urgent" value="1" @checked($ad->is_urgent)> <span>فوری</span></label>
+                                    <label class="check"><input type="checkbox" name="is_colored" value="1" @checked($ad->is_colored)> <span>رنگی</span></label>
+                                    <label class="check"><input type="checkbox" name="auto_ladder" value="1" @checked($ad->auto_ladder)> <span>نردبان خودکار</span></label>
+                                    <label class="check"><input type="checkbox" name="show_mobile_1" value="1" @checked($ad->show_mobile_1)> <span>نمایش موبایل</span></label>
+                                </div>
+                                <div class="ad-edit-actions">
+                                    <button class="button button-small" type="submit">ذخیره تغییرات</button>
+                                    <button type="button" class="ad-edit-toggle" data-edit-toggle="{{ $ad->id }}">انصراف</button>
+                                </div>
                             </form>
                         </td>
                     </tr>
@@ -343,6 +406,27 @@
     color:#111827;
 }
 .field-hint{display:block;font-size:.7rem;color:#9ca3af;margin-top:.25rem;}
+/* ─────────────────────────  Inline Ad Edit Row  ───────────────────────── */
+.ad-edit-toggle{
+    background:transparent;border:0;cursor:pointer;
+    color:#0d9488;font-size:.78rem;font-weight:600;
+    padding:.25rem .4rem;border-radius:.375rem;
+}
+.ad-edit-toggle:hover{background:#f0fdfa;color:#0f766e;}
+.ad-edit-row > td{background:#f0fdfa;border-top:2px solid #99f6e4;padding:1rem;}
+.ad-edit-form{display:flex;flex-direction:column;gap:.75rem;}
+.ad-edit-title{margin:0;font-size:.9rem;color:#0f766e;}
+.ad-edit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.6rem 1rem;}
+.ad-edit-grid .field-label input,
+.ad-edit-grid .field-label select,
+.ad-edit-grid .field-label textarea{
+    width:100%;padding:.375rem .5rem;border:1px solid #d1d5db;border-radius:.375rem;
+    font-size:.85rem;font-family:inherit;color:#111827;background:#fff;
+}
+.ad-edit-span2{grid-column:1 / -1;}
+.ad-edit-flags{display:flex;gap:1rem;flex-wrap:wrap;}
+.ad-edit-actions{display:flex;gap:.5rem;align-items:center;}
+@media (max-width:640px){.ad-edit-span2{grid-column:auto;}}
 @media (max-width: 640px){
     .filter-form__row{grid-template-columns:1fr;}
     .filter-form__row .field-label--grow{grid-column:auto;}
@@ -392,6 +476,34 @@
     document.querySelectorAll('[data-filter-select]').forEach(function(sel){
         sel.addEventListener('change', function(){
             sel.form.submit();
+        });
+    });
+
+    // Toggle the inline ad-edit rows. The city <select> of each edit form is
+    // lazily populated from the filter's city list (already in the DOM once)
+    // to avoid duplicating the full city list for every table row.
+    document.querySelectorAll('[data-edit-toggle]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            var id = btn.getAttribute('data-edit-toggle');
+            var row = document.getElementById('ad-edit-row-' + id);
+            if (!row) return;
+            row.hidden = !row.hidden;
+            var citySel = row.querySelector('select[data-city-select]');
+            if (!row.hidden && citySel && !citySel.dataset.populated){
+                var source = document.getElementById('filter-city');
+                if (source){
+                    var current = citySel.getAttribute('data-city-select');
+                    Array.prototype.slice.call(source.options).forEach(function(opt){
+                        if (!opt.value) return;
+                        var o = document.createElement('option');
+                        o.value = opt.value;
+                        o.textContent = opt.textContent;
+                        if (opt.value === current) o.selected = true;
+                        citySel.appendChild(o);
+                    });
+                    citySel.dataset.populated = '1';
+                }
+            }
         });
     });
 

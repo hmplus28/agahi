@@ -397,6 +397,42 @@ class FeaturesAudit2026Test extends TestCase
     }
 
     // ─────────────────────────────────────────────────────────────────────
+    //  Daily cron bumps BOTH flagged auto_ladder ads and ads with an
+    //  active purchased ladder tariff service.
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function test_process_auto_ladders_covers_purchased_ladder_service(): void
+    {
+        $user = User::factory()->create();
+        $old = now()->subDays(2);
+
+        // Ad with a purchased (tariff-based) ladder service — must be bumped.
+        $ladderAd = $this->makeAd($user);
+        $ladderAd->forceFill(['last_ladder_at' => $old, 'sort_at' => $old])->save();
+        $tariff = Tariff::query()->create([
+            'code' => 'LADDER-CRON', 'title' => 'نردبان', 'price' => 10000,
+            'service_type' => 'ladder', 'duration_days' => 30, 'is_active' => true,
+        ]);
+        \App\Models\AdService::query()->create([
+            'ad_id' => $ladderAd->id, 'tariff_id' => $tariff->id,
+            'starts_at' => now(), 'expires_at' => now()->addDays(30),
+            'status' => 'active',
+        ]);
+
+        // Plain active ad without any ladder — must NOT be bumped.
+        $plainAd = $this->makeAd($user, ['title' => 'آگهی بدون نردبان']);
+        $plainAd->forceFill(['last_ladder_at' => $old, 'sort_at' => $old])->save();
+
+        \Illuminate\Support\Facades\Artisan::call('ads:process-auto-ladders');
+
+        $ladderAd->refresh();
+        $plainAd->refresh();
+
+        $this->assertTrue($ladderAd->last_ladder_at->gt($old), 'purchased ladder ad must be bumped by the daily cron');
+        $this->assertFalse($plainAd->last_ladder_at->gt($old), 'plain ad must not be bumped');
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
     //  Profile route is removed.
     // ─────────────────────────────────────────────────────────────────────
 

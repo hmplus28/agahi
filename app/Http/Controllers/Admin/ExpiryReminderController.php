@@ -38,7 +38,9 @@ class ExpiryReminderController extends Controller
             return back()->withErrors(['ad' => 'آگهی یا کاربر یافت نشد.']);
         }
 
-        $message = "آگهی «{$ad->title}» شما پس از ۱ سال در حال منقضی شدن است. برای تمدید به پنل کاربری مراجعه کنید. کد آگهی: {$ad->code}";
+        $message = "آگهی «{$ad->title}» شما پس از ۱ سال در حال منقضی شدن است. لیست آگهی‌های منقضی شما: "
+            .route('user.expired-ads.index')
+            ." — از اینجا می‌توانید همه را یکجا انتخاب و پرداخت کنید. کد آگهی: {$ad->code}";
 
         $this->sms->send(
             key: 'expiry-reminder:' . $reminder->id,

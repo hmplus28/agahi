@@ -219,7 +219,7 @@ class UserFacingPagesTest extends TestCase
             ->assertSee('contact', false);
     }
 
-    public function test_expired_ad_shows_expired_banner(): void
+    public function test_expired_ad_shows_expired_banner_to_owner_only(): void
     {
         $data = $this->seedGeo();
         $user = User::factory()->create();
@@ -240,8 +240,16 @@ class UserFacingPagesTest extends TestCase
             'normalized_description_hash' => md5('test'),
         ]);
 
+        // Guests and other visitors must NOT see the owner-only renewal banner.
         $this->get($ad->publicUrl())
             ->assertOk()
-            ->assertSee('expired-banner', false);
+            ->assertDontSee('این آگهی منقضی شده است');
+
+        // The owner sees the banner with a link to the batch-renewal page.
+        $this->actingAs($user)->get($ad->publicUrl())
+            ->assertOk()
+            ->assertSee('expired-banner', false)
+            ->assertSee('این آگهی منقضی شده است')
+            ->assertSee(route('user.expired-ads.index'), false);
     }
 }

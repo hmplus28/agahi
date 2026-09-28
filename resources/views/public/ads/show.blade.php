@@ -5,11 +5,11 @@
 @endpush
 
 @section('content')
-@if($ad->status === \App\Domains\Ads\Enums\AdStatus::Expired || ($ad->expires_at && $ad->expires_at->isPast()))
+@if(auth()->check() && $ad->user_id === auth()->id() && ($ad->status === \App\Domains\Ads\Enums\AdStatus::Expired || ($ad->expires_at && $ad->expires_at->isPast())))
 <div class="expired-banner" role="alert">
     <strong>⚠️ این آگهی منقضی شده است.</strong>
-    <span>برای تمدید و دوباره فعال شدن این آگهی روی دکمهٔ زیر بزنید.</span>
-    <a class="button button-small" href="{{ route('user.payments.index') }}">تمدید آگهی</a>
+    <span>برای پرداخت مجدد و تمدید خودکار، آگهی را از لیست آگهی‌های منقضی خود انتخاب و پرداخت کنید.</span>
+    <a class="button button-small" href="{{ route('user.expired-ads.index') }}">تمدید آگهی</a>
 </div>
 @endif
 
