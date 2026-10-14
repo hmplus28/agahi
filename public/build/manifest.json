@@ -1,0 +1,39 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-CO4fwPko.css",
+    "name": "app",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "assets": [
+      "assets/Vazirmatn-Regular-CtGL0YI-.woff2",
+      "assets/Vazirmatn-Medium-D86t5Axy.woff2",
+      "assets/Vazirmatn-SemiBold-26ZP1ILp.woff2",
+      "assets/Vazirmatn-Bold-_OhAJEdh.woff2"
+    ]
+  },
+  "resources/fonts/vazirmatn/Vazirmatn-Bold.woff2": {
+    "file": "assets/Vazirmatn-Bold-_OhAJEdh.woff2",
+    "src": "resources/fonts/vazirmatn/Vazirmatn-Bold.woff2"
+  },
+  "resources/fonts/vazirmatn/Vazirmatn-Medium.woff2": {
+    "file": "assets/Vazirmatn-Medium-D86t5Axy.woff2",
+    "src": "resources/fonts/vazirmatn/Vazirmatn-Medium.woff2"
+  },
+  "resources/fonts/vazirmatn/Vazirmatn-Regular.woff2": {
+    "file": "assets/Vazirmatn-Regular-CtGL0YI-.woff2",
+    "src": "resources/fonts/vazirmatn/Vazirmatn-Regular.woff2"
+  },
+  "resources/fonts/vazirmatn/Vazirmatn-SemiBold.woff2": {
+    "file": "assets/Vazirmatn-SemiBold-26ZP1ILp.woff2",
+    "src": "resources/fonts/vazirmatn/Vazirmatn-SemiBold.woff2"
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-BvRk9kiK.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  }
+}

@@ -617,4 +617,89 @@ class ThirtyFlowsTest extends TestCase
         $this->assertMatchesRegularExpression('/npm\s+ci|npm\s+install/', $deploy, 'deploy.sh must install npm dependencies');
         $this->assertStringContainsString('npm run build', $deploy, 'deploy.sh must build Vite assets');
     }
+
+    public function test_flow_35_home_hero_shows_fallback_content_when_no_banner(): void
+    {
+        SiteSetting::forget('home.banner');
+        \Illuminate\Support\Facades\Cache::forget('public.home_banner.v1');
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('نزدیک شما پیدا کنید', false);
+        $response->assertSee('ثبت آگهی رایگان', false);
+        $response->assertSee(route('guest.ad.create'), false);
+
+        \Illuminate\Support\Facades\Storage::disk('public')->put('banners/flow35.html', '<div class="hero-content-banner">بنر آزمایشی</div>');
+        SiteSetting::put('home.banner', ['type' => 'html', 'path' => 'banners/flow35.html', 'is_active' => true]);
+        \Illuminate\Support\Facades\Cache::forget('public.home_banner.v1');
+
+        $withBanner = $this->get(route('home'));
+        $withBanner->assertOk();
+        $withBanner->assertSee('بنر آزمایشی', false);
+        $this->assertStringNotContainsString('class="hero-content"', $withBanner->getContent(), 'fallback hero must not render when a banner is active');
+    }
+
+    public function test_flow_37_admin_banner_page_manages_home_banner_end_to_end(): void
+    {
+        $this->assertTrue(Route::has('admin.banner.index'), 'banner admin page must be routed');
+
+        $user = User::factory()->create();
+        $this->actingAs($user)->get(route('admin.banner.index'))->assertForbidden();
+
+        $admin = $this->makeAdmin();
+        $this->actingAs($admin)->get(route('admin.banner.index'))->assertOk();
+
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $upload = \Illuminate\Http\Testing\File::fake()->createWithContent('banner.html', '<div>بنر تستی ادمین</div>');
+
+        $this->actingAs($admin)
+            ->post(route('admin.banner.store'), ['file' => $upload])
+            ->assertRedirect(route('admin.banner.index'));
+
+        $setting = SiteSetting::get('home.banner');
+        $this->assertIsArray($setting);
+        $this->assertSame('html', $setting['type']);
+        $this->assertTrue($setting['is_active']);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($setting['path']);
+
+        \Illuminate\Support\Facades\Cache::forget('public.home_banner.v1');
+        $this->get(route('home'))->assertSee('بنر تستی ادمین', false);
+
+        $this->actingAs($admin)->patch(route('admin.banner.toggle'))->assertRedirect();
+        $setting = SiteSetting::get('home.banner');
+        $this->assertFalse($setting['is_active']);
+
+        \Illuminate\Support\Facades\Cache::forget('public.home_banner.v1');
+        $this->get(route('home'))->assertSee('class="hero-content"', false);
+
+        $path = $setting['path'];
+        $this->actingAs($admin)->delete(route('admin.banner.destroy'))->assertRedirect(route('admin.banner.index'));
+        \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($path);
+        $this->assertNull(SiteSetting::get('home.banner'));
+    }
+
+    public function test_flow_36_vazirmatn_font_is_self_hosted_and_build_is_committed(): void
+    {
+        $css = file_get_contents(resource_path('css/app.css'));
+        $this->assertStringContainsString("@font-face", $css);
+        $this->assertStringContainsString('fonts/vazirmatn/Vazirmatn-Regular.woff2', $css);
+
+        foreach (['Regular', 'Medium', 'SemiBold', 'Bold'] as $weight) {
+            $this->assertFileExists(resource_path("fonts/vazirmatn/Vazirmatn-{$weight}.woff2"));
+        }
+
+        $manifest = public_path('build/manifest.json');
+        $this->assertFileExists($manifest, 'compiled assets must be committed so hosts without npm render the real design');
+
+        $builtCss = collect(glob(public_path('build/assets/app-*.css')))
+            ->map(fn (string $f) => file_get_contents($f))
+            ->implode('');
+        $this->assertStringContainsString('@font-face', $builtCss, 'built CSS must embed the Vazirmatn font-face');
+        $this->assertStringContainsString('position:sticky', $builtCss, 'built CSS must keep the sticky admin toolbar');
+
+        $gitignore = file_get_contents(base_path('.gitignore'));
+        $this->assertStringNotContainsString('/public/build', $gitignore, 'public/build must stay tracked');
+        $this->assertStringContainsString('/public/hot', $gitignore, 'the dev hot file must never be committed');
+    }
 }

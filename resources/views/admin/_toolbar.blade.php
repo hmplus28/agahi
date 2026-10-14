@@ -15,6 +15,7 @@
         @else
             <a href="{{ route('admin.expiry-reminders.index') }}" class="admin-toolbar__link @if(request()->routeIs('admin.expiry-reminders.*')) active @endif">⏰ یادآوری انقضا</a>
         @endif
+        <a href="{{ route('admin.banner.index') }}" class="admin-toolbar__link @if(request()->routeIs('admin.banner.*')) active @endif">🖼️ بنر</a>
         <a href="{{ route('admin.settings.edit') }}" class="admin-toolbar__link @if(request()->routeIs('admin.settings.*')) active @endif">⚙️ تنظیمات</a>
         <form method="post" action="{{ route('admin.ads.ladder.refresh') }}" class="admin-toolbar__form">
             @csrf

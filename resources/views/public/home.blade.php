@@ -3,13 +3,23 @@
 @section('content')
 <h1>{{ config('agahi.brand_name', 'سامانه آگهی') }} — هر چیزی که نیاز دارید، نزدیک شما پیدا کنید</h1>
 
-<section class="home-hero" aria-label="بنر تبلیغاتی">
+<section class="home-hero" aria-label="{{ $banner ? 'بنر تبلیغاتی' : 'معرفی سامانه' }}">
     @if($banner)
         @if($banner['type'] === 'html')
             {!! $banner['html'] !!}
         @else
             <img src="{{ $banner['url'] }}" alt="بنر تبلیغاتی" style="width:100%;height:auto;border-radius:.5rem;">
         @endif
+    @else
+        <div class="hero-content">
+            <p class="eyebrow">{{ config('agahi.brand_name', 'سامانه آگهی') }} — بازار آگهی‌های محلی، ساده و مطمئن</p>
+            <h2 class="hero-headline">هر چیزی که نیاز دارید، نزدیک شما پیدا کنید</h2>
+            <p class="hero-copy">آگهی خود را در چند دقیقه ثبت کنید تا مشتریان نزدیک شما را پیدا کنند.</p>
+            <div class="quick-links">
+                <a href="{{ route('guest.ad.create') }}">ثبت آگهی رایگان</a>
+                <a href="{{ route('search') }}">جست‌وجوی آگهی‌ها</a>
+            </div>
+        </div>
     @endif
 </section>
 
@@ -41,6 +51,10 @@
 .home-hero{border-radius:0;margin-inline-start:-.5rem;margin-inline-end:-.5rem;background:linear-gradient(135deg,#0f766e 0%,#0d9488 50%,#14b8a6 100%);text-align:center;margin-bottom:2rem;padding:4rem 2rem;position:relative;overflow:hidden;min-height:220px}
 .home-hero:before{content:"";pointer-events:none;background:radial-gradient(circle at 20% 80%,rgba(255,255,255,.08) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(255,255,255,.05) 0%,transparent 50%);position:absolute;top:0;bottom:0;left:0;right:0}
 .home-hero>*{position:relative;z-index:1}
+.home-hero .hero-headline{margin:0;font-size:clamp(1.7rem,4vw,2.6rem);line-height:1.4;font-weight:800;letter-spacing:-.02em}
+.home-hero .hero-content{margin-inline:auto}
+.home-hero .quick-links{justify-content:center}
+.home-hero .quick-links a{color:#e3f7f4;border-color:rgba(255,255,255,.24);background:rgba(0,0,0,.08)}
 .home-search-section{max-width:900px;margin:0 auto 2.5rem;text-align:center}
 .home-search-form{background:#fff;border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem 1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06)}
 .home-search-row{display:flex;gap:.625rem;align-items:stretch;flex-wrap:wrap;justify-content:center}

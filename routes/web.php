@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Admin\BillingController as AdminBillingController;
 use App\Http\Controllers\Admin\AdminSmsTemplateController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ModerationController;
@@ -119,6 +120,11 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->as('admin.')->group(funct
 
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    Route::get('/banner', [BannerController::class, 'index'])->name('banner.index');
+    Route::post('/banner', [BannerController::class, 'store'])->middleware('throttle:10,1')->name('banner.store');
+    Route::patch('/banner/toggle', [BannerController::class, 'toggle'])->name('banner.toggle');
+    Route::delete('/banner', [BannerController::class, 'destroy'])->name('banner.destroy');
 
 
 
