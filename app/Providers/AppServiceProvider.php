@@ -13,6 +13,7 @@ use App\Domains\Notifications\Providers\LogSmsProvider;
 use App\Models\Country;
 use App\Models\Province;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -39,9 +40,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-
-
-
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
 
         $host = request()->getHost();
         $isTunnel = str_ends_with($host, '.trycloudflare.com');
