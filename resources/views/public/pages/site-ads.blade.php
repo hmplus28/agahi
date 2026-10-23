@@ -14,11 +14,11 @@
 @keyframes slideLeft{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
 @keyframes scaleIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(13,148,136,.3)}50%{box-shadow:0 0 0 12px rgba(13,148,136,0)}}
-@keyframes borderGlow{0%,100%{border-color:#14b8a6}50%{border-color:#2dd4bf}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(62,64,149,.3)}50%{box-shadow:0 0 0 12px rgba(62,64,149,0)}}
+@keyframes borderGlow{0%,100%{border-color:#5557b8}50%{border-color:#7577cf}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 
-.sa-hero{position:relative;background:linear-gradient(135deg,#0d9488 0%,#0f766e 40%,#115e59 100%);color:#fff;padding:4rem 1.5rem 3.5rem;text-align:center;overflow:hidden;animation:fadeUp .6s ease-out}
+.sa-hero{position:relative;background:linear-gradient(135deg,#4b4dbe 0%,#3e4095 40%,#2c2e72 100%);color:#fff;padding:4rem 1.5rem 3.5rem;text-align:center;overflow:hidden;animation:fadeUp .6s ease-out}
 .sa-hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.06) 1px,transparent 1px);background-size:30px 30px;animation:float 6s ease-in-out infinite}
 .sa-hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:60px;background:linear-gradient(transparent,#f9fafb)}
 .sa-hero *{position:relative;z-index:1}
@@ -26,14 +26,14 @@
 .sa-hero h1{font-size:2.2rem;font-weight:900;line-height:1.5;margin-bottom:1rem;animation:fadeUp .7s .3s both}
 .sa-hero h1 span{color:#fbbf24}
 .sa-hero p{font-size:1.05rem;opacity:.9;max-width:640px;margin:0 auto;line-height:1.9;animation:fadeUp .7s .4s both}
-.sa-hero-cta{display:inline-flex;align-items:center;gap:.5rem;background:#f97316;color:#fff;padding:.85rem 2.5rem;border-radius:999px;font-weight:800;font-size:1.05rem;text-decoration:none;margin-top:1.5rem;transition:all .25s;animation:fadeUp .7s .5s both;box-shadow:0 4px 15px rgba(249,115,22,.35)}
-.sa-hero-cta:hover{background:#ea580c;transform:translateY(-3px);box-shadow:0 8px 25px rgba(249,115,22,.45)}
+.sa-hero-cta{display:inline-flex;align-items:center;gap:.5rem;background:#c00c1a;color:#fff;padding:.85rem 2.5rem;border-radius:999px;font-weight:800;font-size:1.05rem;text-decoration:none;margin-top:1.5rem;transition:all .25s;animation:fadeUp .7s .5s both;box-shadow:0 4px 15px rgba(192,12,26,.35)}
+.sa-hero-cta:hover{background:#9e0a15;transform:translateY(-3px);box-shadow:0 8px 25px rgba(192,12,26,.45)}
 
 .sa-section{max-width:1000px;margin:0 auto;padding:2.5rem 1rem}
 .sa-stitle{text-align:center;margin-bottom:2rem}
 .sa-stitle h2{font-size:1.4rem;font-weight:800;color:#111827;margin-bottom:.4rem}
 .sa-stitle p{color:#6b7280;font-size:.92rem;line-height:1.7}
-.sa-stitle .sa-line{width:60px;height:3px;background:linear-gradient(90deg,#0d9488,#14b8a6);border-radius:999px;margin:.6rem auto 0}
+.sa-stitle .sa-line{width:60px;height:3px;background:linear-gradient(90deg,#4b4dbe,#5557b8);border-radius:999px;margin:.6rem auto 0}
 
 .sa-btn-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin:1.5rem 0}
 .sa-btn{display:inline-flex;align-items:center;gap:.3rem;padding:.5rem 1.2rem;border-radius:999px;font-size:.85rem;font-weight:600;text-decoration:none;color:#fff;transition:all .2s}
@@ -47,26 +47,26 @@
 
 .sa-features{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
 .sa-feat{background:#fff;border:1px solid #f3f4f6;border-radius:1rem;padding:1.5rem;text-align:center;transition:all .3s;position:relative;overflow:hidden}
-.sa-feat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#0d9488,#14b8a6);transform:scaleX(0);transition:transform .3s;transform-origin:left}
+.sa-feat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#4b4dbe,#5557b8);transform:scaleX(0);transition:transform .3s;transform-origin:left}
 .sa-feat:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(0,0,0,.08)}
 .sa-feat:hover::before{transform:scaleX(1)}
-.sa-feat-icon{width:52px;height:52px;background:linear-gradient(135deg,#f0fdfa,#ccfbf1);border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto .8rem;transition:transform .3s}
+.sa-feat-icon{width:52px;height:52px;background:linear-gradient(135deg,#f0f1fa,#e0e1f6);border-radius:1rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto .8rem;transition:transform .3s}
 .sa-feat:hover .sa-feat-icon{transform:scale(1.1) rotate(-5deg)}
 .sa-feat h3{font-size:.95rem;font-weight:700;color:#111827;margin-bottom:.4rem}
 .sa-feat p{font-size:.83rem;color:#6b7280;line-height:1.7}
 
-.sa-price{background:linear-gradient(135deg,#f0fdfa 0%,#ccfbf1 50%,#a7f3d0 100%);border:2px solid #14b8a6;border-radius:1.5rem;padding:2.5rem 2rem;text-align:center;margin:2rem 0;position:relative;overflow:hidden;animation:borderGlow 3s ease-in-out infinite}
-.sa-price::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(13,148,136,.06) 1px,transparent 1px);background-size:20px 20px}
+.sa-price{background:linear-gradient(135deg,#f0f1fa 0%,#e0e1f6 50%,#a7f3d0 100%);border:2px solid #5557b8;border-radius:1.5rem;padding:2.5rem 2rem;text-align:center;margin:2rem 0;position:relative;overflow:hidden;animation:borderGlow 3s ease-in-out infinite}
+.sa-price::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(62,64,149,.06) 1px,transparent 1px);background-size:20px 20px}
 .sa-price *{position:relative}
-.sa-price-tag{display:inline-block;background:#0d9488;color:#fff;padding:.25rem 1rem;border-radius:999px;font-size:.78rem;font-weight:600;margin-bottom:.75rem}
-.sa-price .sa-amount{font-size:3rem;font-weight:900;color:#0d9488;line-height:1.2}
+.sa-price-tag{display:inline-block;background:#4b4dbe;color:#fff;padding:.25rem 1rem;border-radius:999px;font-size:.78rem;font-weight:600;margin-bottom:.75rem}
+.sa-price .sa-amount{font-size:3rem;font-weight:900;color:#4b4dbe;line-height:1.2}
 .sa-price .sa-unit{font-size:1.1rem;color:#6b7280;font-weight:500}
 .sa-price .sa-pdesc{color:#374151;font-size:.9rem;margin:.75rem 0;line-height:1.8}
-.sa-price-cta{display:inline-flex;align-items:center;gap:.5rem;background:#0d9488;color:#fff;padding:.85rem 3rem;border-radius:999px;font-weight:800;font-size:1.05rem;text-decoration:none;margin-top:1rem;transition:all .25s;box-shadow:0 4px 15px rgba(13,148,136,.3);animation:pulse 2s infinite}
-.sa-price-cta:hover{background:#0f766e;transform:translateY(-2px);box-shadow:0 8px 25px rgba(13,148,136,.4);animation:none}
+.sa-price-cta{display:inline-flex;align-items:center;gap:.5rem;background:#4b4dbe;color:#fff;padding:.85rem 3rem;border-radius:999px;font-weight:800;font-size:1.05rem;text-decoration:none;margin-top:1rem;transition:all .25s;box-shadow:0 4px 15px rgba(62,64,149,.3);animation:pulse 2s infinite}
+.sa-price-cta:hover{background:#3e4095;transform:translateY(-2px);box-shadow:0 8px 25px rgba(62,64,149,.4);animation:none}
 
 .sa-benefits{background:#f9fafb;border-radius:1rem;padding:2rem;margin:2rem 0}
-.sa-benefits h3{font-size:1.1rem;font-weight:800;color:#0d9488;margin-bottom:1rem;text-align:center}
+.sa-benefits h3{font-size:1.1rem;font-weight:800;color:#4b4dbe;margin-bottom:1rem;text-align:center}
 .sa-benefits ol{padding-right:1.2rem;color:#374151;font-size:.9rem;line-height:2}
 .sa-benefits ol li{margin-bottom:.5rem}
 .sa-benefits .highlight{color:#800000}
@@ -74,31 +74,31 @@
 .sa-why{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
 .sa-why-card{background:#fff;border:1px solid #f3f4f6;border-radius:1rem;padding:1.25rem;display:flex;gap:1rem;align-items:flex-start;transition:all .3s}
 .sa-why-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.06);transform:translateY(-2px)}
-.sa-why-num{width:36px;height:36px;background:linear-gradient(135deg,#0d9488,#14b8a6);color:#fff;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;flex-shrink:0}
+.sa-why-num{width:36px;height:36px;background:linear-gradient(135deg,#4b4dbe,#5557b8);color:#fff;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;flex-shrink:0}
 .sa-why-card h3{font-size:.9rem;font-weight:700;color:#111827;margin-bottom:.3rem}
 .sa-why-card p{font-size:.82rem;color:#6b7280;line-height:1.7}
 
 .sa-quality{background:#f9fafb;border-radius:1rem;padding:2rem;margin:2rem 0}
-.sa-quality h3{font-size:1.1rem;font-weight:800;color:#0d9488;margin-bottom:1rem;text-align:center}
+.sa-quality h3{font-size:1.1rem;font-weight:800;color:#4b4dbe;margin-bottom:1rem;text-align:center}
 .sa-quality-list{list-style:none;padding:0;counter-reset:q}
 .sa-quality-list li{counter-increment:q;padding:.5rem 0;font-size:.9rem;color:#374151;line-height:1.8;border-bottom:1px solid #f3f4f6;display:flex;gap:.5rem;align-items:flex-start}
-.sa-quality-list li::before{content:counter(q);background:#0d9488;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.sa-quality-list li::before{content:counter(q);background:#4b4dbe;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
 
 .sa-trust{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin:2rem 0}
 .sa-trust-item{background:#fff;border:2px solid #f3f4f6;border-radius:1rem;padding:1.25rem .75rem;text-align:center;transition:all .3s}
-.sa-trust-item:hover{border-color:#14b8a6;transform:translateY(-3px);box-shadow:0 8px 20px rgba(13,148,136,.1)}
-.sa-trust-num{font-size:1.8rem;font-weight:900;color:#0d9488;line-height:1.2}
+.sa-trust-item:hover{border-color:#5557b8;transform:translateY(-3px);box-shadow:0 8px 20px rgba(62,64,149,.1)}
+.sa-trust-num{font-size:1.8rem;font-weight:900;color:#4b4dbe;line-height:1.2}
 .sa-trust-label{font-size:.78rem;color:#6b7280;margin-top:.25rem}
 
 .sa-faq details{border:1px solid #f3f4f6;border-radius:.75rem;margin-bottom:.6rem;overflow:hidden;transition:all .3s}
-.sa-faq details[open]{border-color:#14b8a6;box-shadow:0 4px 12px rgba(13,148,136,.08)}
+.sa-faq details[open]{border-color:#5557b8;box-shadow:0 4px 12px rgba(62,64,149,.08)}
 .sa-faq summary{padding:.9rem 1rem;font-weight:600;font-size:.9rem;cursor:pointer;color:#111827;list-style:none;display:flex;align-items:center;gap:.5rem;transition:background .2s}
 .sa-faq summary:hover{background:#f9fafb}
-.sa-faq summary::before{content:'▸';color:#0d9488;font-size:1.1rem;transition:transform .25s;flex-shrink:0}
+.sa-faq summary::before{content:'▸';color:#4b4dbe;font-size:1.1rem;transition:transform .25s;flex-shrink:0}
 .sa-faq details[open] summary::before{transform:rotate(90deg)}
 .sa-faq .sa-a{padding:0 1rem 1rem;font-size:.85rem;color:#4b5563;line-height:1.9}
 
-.sa-contact{background:linear-gradient(135deg,#115e59,#0d9488);border-radius:1.25rem;padding:2rem;text-align:center;color:#fff;margin:2rem 0}
+.sa-contact{background:linear-gradient(135deg,#2c2e72,#4b4dbe);border-radius:1.25rem;padding:2rem;text-align:center;color:#fff;margin:2rem 0}
 .sa-contact h3{font-size:1.1rem;font-weight:700;margin-bottom:1rem}
 .sa-contact-links{display:flex;flex-wrap:wrap;justify-content:center;gap:.75rem}
 .sa-contact-links a{display:inline-flex;align-items:center;gap:.35rem;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:.5rem 1.2rem;border-radius:999px;font-size:.85rem;font-weight:600;text-decoration:none;transition:all .2s;backdrop-filter:blur(4px)}
@@ -330,7 +330,7 @@
 
         <details><summary>سوال: ثبت در سایت‌ها چگونه است؟</summary><div class="sa-a">یکی از ارزان‌ترین، معتبرترین و سریع‌ترین روش تبلیغات فضای مجازی درج آگهی در سایت‌های تبلیغاتی کشور می‌باشد.</div></details>
 
-        <details><summary>سوال: نمونه آگهی را چگونه ببینیم؟</summary><div class="sa-a">پاسخ: در سایت <a href="https://shetabe.ir" style="color:#0d9488;font-weight:600">shetabe.ir</a> نمونه آگهی‌های مختلف شغلی موجود و قابل مشاهده است.</div></details>
+        <details><summary>سوال: نمونه آگهی را چگونه ببینیم؟</summary><div class="sa-a">پاسخ: در سایت <a href="https://shetabe.ir" style="color:#4b4dbe;font-weight:600">shetabe.ir</a> نمونه آگهی‌های مختلف شغلی موجود و قابل مشاهده است.</div></details>
 
         <details><summary>سوال: چه مطالبی در آگهی قید می‌شود؟</summary><div class="sa-a">پاسخ: یک آگهی حاوی عنوان، متن و توضیحات خدمات شما، شماره تماس ثابت و همراه، آدرس، کلمات کلیدی، لینک سایت، کانال تلگرام و اینستاگرام است.</div></details>
 

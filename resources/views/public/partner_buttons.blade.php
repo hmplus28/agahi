@@ -24,10 +24,10 @@
   overflow: hidden;
   animation: partnerPop .4s ease-out both;
 }
-.partner-strip a:nth-child(1) { background: #0d9488; animation-delay: .0s; }
+.partner-strip a:nth-child(1) { background: #4b4dbe; animation-delay: .0s; }
 .partner-strip a:nth-child(2) { background: #2563eb; animation-delay: .06s; }
 .partner-strip a:nth-child(3) { background: #7c3aed; animation-delay: .12s; }
-.partner-strip a:nth-child(4) { background: #ea580c; animation-delay: .18s; }
+.partner-strip a:nth-child(4) { background: #9e0a15; animation-delay: .18s; }
 .partner-strip a:nth-child(5) { background: #16a34a; animation-delay: .24s; }
 .partner-strip a:nth-child(6) { background: #dc2626; animation-delay: .30s; }
 .partner-strip a:nth-child(7) { background: #0891b2; animation-delay: .36s; }

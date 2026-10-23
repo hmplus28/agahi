@@ -38,7 +38,7 @@
         <p class="price" dir="auto">{{ $ad->priceLabel() }}</p>
         <div class="card-meta">
             <span class="muted">{{ $ad->city?->name ?? '—' }}</span>
-            <span class="muted">{{ $ad->published_at?->diffForHumans() }}</span>
+            <span class="muted" title="{{ $ad->published_at ? jdate_human($ad->published_at) : '' }}">{{ $ad->published_at ? to_persian_digits(jdate($ad->published_at)) : '—' }}</span>
         </div>
     </div>
 </article>
@@ -49,17 +49,17 @@
 /* Featured ads get a soft teal background + thicker border so they
    visually stand out from the regular cards in the grid. */
 .ad-card--featured {
-    background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
-    border: 2px solid #14b8a6;
-    box-shadow: 0 4px 16px rgba(20, 184, 166, 0.18);
+    background: linear-gradient(180deg, #f0f1fa 0%, #ffffff 100%);
+    border: 2px solid #5557b8;
+    box-shadow: 0 4px 16px rgba(85,87,184, 0.18);
     border-radius: 14px;
 }
 .ad-card--featured:hover {
-    box-shadow: 0 6px 20px rgba(20, 184, 166, 0.28);
+    box-shadow: 0 6px 20px rgba(85,87,184, 0.28);
     transform: translateY(-2px);
 }
 .ad-card--featured .card-body h3 a {
-    color: #0f766e;
+    color: #3e4095;
 }
 
 /* Urgent ads get a red ribbon that says "فوری" at the top-left corner. */
@@ -88,7 +88,7 @@
 }
 .ad-card--featured.ad-card--urgent {
     border: 2px solid #dc2626;
-    background: linear-gradient(180deg, #fef2f2 0%, #ffffff 50%, #f0fdfa 100%);
+    background: linear-gradient(180deg, #fef2f2 0%, #ffffff 50%, #f0f1fa 100%);
 }
 
 /* Image count badge on cards with multiple photos. */
@@ -104,7 +104,7 @@
 }
 
 .badge-featured {
-    background: #14b8a6;
+    background: #5557b8;
     color: #ffffff;
 }
 </style>

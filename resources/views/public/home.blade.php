@@ -48,7 +48,8 @@
 </section>
 
 <style>
-.home-hero{border-radius:0;margin-inline-start:-.5rem;margin-inline-end:-.5rem;background:linear-gradient(135deg,#0f766e 0%,#0d9488 50%,#14b8a6 100%);text-align:center;margin-bottom:2rem;padding:4rem 2rem;position:relative;overflow:hidden;min-height:220px}
+.ads-count-badge{display:inline-block;vertical-align:middle;margin-inline-start:.5rem;padding:.15rem .75rem;border-radius:999px;background:#f0f1fa;color:#3e4095;font-size:.85rem;font-weight:700}
+.home-hero{border-radius:0;margin-inline-start:-.5rem;margin-inline-end:-.5rem;background:linear-gradient(135deg,#2c2e72 0%,#3e4095 50%,#5557b8 100%);text-align:center;margin-bottom:2rem;padding:4rem 2rem;position:relative;overflow:hidden;min-height:220px}
 .home-hero:before{content:"";pointer-events:none;background:radial-gradient(circle at 20% 80%,rgba(255,255,255,.08) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(255,255,255,.05) 0%,transparent 50%);position:absolute;top:0;bottom:0;left:0;right:0}
 .home-hero>*{position:relative;z-index:1}
 .home-hero .hero-headline{margin:0;font-size:clamp(1.7rem,4vw,2.6rem);line-height:1.4;font-weight:800;letter-spacing:-.02em}
@@ -61,15 +62,15 @@
 .home-search-input-wrap{flex:2;min-width:180px;position:relative;display:flex}
 .home-search-input-wrap svg{fill:none;stroke:#9ca3af;stroke-width:2;width:1.15rem;height:1.15rem;position:absolute;top:50%;right:.75rem;translate:0 -50%;pointer-events:none}
 .home-search-input-wrap input{width:100%;padding-inline:2.5rem .75rem;border:1px solid #e5e7eb;border-radius:.5rem;font-size:.9rem;font-family:inherit;background:#f9fafb;transition:border-color .15s,box-shadow .15s}
-.home-search-input-wrap input:focus{outline:none;border-color:#0d9488;box-shadow:0 0 0 3px rgba(13,148,136,.12);background:#fff}
+.home-search-input-wrap input:focus{outline:none;border-color:#4b4dbe;box-shadow:0 0 0 3px rgba(62,64,149,.12);background:#fff}
 .home-cat-wrap{flex:1;min-width:160px;display:flex}
 .home-cat-wrap .cat-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding-inline:.75rem;border:1px solid #e5e7eb;border-radius:.5rem;font-size:.85rem;font-family:inherit;background:#f9fafb;cursor:pointer;transition:border-color .15s}
-.home-cat-wrap .cat-trigger:focus{outline:none;border-color:#0d9488;box-shadow:0 0 0 3px rgba(13,148,136,.12)}
+.home-cat-wrap .cat-trigger:focus{outline:none;border-color:#4b4dbe;box-shadow:0 0 0 3px rgba(62,64,149,.12)}
 .home-price-wrap{flex:1;min-width:130px;display:flex}
 .home-price-wrap input{width:100%;padding-inline:.5rem;border:1px solid #e5e7eb;border-radius:.5rem;font-size:.85rem;font-family:inherit;background:#f9fafb;text-align:center}
-.home-price-wrap input:focus{outline:none;border-color:#0d9488;box-shadow:0 0 0 3px rgba(13,148,136,.12)}
-.home-search-row .button{flex:0 0 auto;padding-inline:1.5rem;border-radius:.5rem;font-size:.9rem;font-weight:700;background:#0d9488;color:#fff;border:none;cursor:pointer;white-space:nowrap;transition:background .15s}
-.home-search-row .button:hover{background:#0f766e}
+.home-price-wrap input:focus{outline:none;border-color:#4b4dbe;box-shadow:0 0 0 3px rgba(62,64,149,.12)}
+.home-search-row .button{flex:0 0 auto;padding-inline:1.5rem;border-radius:.5rem;font-size:.9rem;font-weight:700;background:#4b4dbe;color:#fff;border:none;cursor:pointer;white-space:nowrap;transition:background .15s}
+.home-search-row .button:hover{background:#3e4095}
 @media(max-width:640px){
     .home-hero{padding:2rem 1rem}
     .home-search-row{flex-direction:column}
@@ -110,7 +111,7 @@
 @endif
 
 <section class="section" aria-labelledby="latest-title">
-    <div class="section-heading"><div><h2 id="latest-title">تازه‌ترین آگهی‌ها</h2></div></div>
+    <div class="section-heading"><div><h2 id="latest-title">تازه‌ترین آگهی‌ها <span class="ads-count-badge">{{ to_persian_digits(number_format($totalActive)) }} آگهی</span></h2></div></div>
     @if($latest->isNotEmpty())
         <div class="ad-grid ad-grid--context">@foreach($latest as $ad)<x-ad-card :ad="$ad" />@endforeach</div>
         @if($latest->hasPages())

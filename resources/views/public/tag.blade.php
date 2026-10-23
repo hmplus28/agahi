@@ -28,7 +28,7 @@
 <style>
 .tag-page{padding:0;}
 .tag-header{margin-bottom:1.5rem;}
-.tag-header h1{font-size:1.5rem;font-weight:700;color:#0f766e;}
+.tag-header h1{font-size:1.5rem;font-weight:700;color:#3e4095;}
 .tag-header .muted{color:#6b7280;font-size:.875rem;margin-top:.25rem;}
 .empty-state{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:3rem 1rem;text-align:center;}
 .empty-state strong{font-size:1.05rem;color:#374151;}

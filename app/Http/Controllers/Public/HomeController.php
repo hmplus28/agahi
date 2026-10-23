@@ -39,9 +39,10 @@ class HomeController extends Controller
         $latest = Ad::query()->publiclyVisible()->with(['city', 'images'])->orderedForListing()->paginate(30);
         $banner = HomeBanner::get();
 
+        $totalActive = Cache::remember('public.total_active_ads.v1', now()->addMinutes(10), fn (): int => Ad::query()->publiclyVisible()->count());
 
         $allCategories = Category::query()->active()->select(['id', 'parent_id', 'title'])->orderBy('title')->get();
 
-        return view('public.home', compact('categories', 'featured', 'latest', 'banner', 'allCategories'));
+        return view('public.home', compact('categories', 'featured', 'latest', 'banner', 'allCategories', 'totalActive'));
     }
 }

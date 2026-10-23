@@ -71,7 +71,7 @@
 <style>
 .settings-form{max-width:720px;display:flex;flex-direction:column;gap:1.5rem;}
 .settings-section{border:1px solid #e5e7eb;border-radius:.625rem;padding:1rem 1.25rem 1.5rem;margin:0;}
-.settings-section legend{padding:0 .5rem;font-weight:700;color:#0d9488;}
+.settings-section legend{padding:0 .5rem;font-weight:700;color:#4b4dbe;}
 .settings-section .field-label{display:block;margin-top:1rem;}
 .settings-section .field-label span{display:block;font-size:.8rem;color:#374151;margin-bottom:.25rem;font-weight:600;}
 .settings-section .field-label input,

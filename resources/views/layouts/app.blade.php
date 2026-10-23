@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
-    <meta name="theme-color" content="#0f766e">
+    <meta name="theme-color" content="#3e4095">
     <meta name="format-detection" content="telephone=no">
 
     <title>{{ $title ?? config('app.name') }}</title>
@@ -51,13 +51,13 @@
             .header-bottom{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;padding-block:.375rem .625rem;border-top:1px solid #f3f4f6}
             .header-bottom>.city-picker{justify-self:start}.header-bottom>.header-phone{justify-self:center}.header-bottom>.header-dropdown{justify-self:end}
             .brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;font-weight:700;font-size:1.15rem;color:#111827;flex-shrink:0}
-            .brand-mark{display:flex;align-items:center;justify-content:center;width:2.125rem;height:2.125rem;border-radius:.625rem;background:#0d9488;color:#fff;font-size:1.125rem;font-weight:800}
-            .post-ad-button{display:flex;align-items:center;gap:.25rem;background:#f97316;color:#fff;font-size:.875rem;font-weight:600;padding:.625rem 1rem;border-radius:.625rem;text-decoration:none;white-space:nowrap;flex-shrink:0}
-            .post-ad-button:hover{background:#ea580c}
+            .brand-mark{display:flex;align-items:center;justify-content:center;width:2.125rem;height:2.125rem;border-radius:.625rem;background:#4b4dbe;color:#fff;font-size:1.125rem;font-weight:800}
+            .post-ad-button{display:flex;align-items:center;gap:.25rem;background:#c00c1a;color:#fff;font-size:.875rem;font-weight:600;padding:.625rem 1rem;border-radius:.625rem;text-decoration:none;white-space:nowrap;flex-shrink:0}
+            .post-ad-button:hover{background:#9e0a15}
             .header-phone{display:flex;align-items:center;gap:.375rem;font-size:.875rem;color:#4b5563;text-decoration:none;flex-shrink:0}
-            .header-phone:hover{color:#0d9488}
+            .header-phone:hover{color:#4b4dbe}
             .site-footer{background:#111827;color:#d1d5db;margin-top:4rem;padding-top:3rem;padding-bottom:2rem}
-            .skip-link{position:absolute;top:-100%;left:1rem;z-index:1000;background:#0d9488;color:#fff;padding:.5rem 1rem;border-radius:.375rem;font-size:.875rem;font-weight:500}
+            .skip-link{position:absolute;top:-100%;left:1rem;z-index:1000;background:#4b4dbe;color:#fff;padding:.5rem 1rem;border-radius:.375rem;font-size:.875rem;font-weight:500}
             .alert{display:flex;align-items:flex-start;gap:.75rem;padding:1rem;border-radius:.5rem;margin-bottom:1.5rem;font-size:.875rem}
             .alert-success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
             .alert-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
@@ -82,8 +82,8 @@
             }
             .login-button:hover,
             .link-button:hover {
-                background: #f0fdfa;
-                color: #0d9488;
+                background: #f0f1fa;
+                color: #4b4dbe;
             }
             .link-button.danger { color: #b91c1c; }
             .link-button.danger:hover { background: #fef2f2; color: #991b1b; }
@@ -91,7 +91,7 @@
             /* Footer links: footer has dark background (#111827), so we need
                a light foreground. #d1d5db (default body color) has 9.46:1
                contrast against #111827, easily passing WCAG AAA. The link's
-               hover state brightens to #5eead4 (teal-300). */
+               hover state brightens to #b9bbe8 (teal-300). */
             .site-footer,
             .footer-inner {
                 color: #d1d5db;
@@ -105,14 +105,14 @@
             }
             .site-footer nav a:hover,
             .footer-inner nav a:hover {
-                color: #5eead4;
+                color: #b9bbe8;
             }
             .site-footer .copyright,
             .site-footer .copyright a {
                 color: #d1d5db;
             }
             .site-footer .copyright a:hover {
-                color: #5eead4;
+                color: #b9bbe8;
             }
         </style>
     @endif
@@ -297,7 +297,7 @@
             </a>
             <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjM2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtMTIwIDI0M2w5NC01NCAwLTEwOSAtOTQgNTQgMCAxMDkgMCAweCIgZmlsbD0iIzgwODI4NSIvPjxwYXRoIGQ9Im0xMjAgMjU0bC0xMDMtNjAgMC0xMTkgMTAzLTYwIDEwMyA2MCAwIDExOSAtMTAzIDYweiIgc3R5bGU9ImZpbGw6bm9uZTtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLXdpZHRoOjU7c3Ryb2tlOiMwMGFlZWYiLz48cGF0aCBkPSJtMjE0IDgwbC05NC01NCAtOTQgNTQgOTQgNTQgOTQtNTR6IiBmaWxsPSIjMDBhZWVmIi8+PHBhdGggZD0ibTI2IDgwbDAgMTA5IDk0IDU0IDAtMTA5IC05NC01NCAwIDB6IiBmaWxsPSIjNTg1OTViIi8+PHBhdGggZD0ibTEyMCAxNTdsNDctMjcgMC0yMyAtNDctMjcgLTQ3IDI3IDAgNTQgNDcgMjcgNDctMjciIHN0eWxlPSJmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS13aWR0aDoxNTtzdHJva2U6I2ZmZiIvPjx0ZXh0IHg9IjE1IiB5PSIzMDAiIGZvbnQtc2l6ZT0iMjVweCIgZm9udC1mYW1pbHk9IidCIFlla2FuJyIgc3R5bGU9ImZpbGw6IzI5Mjk1Mjtmb250LXdlaWdodDpib2xkIj7Yudi22Ygg2KfYqtit2KfYr9uM2Ycg2qnYtNmI2LHbjDwvdGV4dD48dGV4dCB4PSI4IiB5PSIzNDMiIGZvbnQtc2l6ZT0iMjVweCIgZm9udC1mYW1pbHk9IidCIFlla2FuJyIgc3R5bGU9ImZpbGw6IzI5Mjk1Mjtmb250LXdlaWdodDpib2xkIj7YqdiizKqAg2Yg2qnYp9iy2YfYp9uMINGF2KzYp9iy24w8L3RleHQ+PC9zdmc+" alt="نماد اتحادیه" onclick="window.open('https://ecunion.ir/verify/shetabe.ir?token=159123862273e76a61a5', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=580, height=600, top=30')" style="cursor:pointer; width: 96px;height: 144px;">
         </div>
-        <p class="copyright">© {{ jalali_year() }} {{ config('app.name') }} — تمام حقوق محفوظ است. | توسعه توسط <a href="https://daynacode.ir" target="_blank" rel="noopener" style="color:#5eead4;text-decoration:none;font-weight:600;">تیم دایناکد</a></p>
+        <p class="copyright">© {{ jalali_year() }} {{ config('app.name') }} — تمام حقوق محفوظ است. | توسعه توسط <a href="https://daynacode.ir" target="_blank" rel="noopener" style="color:#b9bbe8;text-decoration:none;font-weight:600;">تیم دایناکد</a></p>
     </div>
 </footer>
 
@@ -370,40 +370,40 @@
     .city-modal__search { position: relative; padding: .25rem 1rem .5rem; flex-shrink: 0; }
     .city-modal__search svg { position: absolute; right: calc(1rem + .75rem); top: 50%; translate: 0 -50%; width: 1.05rem; height: 1.05rem; fill: none; stroke: #9ca3af; stroke-width: 2; pointer-events: none; }
     .city-modal__search input { width: 100%; height: 2.5rem; padding-inline: 2.4rem .75rem; border: 1px solid #e5e7eb; border-radius: .625rem; font-size: .875rem; font-family: inherit; background: #f9fafb; }
-    .city-modal__search input:focus { outline: none; border-color: #0d9488; box-shadow: 0 0 0 3px rgba(13,148,136,.12); background: #fff; }
+    .city-modal__search input:focus { outline: none; border-color: #4b4dbe; box-shadow: 0 0 0 3px rgba(62,64,149,.12); background: #fff; }
     .city-modal__quick { display: flex; gap: .5rem; padding: .25rem 1rem .5rem; flex-shrink: 0; }
     .city-modal__country { display: flex; align-items: center; gap: .5rem; padding: .25rem 1rem .5rem; flex-shrink: 0; }
     .city-modal__country label { font-size: .75rem; font-weight: 600; color: #6b7280; white-space: nowrap; }
     .city-modal__country select { flex: 1; height: 2.25rem; padding-inline: .75rem; border: 1px solid #e5e7eb; border-radius: .625rem; font-size: .85rem; font-family: inherit; background: #f9fafb; cursor: pointer; }
-    .city-modal__country select:focus { outline: none; border-color: #0d9488; box-shadow: 0 0 0 3px rgba(13,148,136,.12); background: #fff; }
+    .city-modal__country select:focus { outline: none; border-color: #4b4dbe; box-shadow: 0 0 0 3px rgba(62,64,149,.12); background: #fff; }
     .city-chip { display: inline-flex; align-items: center; gap: .35rem; padding: .45rem .85rem; border: 1px solid #e5e7eb; border-radius: 999px; font-size: .8rem; cursor: pointer; user-select: none; transition: all .15s; }
     .city-chip input { position: absolute; opacity: 0; pointer-events: none; }
-    .city-chip.is-selected { background: #ccfbf1; border-color: #14b8a6; color: #0f766e; font-weight: 600; }
+    .city-chip.is-selected { background: #e0e1f6; border-color: #5557b8; color: #3e4095; font-weight: 600; }
     .city-empty { text-align: center; color: #9ca3af; font-size: .85rem; padding: 1.5rem 0; margin: 0; }
     .city-modal__list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .25rem 1rem 1rem; -webkit-overflow-scrolling: touch; }
     .city-loading { text-align: center; color: #9ca3af; font-size: .85rem; padding: 2rem 0; }
     .city-province { border: 1px solid #f3f4f6; border-radius: .625rem; margin-top: .5rem; overflow: hidden; transition: border-color .15s; }
-    .city-province.is-selected { border-color: #99f6e4; background: #f0fdfa; }
+    .city-province.is-selected { border-color: #c6c7ee; background: #f0f1fa; }
     .city-province__head { display: flex; align-items: stretch; }
     .city-province__row { display: flex; align-items: center; gap: .5rem; flex: 1; min-width: 0; padding: .65rem .75rem; font-size: .88rem; font-weight: 600; color: #111827; cursor: pointer; user-select: none; }
-    .city-province__row input { accent-color: #0d9488; width: 1rem; height: 1rem; flex-shrink: 0; }
+    .city-province__row input { accent-color: #4b4dbe; width: 1rem; height: 1rem; flex-shrink: 0; }
     .city-province__row em { font-style: normal; font-size: .72rem; font-weight: 400; color: #9ca3af; margin-inline-start: auto; white-space: nowrap; }
-    .city-province.is-selected .city-province__row span { color: #0f766e; }
+    .city-province.is-selected .city-province__row span { color: #3e4095; }
     .city-province__toggle { width: 2.5rem; border: 0; border-inline-start: 1px solid #f3f4f6; background: transparent; color: #6b7280; font-size: 1rem; cursor: pointer; transition: transform .18s; }
     .city-province__toggle[aria-expanded="true"] { transform: rotate(180deg); }
-    .city-province__toggle:hover { color: #0d9488; background: #f9fafb; }
+    .city-province__toggle:hover { color: #4b4dbe; background: #f9fafb; }
     .city-province__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: .2rem .5rem; padding: .35rem .75rem .75rem; border-top: 1px dashed #f3f4f6; }
     .city-option { display: flex; align-items: center; gap: .4rem; padding: .38rem .45rem; border-radius: .5rem; font-size: .82rem; color: #374151; cursor: pointer; user-select: none; transition: background .12s; }
     .city-option:hover { background: #f3f4f6; }
-    .city-option input { accent-color: #0d9488; width: .95rem; height: .95rem; flex-shrink: 0; }
-    .city-option.is-selected span { color: #0f766e; font-weight: 600; }
+    .city-option input { accent-color: #4b4dbe; width: .95rem; height: .95rem; flex-shrink: 0; }
+    .city-option.is-selected span { color: #3e4095; font-weight: 600; }
     .city-modal__footer { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .75rem 1rem; border-top: 1px solid #f3f4f6; background: #fff; flex-shrink: 0; }
     .city-modal__hint { font-size: .78rem; color: #6b7280; }
     .city-modal__actions { display: flex; gap: .5rem; }
     .city-modal__clear { border: 0; background: transparent; color: #6b7280; font-size: .82rem; font-family: inherit; cursor: pointer; padding: .55rem .75rem; }
     .city-modal__clear:hover { color: #ef4444; }
-    .city-modal__apply { border: 0; background: #0d9488; color: #fff; font-size: .85rem; font-weight: 600; font-family: inherit; padding: .6rem 1.25rem; border-radius: .625rem; cursor: pointer; transition: background .15s; }
-    .city-modal__apply:hover { background: #0f766e; }
+    .city-modal__apply { border: 0; background: #4b4dbe; color: #fff; font-size: .85rem; font-weight: 600; font-family: inherit; padding: .6rem 1.25rem; border-radius: .625rem; cursor: pointer; transition: background .15s; }
+    .city-modal__apply:hover { background: #3e4095; }
     @media (min-width: 640px) {
         .city-modal { align-items: center; }
         .city-modal__panel { border-radius: 1rem; animation: cityModalPop .18s ease-out; }
@@ -414,7 +414,7 @@
     body.theme-admin .city-province__row span { color: #e2e8f0; }
     body.theme-admin .city-option:hover { background: #334155; }
     body.theme-admin .city-province { border-color: #334155; }
-    body.theme-admin .city-province.is-selected { border-color: #14b8a6; background: rgba(20,184,166,.08); }
+    body.theme-admin .city-province.is-selected { border-color: #5557b8; background: rgba(85,87,184,.08); }
     body.theme-admin .city-modal__close { background: #334155; color: #cbd5e1; }
     body.theme-admin .city-modal__search input { background: #0f172a; border-color: #334155; color: #e2e8f0; }
     body.theme-admin .city-modal__country label { color: #94a3b8; }

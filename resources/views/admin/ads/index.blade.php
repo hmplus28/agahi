@@ -361,7 +361,7 @@
 .filter-actions--ads .link-button{
     background:transparent;
     border:0;
-    color:#0d9488;
+    color:#4b4dbe;
     cursor:pointer;
     font-size:.85rem;
     padding:.25rem .5rem;
@@ -409,13 +409,13 @@
 /* ─────────────────────────  Inline Ad Edit Row  ───────────────────────── */
 .ad-edit-toggle{
     background:transparent;border:0;cursor:pointer;
-    color:#0d9488;font-size:.78rem;font-weight:600;
+    color:#4b4dbe;font-size:.78rem;font-weight:600;
     padding:.25rem .4rem;border-radius:.375rem;
 }
-.ad-edit-toggle:hover{background:#f0fdfa;color:#0f766e;}
-.ad-edit-row > td{background:#f0fdfa;border-top:2px solid #99f6e4;padding:1rem;}
+.ad-edit-toggle:hover{background:#f0f1fa;color:#3e4095;}
+.ad-edit-row > td{background:#f0f1fa;border-top:2px solid #c6c7ee;padding:1rem;}
 .ad-edit-form{display:flex;flex-direction:column;gap:.75rem;}
-.ad-edit-title{margin:0;font-size:.9rem;color:#0f766e;}
+.ad-edit-title{margin:0;font-size:.9rem;color:#3e4095;}
 .ad-edit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.6rem 1rem;}
 .ad-edit-grid .field-label input,
 .ad-edit-grid .field-label select,

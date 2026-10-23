@@ -10,7 +10,7 @@
 <style>
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-.sa-header{background:linear-gradient(135deg,#0d9488,#0f766e);color:#fff;padding:3rem 1.5rem 2rem;text-align:center;animation:fadeUp .5s ease-out}
+.sa-header{background:linear-gradient(135deg,#4b4dbe,#3e4095);color:#fff;padding:3rem 1.5rem 2rem;text-align:center;animation:fadeUp .5s ease-out}
 .sa-header h1{font-size:1.8rem;font-weight:900;margin-bottom:.5rem}
 .sa-header p{opacity:.85;font-size:.95rem}
 .sa-header .sa-back{display:inline-flex;align-items:center;gap:.3rem;color:#fff;text-decoration:none;margin-top:1rem;background:rgba(255,255,255,.15);padding:.4rem 1rem;border-radius:999px;font-size:.85rem;transition:all .2s}
@@ -21,13 +21,13 @@
 .sa-card:nth-child(2){animation-delay:.1s}
 .sa-card:nth-child(3){animation-delay:.2s}
 .sa-card:nth-child(4){animation-delay:.3s}
-.sa-card:hover{border-color:#14b8a6;transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.08)}
+.sa-card:hover{border-color:#5557b8;transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.08)}
 .sa-card img{max-width:100%;max-height:200px;border-radius:.75rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.1)}
 .sa-card h3{font-size:1rem;font-weight:700;color:#111827;margin-bottom:.5rem}
 .sa-card p{font-size:.85rem;color:#6b7280;line-height:1.7}
-.sa-card a{display:inline-flex;align-items:center;gap:.3rem;color:#0d9488;font-weight:600;font-size:.85rem;text-decoration:none;margin-top:.5rem;transition:color .2s}
-.sa-card a:hover{color:#0f766e}
-.sa-note{background:#f0fdfa;border:1px solid #ccfbf1;border-radius:1rem;padding:1.25rem;margin:1.5rem 0;text-align:center}
+.sa-card a{display:inline-flex;align-items:center;gap:.3rem;color:#4b4dbe;font-weight:600;font-size:.85rem;text-decoration:none;margin-top:.5rem;transition:color .2s}
+.sa-card a:hover{color:#3e4095}
+.sa-note{background:#f0f1fa;border:1px solid #e0e1f6;border-radius:1rem;padding:1.25rem;margin:1.5rem 0;text-align:center}
 .sa-note p{color:#374151;font-size:.9rem;line-height:1.8}
 @media(max-width:640px){.sa-grid{grid-template-columns:1fr}}
 </style>
@@ -86,7 +86,7 @@
     </div>
 
     <div style="text-align:center;margin-top:2rem">
-        <a href="{{ route('site-ads') }}" style="display:inline-flex;align-items:center;gap:.3rem;background:#0d9488;color:#fff;padding:.6rem 1.5rem;border-radius:999px;font-weight:700;text-decoration:none;transition:all .2s">← بازگشت به صفحه اصلی ثبت آگهی</a>
+        <a href="{{ route('site-ads') }}" style="display:inline-flex;align-items:center;gap:.3rem;background:#4b4dbe;color:#fff;padding:.6rem 1.5rem;border-radius:999px;font-weight:700;text-decoration:none;transition:all .2s">← بازگشت به صفحه اصلی ثبت آگهی</a>
     </div>
 </div>
 @endsection

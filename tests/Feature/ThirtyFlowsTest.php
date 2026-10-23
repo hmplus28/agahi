@@ -702,4 +702,43 @@ class ThirtyFlowsTest extends TestCase
         $this->assertStringNotContainsString('/public/build', $gitignore, 'public/build must stay tracked');
         $this->assertStringContainsString('/public/hot', $gitignore, 'the dev hot file must never be committed');
     }
+
+    public function test_flow_38_home_cards_show_jalali_dates_and_total_ads_count(): void
+    {
+        $user = User::factory()->create();
+        $this->makeAd($user);
+        $this->makeAd($user);
+
+        \Illuminate\Support\Facades\Cache::forget('public.total_active_ads.v1');
+        $content = $this->get(route('home'))->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('/۱۴۰[۰-۹]\/[۰-۹]{2}\/[۰-۹]{2}/u', $content, 'ad cards must show a jalali date like ۱۴۰۵/۰۷/۳۰');
+        $this->assertStringContainsString('class="ads-count-badge"', $content, 'home must show the total ads count badge');
+        $this->assertStringContainsString('۲ آگهی', $content, 'count badge must show the number of visible ads');
+    }
+
+    public function test_flow_39_ad_page_shows_jalali_date_and_scam_warning(): void
+    {
+        $user = User::factory()->create();
+        $ad = $this->makeAd($user);
+
+        $content = $this->get($ad->publicUrl())->assertOk()->getContent();
+
+        $this->assertStringContainsString('scam-warning', $content, 'ad page must render the anti-scam warning box');
+        $this->assertStringContainsString('از پرداخت هرگونه مبلغ', $content);
+        $this->assertMatchesRegularExpression('/۱۴۰[۰-۹]\/[۰-۹]{2}\/[۰-۹]{2}/u', $content, 'ad page must show the jalali publish date');
+    }
+
+    public function test_flow_40_ads_count_badge_counts_only_publicly_visible_ads(): void
+    {
+        $user = User::factory()->create();
+        $this->makeAd($user);
+        $this->makeAd($user, ['status' => AdStatus::PendingApproval]);
+        $this->makeAd($user, ['status' => AdStatus::Expired, 'expires_at' => now()->subDay()]);
+
+        \Illuminate\Support\Facades\Cache::forget('public.total_active_ads.v1');
+        $content = $this->get(route('home'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('>۱ آگهی<', $content, 'pending and expired ads must not be counted');
+    }
 }

@@ -6,7 +6,7 @@
         <div class="step active"><span class="step-num">۱</span> ثبت آگهی</div>
         <div class="step"><span class="step-num">۲</span> ورود</div>
     </div>
-    <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:.5rem;padding:.5rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#0f766e;">
+    <div style="background:#f0f1fa;border:1px solid #c6c7ee;border-radius:.5rem;padding:.5rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#3e4095;">
         <strong>آی‌پی شما:</strong> <code dir="ltr" style="background:#e0f2fe;padding:.1rem .4rem;border-radius:.25rem;">{{ $clientIp ?? request()->ip() }}</code>
     </div>
     <form method="post" enctype="multipart/form-data">
@@ -436,28 +436,28 @@ function initImagePreview(inputId, previewId, nameId, countId){
 .steps-bar{display:flex;gap:0;margin:0 0 1.25rem;border:1px solid #e5e7eb;border-radius:.5rem;overflow:hidden;}
 .step-next-btn{margin-bottom:2rem;}
 .rules-note{margin-top:1.25rem;border:1px solid #e5e7eb;border-radius:.625rem;background:#fafafa;overflow:hidden;}
-.rules-note-header{padding:.75rem 1rem;font-size:.875rem;font-weight:700;color:#0f766e;background:#f0fdfa;border-bottom:1px solid #e5e7eb;}
+.rules-note-header{padding:.75rem 1rem;font-size:.875rem;font-weight:700;color:#3e4095;background:#f0f1fa;border-bottom:1px solid #e5e7eb;}
 .rules-note-body{padding:.75rem 1rem;}
 .rules-note-body ul{margin:0;padding:0;list-style:disc;padding-inline-start:1.25rem;font-size:.8rem;color:#4b5563;line-height:1.9;}
 .rules-note-body li{margin-bottom:.25rem;}
 .step{flex:1;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1rem;background:#f9fafb;color:#9ca3af;font-size:.875rem;font-weight:600;border-left:1px solid #e5e7eb;}
 .step:last-child{border-left:none;}
-.step.active{background:#f0fdfa;color:#0f766e;}
+.step.active{background:#f0f1fa;color:#3e4095;}
 .step-num{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:.75rem;font-weight:700;}
-.step.active .step-num{background:#14b8a6;color:#fff;}
+.step.active .step-num{background:#5557b8;color:#fff;}
 .keywords-input-wrap{display:flex;flex-wrap:wrap;gap:.375rem;padding:.5rem;border:1px solid #e5e7eb;border-radius:.375rem;background:#fff;min-height:2.5rem;align-items:center;cursor:text;}
-.keywords-input-wrap:focus-within{border-color:#2dd4bf;box-shadow:0 0 0 3px rgba(45,212,191,.1);}
+.keywords-input-wrap:focus-within{border-color:#7577cf;box-shadow:0 0 0 3px rgba(45,212,191,.1);}
 .keywords-input-wrap input{border:0;outline:0;flex:1;min-width:120px;font-size:.875rem;padding:0;}
-.keyword-tag{display:inline-flex;align-items:center;gap:.25rem;background:#f0fdfa;border:1px solid #99f6e4;color:#0f766e;font-size:.75rem;padding:.2rem .5rem;border-radius:999px;font-weight:500;}
-.keyword-remove{border:0;background:0;color:#0f766e;cursor:pointer;font-size:.7rem;padding:0;line-height:1;opacity:.7;}
+.keyword-tag{display:inline-flex;align-items:center;gap:.25rem;background:#f0f1fa;border:1px solid #c6c7ee;color:#3e4095;font-size:.75rem;padding:.2rem .5rem;border-radius:999px;font-weight:500;}
+.keyword-remove{border:0;background:0;color:#3e4095;cursor:pointer;font-size:.7rem;padding:0;line-height:1;opacity:.7;}
 .keyword-remove:hover{opacity:1;}
 .form-section-title{font-size:.875rem;font-weight:700;color:#374151;margin-top:.75rem;padding-bottom:.25rem;border-bottom:1px solid #f3f4f6;}
 .geo-label{font-size:.875rem;font-weight:700;color:#374151;margin-top:.25rem!important;padding-bottom:.25rem;border-bottom:1px solid #f3f4f6;}
-.total-price-section{margin-top:1rem;padding:1rem;background:#f0fdfa;border:1px solid #99f6e4;border-radius:.5rem;}
-.total-price-box{display:flex;justify-content:space-between;align-items:center;font-size:1rem;font-weight:700;color:#0f766e;}
-.total-price-amount{font-size:1.25rem;color:#14b8a6;}
-.keyword-add{flex:0 0 auto;width:2rem;height:2rem;border:0;border-radius:.375rem;background:#14b8a6;color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer;line-height:1;transition:background .15s;}
-.keyword-add:hover{background:#0d9488;}
+.total-price-section{margin-top:1rem;padding:1rem;background:#f0f1fa;border:1px solid #c6c7ee;border-radius:.5rem;}
+.total-price-box{display:flex;justify-content:space-between;align-items:center;font-size:1rem;font-weight:700;color:#3e4095;}
+.total-price-amount{font-size:1.25rem;color:#5557b8;}
+.keyword-add{flex:0 0 auto;width:2rem;height:2rem;border:0;border-radius:.375rem;background:#5557b8;color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer;line-height:1;transition:background .15s;}
+.keyword-add:hover{background:#4b4dbe;}
 .keyword-add:active{transform:scale(.95);}
 .image-count-info{display:block;font-size:.8rem;color:#6b7280;margin-top:.25rem;font-weight:500;}
 .image-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:.5rem;margin-top:.5rem;width:100%;}
@@ -466,7 +466,7 @@ function initImagePreview(inputId, previewId, nameId, countId){
 .image-preview-remove{position:absolute;top:.25rem;inset-inline-end:.25rem;width:1.35rem;height:1.35rem;border:0;border-radius:999px;background:rgba(220,38,38,.9);color:#fff;font-size:.75rem;cursor:pointer;line-height:1;}
 .required{color:#dc2626;}
 .req{color:#dc2626;font-weight:700;font-size:1.1em;margin-inline-start:.15rem;}
-.existing-account-prompt{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin:0 0 1.25rem;padding:.75rem 1rem;background:#f0fdfa;border:1px solid #ccfbf1;border-radius:.625rem;color:#115e59;font-size:.875rem;font-weight:600;}
+.existing-account-prompt{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin:0 0 1.25rem;padding:.75rem 1rem;background:#f0f1fa;border:1px solid #e0e1f6;border-radius:.625rem;color:#2c2e72;font-size:.875rem;font-weight:600;}
 .existing-account-prompt .button{margin:0;white-space:nowrap;}
 @media (max-width:480px){.existing-account-prompt{align-items:stretch;flex-direction:column;}.existing-account-prompt .button{width:100%;}}
 </style>

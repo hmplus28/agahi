@@ -48,10 +48,10 @@ function showTab(tab, btn) {
 .steps-bar{display:flex;gap:0;margin-bottom:1.5rem;border:1px solid #e5e7eb;border-radius:.5rem;overflow:hidden;}
 .step{flex:1;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1rem;background:#f9fafb;color:#9ca3af;font-size:.875rem;font-weight:600;border-left:1px solid #e5e7eb;}
 .step:last-child{border-left:none;}
-.step.active{background:#f0fdfa;color:#0f766e;}
-.step.done{background:#f0fdfa;color:#059669;}
+.step.active{background:#f0f1fa;color:#3e4095;}
+.step.done{background:#f0f1fa;color:#059669;}
 .step-num{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:.75rem;font-weight:700;}
-.step.active .step-num{background:#14b8a6;color:#fff;}
+.step.active .step-num{background:#5557b8;color:#fff;}
 .step.done .step-num{background:#10b981;color:#fff;}
 .ad-summary{display:flex;align-items:center;gap:.75rem;margin:0 0 1.5rem;padding:.75rem 1rem;background:#f9fafb;border:1px solid #e5e7eb;border-radius:.625rem;font-size:.875rem;}
 .ad-summary strong{color:#374151;white-space:nowrap;}
@@ -59,7 +59,7 @@ function showTab(tab, btn) {
 .tab-buttons{display:flex;gap:0;margin-bottom:1rem;border:1px solid #e5e7eb;border-radius:.5rem;overflow:hidden;}
 .tab-btn{flex:1;padding:.625rem;background:#f9fafb;border:0;font-size:.875rem;font-weight:600;color:#6b7280;cursor:pointer;transition:all .15s;}
 .tab-btn:first-child{border-left:1px solid #e5e7eb;}
-.tab-btn.active{background:#fff;color:#0f766e;}
+.tab-btn.active{background:#fff;color:#3e4095;}
 .tab-btn:hover:not(.active){background:#f3f4f6;}
 .tab-content{display:none;}
 .tab-content.active{display:block;}

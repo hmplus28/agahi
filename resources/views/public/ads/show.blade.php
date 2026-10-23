@@ -46,7 +46,7 @@
         </div>
 
         <p class="detail-price" dir="auto">{{ $ad->priceLabel() }}</p>
-        <p class="ad-date">{{ $ad->published_at?->diffForHumans() }} در {{ $ad->city?->name ?? '—' }}</p>
+        <p class="ad-date" title="{{ $ad->published_at ? jdate_human($ad->published_at) : '' }}">{{ $ad->published_at ? to_persian_digits(jdate($ad->published_at)) : '—' }} در {{ $ad->city?->name ?? '—' }}</p>
 
         <dl class="details">
             <dt>کد آگهی</dt><dd dir="ltr">{{ $ad->code }}</dd>
@@ -84,6 +84,11 @@
             </div>
         @endif
     </section>
+
+    <div class="scam-warning" role="note">
+        <strong>⚠️ هشدار</strong>
+        <span>قبل از دریافت کالا یا خدمات به‌صورت صحیح و کامل، از پرداخت هرگونه مبلغ به حساب افراد خودداری کنید.</span>
+    </div>
 
     <section class="report-box">
         <h2>گزارش تخلف</h2>
@@ -123,10 +128,14 @@
 </section>
 
 <style>
+.scam-warning{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;background:#fff6cc;border:1px solid #eed88a;border-radius:10px;padding:.9rem 1.25rem;margin-top:1.5rem}
+.scam-warning strong{color:#8a6d1a;white-space:nowrap}
+.scam-warning span{color:#6b5a20;flex:1;min-width:220px}
+
 /* Featured ad page — softer background + teal border. */
 .ad-detail--featured {
-    background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
-    border: 2px solid #14b8a6;
+    background: linear-gradient(180deg, #f0f1fa 0%, #ffffff 100%);
+    border: 2px solid #5557b8;
     border-radius: 14px;
     padding: 1.5rem;
 }
@@ -138,7 +147,7 @@
 }
 .ad-detail--featured.ad-detail--urgent {
     border: 2px solid #ef4444;
-    background: linear-gradient(180deg, #fef2f2 0%, #ffffff 50%, #f0fdfa 100%);
+    background: linear-gradient(180deg, #fef2f2 0%, #ffffff 50%, #f0f1fa 100%);
 }
 .ad-detail__urgent-ribbon {
     position: absolute;
@@ -153,7 +162,7 @@
     font-size: .85rem;
     box-shadow: 0 2px 8px rgba(220, 38, 38, .35);
 }
-.badge-featured { background: #14b8a6; color: #fff; }
+.badge-featured { background: #5557b8; color: #fff; }
 .badge-danger { background: #dc2626; color: #fff; }
 
 .expired-banner {
@@ -177,9 +186,9 @@
     margin-top: .5rem;
 }
 .keyword-tag {
-    background: #f0fdfa;
-    color: #0f766e;
-    border: 1px solid #99f6e4;
+    background: #f0f1fa;
+    color: #3e4095;
+    border: 1px solid #c6c7ee;
     border-radius: 999px;
     padding: .25rem .75rem;
     font-size: .8rem;
@@ -187,8 +196,8 @@
     transition: background .15s, color .15s;
 }
 .keyword-tag:hover {
-    background: #ccfbf1;
-    color: #115e59;
+    background: #e0e1f6;
+    color: #2c2e72;
 }
 
 .ad-links {
@@ -200,7 +209,7 @@
     padding: .3rem 0;
 }
 .ad-links a {
-    color: #0d9488;
+    color: #4b4dbe;
     text-decoration: none;
     word-break: break-all;
 }

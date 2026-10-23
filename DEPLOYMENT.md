@@ -330,7 +330,7 @@ zip -r build.zip build
 <link rel="stylesheet" href="https://yourdomain.ir/build/assets/app-XXXXXXXX.css" />
 ```
 
-این نام باید **دقیقاً** با `public/build/manifest.json` در ریپو یکی باشد. مثلاً نسخهٔ فعلی ریپو `app-CO4fwPko.css` است؛ اگر سایت نام قدیمی‌تری (مثل `app-nWBB9O1y.css`) سرو می‌کند یعنی build قدیمی روی هاست مانده و باید از ریپو دوباره آپلود شود. بعد از تعویض فایل‌ها هم یک‌بار `Ctrl+Shift+R` بزنید یا کش CDN را Purge کنید.
+این نام باید **دقیقاً** با `public/build/manifest.json` در ریپو یکی باشد. مثلاً نسخهٔ فعلی ریپو `app-BfQ8eVmi.css` است؛ اگر سایت نام قدیمی‌تری (مثل `app-nWBB9O1y.css` یا `app-CO4fwPko.css`) سرو می‌کند یعنی build قدیمی روی هاست مانده و باید از ریپو دوباره آپلود شود. بعد از تعویض فایل‌ها هم یک‌بار `Ctrl+Shift+R` بزنید یا کش CDN را Purge کنید.
 
 ### اصلاح `composer.json` برای جلوگیری از خطای پکیج‌های dev
 
@@ -651,7 +651,7 @@ composer install
 composer test
 ```
 
-کل مجموعهٔ ۱۶۸ تست باید سبز باشد؛ شامل ۳۷ فلوی سرتاسری (جستجو، ثبت آگهی، انقضا، پنل ادمین، بنر، فونت و بیلد) و ۱۶ سناریوی عمیق پرداخت.
+کل مجموعهٔ ۱۷۱ تست باید سبز باشد؛ شامل ۴۰ فلوی سرتاسری (جستجو، ثبت آگهی، انقضا، پنل ادمین، بنر، فونت و بیلد) و ۱۶ سناریوی عمیق پرداخت.
 
 > ℹ️ چون `nunomaduro/collision` در `dont-discover` است (بخش ۹)، در محیط توسعه به‌جای `php artisan test` از `composer test` یا `vendor/bin/phpunit` استفاده کنید — خروجی همان است.
 

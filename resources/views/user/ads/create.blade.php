@@ -64,8 +64,8 @@
             </label>
             <style>
             .file-upload-area{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;cursor:pointer}
-            .file-upload-btn{background:#0d9488;color:#fff;padding:.4rem 1rem;border-radius:.5rem;font-size:.85rem;cursor:pointer;display:inline-block}
-            .file-upload-btn:hover{background:#0f766e}
+            .file-upload-btn{background:#4b4dbe;color:#fff;padding:.4rem 1rem;border-radius:.5rem;font-size:.85rem;cursor:pointer;display:inline-block}
+            .file-upload-btn:hover{background:#3e4095}
             .file-upload-name{color:#6b7280;font-size:.8rem}
             </style>
             <script>

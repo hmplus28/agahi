@@ -30,7 +30,7 @@
 </section>
 
 <style>
-.auth-info-note{background:#f0fdfa;border:1px solid #99f6e4;border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.85rem;color:#0f766e;}
+.auth-info-note{background:#f0f1fa;border:1px solid #c6c7ee;border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.85rem;color:#3e4095;}
 .auth-info-note strong{display:block;margin-bottom:.25rem;}
 .auth-info-note span{display:block;line-height:1.5;}
 </style>
