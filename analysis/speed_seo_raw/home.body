@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="4VgPhQNIDEhZtVD813nG9craEV39tCvbBmFlWVt1">
+    <meta name="robots" content="index, follow">
+    <title>Laravel</title>
+    <meta name="description" content="سامانهٔ سریع و امن ثبت آگهی در ایران">
+    <link rel="canonical" href="http://127.0.0.1:8000">
+    <link rel="stylesheet" href="/assets/app.css">
+        </head>
+<body>
+<header class="site-header">
+    <div class="container nav">
+        <a class="brand" href="http://127.0.0.1:8000">Laravel</a>
+        <nav aria-label="ناوبری اصلی">
+            <a href="http://127.0.0.1:8000/search">جست‌وجو</a>
+            <a href="http://127.0.0.1:8000/user/ads/create">ثبت آگهی</a>
+                            <a href="http://127.0.0.1:8000/login">ورود</a>
+                <a class="button button-small" href="http://127.0.0.1:8000/register">ثبت‌نام</a>
+                    </nav>
+    </div>
+</header>
+<main class="container">
+            <section class="hero"><div><p class="eyebrow">سامانهٔ آگهی سریع و قابل اعتماد</p><h1>آنچه می‌خواهید را پیدا کنید یا آگهی خود را ثبت کنید.</h1><p>جست‌وجوی ساده، انتشار شفاف و نمایش سریع در همهٔ دستگاه‌ها.</p></div><a class="button" href="http://127.0.0.1:8000/user/ads/create">ثبت آگهی رایگان</a></section>
+<form class="search-panel" method="get" action="http://127.0.0.1:8000/search"><label>عبارت جست‌وجو<input type="search" name="q" placeholder="مثلاً تعمیرات کولر"></label><button class="button" type="submit">جست‌وجو</button></form>
+<section><div class="section-heading"><h2>دسته‌بندی‌ها</h2></div><div class="category-grid"><article class="category-card"><h3><a href="http://127.0.0.1:8000/category/services">خدمات</a></h3><ul><li><a href="http://127.0.0.1:8000/category/repair">تعمیرات</a></li></ul></article></div></section>
+<section><div class="section-heading"><h2>آگهی‌های ویژه</h2></div><div class="ad-grid"><article class="ad-card"><a class="card-image" href="http://127.0.0.1:8000/ad/DEMO123456/tamirat-lavazem-khanegi" aria-label="مشاهدهٔ تعمیرات تخصصی لوازم خانگی در تهران"><span class="image-placeholder">بدون تصویر</span></a><div class="card-body"><h3><a href="http://127.0.0.1:8000/ad/DEMO123456/tamirat-lavazem-khanegi">تعمیرات تخصصی لوازم خانگی در تهران</a></h3><p class="price">توافقی</p><p class="muted">تهران · 5 minutes ago</p> <span class="badge">ویژه</span></div></article>
+</div></section><section><div class="section-heading"><h2>تازه‌ترین آگهی‌ها</h2><a href="http://127.0.0.1:8000/search">مشاهدهٔ همه</a></div><div class="ad-grid"><article class="ad-card"><a class="card-image" href="http://127.0.0.1:8000/ad/DEMO123456/tamirat-lavazem-khanegi" aria-label="مشاهدهٔ تعمیرات تخصصی لوازم خانگی در تهران"><span class="image-placeholder">بدون تصویر</span></a><div class="card-body"><h3><a href="http://127.0.0.1:8000/ad/DEMO123456/tamirat-lavazem-khanegi">تعمیرات تخصصی لوازم خانگی در تهران</a></h3><p class="price">توافقی</p><p class="muted">تهران · 5 minutes ago</p> <span class="badge">ویژه</span></div></article>
+</div></section>
+</main>
+<footer class="site-footer"><div class="container"><p>© 2026 Laravel — آگهی‌ها با رعایت حریم خصوصی و قوانین منتشر می‌شوند.</p></div></footer>
+</body>
+</html>

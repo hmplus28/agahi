@@ -9,11 +9,15 @@ use App\Domains\Ads\Services\AdSubmissionService;
 use App\Domains\Ads\Services\AdWorkflow;
 use App\Http\Controllers\Controller;
 use App\Models\Ad;
+use App\Models\Category;
+use App\Models\City;
 use App\Models\PendingAd;
+use App\Models\Province;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use DomainException;
 use Illuminate\View\View;
 
@@ -25,7 +29,17 @@ class ModerationController extends Controller
         $term   = $request->string('q')->trim()->toString();
         $type   = $request->string('type')->toString();
 
-        // Fetch registered ads
+
+
+
+
+        $category = $request->integer('category');
+        $province = $request->integer('province');
+        $city     = $request->integer('city');
+        $fromDate = $request->string('from_date')->toString();
+        $toDate   = $request->string('to_date')->toString();
+
+
         $adsQuery = Ad::query()
             ->with(['user', 'city', 'category'])
             ->when($status && !in_array($status, ['pending', 'expired_pending'], true), fn ($q) => $q->where('status', $status))
@@ -34,9 +48,14 @@ class ModerationController extends Controller
                 ->orWhere('mobile_1', 'like', $term.'%')
                 ->orWhere('title', 'like', '%'.$term.'%')))
             ->when($type === 'registered', fn ($q) => $q->where('source', 'user_panel'))
-            ->when($type === 'guest', fn ($q) => $q->where('source', 'guest'));
+            ->when($type === 'guest', fn ($q) => $q->where('source', 'guest'))
+            ->when($category, fn ($q) => $q->where('category_id', $category))
+            ->when($city, fn ($q) => $q->where('city_id', $city))
+            ->when($province, fn ($q) => $q->whereHas('city', fn ($q2) => $q2->where('province_id', $province)))
+            ->when($fromDate, fn ($q) => $q->whereDate('created_at', '>=', $fromDate))
+            ->when($toDate, fn ($q) => $q->whereDate('created_at', '<=', $toDate));
 
-        // Fetch pending (failed) ads
+
         $pendingQuery = PendingAd::query()
             ->when($status === 'pending', fn ($q) => $q->where('status', 'pending'))
             ->when($status === 'expired_pending', fn ($q) => $q->where('status', 'expired'))
@@ -53,14 +72,14 @@ class ModerationController extends Controller
             'updated_at' => $ad->updated_at,
             'title' => $ad->title,
             'code' => $ad->code,
-            'mobile' => $ad->user->mobile ?? '—',
+            'mobile' => $ad->user->mobile ?? $ad->mobile_1 ?? '—',
             'city' => $ad->city?->name ?? '—',
             'views_count' => $ad->views_count,
             'status' => $ad->status->value,
             'status_label' => $ad->status->label(),
             'status_class' => match($ad->status) {
-                \App\Domains\Ads\Enums\AdStatus::Active => 'badge-success',
-                \App\Domains\Ads\Enums\AdStatus::Expired, \App\Domains\Ads\Enums\AdStatus::Deleted => 'badge-danger',
+                AdStatus::Active => 'badge-success',
+                AdStatus::Expired, AdStatus::Deleted => 'badge-danger',
                 default => '',
             },
         ]);
@@ -92,7 +111,7 @@ class ModerationController extends Controller
         $merged = $ads->merge($pendingAds)->sortByDesc('created_at')->values();
 
         $currentPage = $request->integer('page', 1);
-        $perPage = 15;
+        $perPage = 10;
         $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
             $merged->slice(($currentPage - 1) * $perPage, $perPage),
             $merged->count(),
@@ -101,7 +120,34 @@ class ModerationController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        return view('admin.ads.index', compact('paginated', 'status', 'term', 'type'));
+
+        $statusOptions = collect([
+            ['value' => '',                       'label' => 'همهٔ وضعیت‌ها'],
+            ...collect(AdStatus::cases())->map(fn ($s) => ['value' => $s->value, 'label' => $s->label()])->all(),
+            ['value' => 'pending',                 'label' => '⏳ ناموفق (در انتظار)'],
+            ['value' => 'expired_pending',         'label' => '❌ ناموفق (منقضی)'],
+        ]);
+
+        return view('admin.ads.index', [
+            'paginated'      => $paginated,
+            'status'         => $status,
+            'term'           => $term,
+            'type'           => $type,
+            'category_id'    => $category,
+            'province_id'    => $province,
+            'city_id'        => $city,
+            'from_date'      => $fromDate,
+            'to_date'        => $toDate,
+            'status_options' => $statusOptions,
+            'categories'     => Category::query()->active()->orderBy('title')->get(['id', 'title']),
+            'provinces'      => Province::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'cities'         => City::query()->where('is_active', true)->orderBy('name')->get(['id', 'name', 'province_id']),
+            'type_options'   => [
+                ['value' => '',           'label' => 'همهٔ انواع'],
+                ['value' => 'registered','label' => 'کاربر ثبت‌نام‌شده'],
+                ['value' => 'guest',     'label' => 'کاربر مهمان'],
+            ],
+        ]);
     }
 
     public function transition(Request $request, Ad $ad, AdWorkflow $workflow): RedirectResponse
@@ -196,5 +242,75 @@ class ModerationController extends Controller
         $pending->update(['status' => $data['status']]);
 
         return back()->with('success', 'وضعیت آگهی ناموفق به‌روزرسانی شد.');
+    }
+
+
+
+    public function edit(Request $request, Ad $ad): RedirectResponse
+    {
+        $data = $request->validate([
+            'title'           => ['required', 'string', 'max:300'],
+            'description'     => ['required', 'string', 'max:6000'],
+            'price'           => ['nullable', 'integer', 'min:0'],
+            'mobile_1'        => ['nullable', 'string', 'max:30'],
+            'mobile_2'        => ['nullable', 'string', 'max:30'],
+            'phone_1'         => ['nullable', 'string', 'max:30'],
+            'phone_2'         => ['nullable', 'string', 'max:30'],
+            'email'           => ['nullable', 'email', 'max:255'],
+            'full_name'       => ['nullable', 'string', 'max:160'],
+            'business_name'   => ['nullable', 'string', 'max:160'],
+            'address'         => ['nullable', 'string', 'max:500'],
+            'category_id'     => ['required', 'exists:categories,id'],
+            'city_id'         => ['required', 'exists:cities,id'],
+            'is_featured'     => ['nullable', 'boolean'],
+            'is_urgent'       => ['nullable', 'boolean'],
+            'is_colored'      => ['nullable', 'boolean'],
+            'auto_ladder'     => ['nullable', 'boolean'],
+            'show_mobile_1'   => ['nullable', 'boolean'],
+            'expires_at'      => ['nullable', 'date'],
+        ]);
+
+        $flags = ['is_featured', 'is_urgent', 'is_colored', 'auto_ladder', 'show_mobile_1'];
+        foreach ($flags as $flag) {
+            $data[$flag] = $request->boolean($flag);
+        }
+        if (!empty($data['expires_at'])) {
+            $data['expires_at'] = \Carbon\Carbon::parse($data['expires_at']);
+        }
+
+        $ad->update($data);
+
+        return back()->with('success', 'آگهی به‌روزرسانی شد.');
+    }
+
+
+
+    public function refreshLadders(Request $request): RedirectResponse
+    {
+        $updated = 0;
+        $now = now();
+
+
+        $ads = Ad::query()
+            ->where('status', AdStatus::Active)
+            ->whereHas('adServices', function ($q): void {
+                $q->where('status', 'active')->whereHas('tariff', function ($q2): void {
+                    $q2->where('service_type', 'ladder')->orWhere('service_type', 'auto_ladder');
+                });
+            })
+            ->get();
+
+        foreach ($ads as $ad) {
+            $ad->forceFill([
+                'last_ladder_at' => $now,
+                'sort_at' => $now,
+            ])->save();
+            $updated++;
+        }
+
+
+        \Illuminate\Support\Facades\Cache::forget('seo.sitemap.pages.v1');
+
+        return back()->with('success', "نردبان {$updated} آگهی به‌روزرسانی شد و سایت‌مپ بازسازی خواهد شد.");
     }
 }

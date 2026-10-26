@@ -1,0 +1,8 @@
+ad,200,4875,15.51,15.89,10
+category,200,1817,11.74,12.15,10
+home,200,3824,13.15,13.50,10
+name,http_code,html_bytes,avg_ttfb_ms,avg_total_ms,samples
+robots,200,24,0.26,0.29,10
+search,200,2729,13.52,13.89,10
+sitemap_categories,200,320,9.64,10.01,10
+sitemap_index,200,269,9.55,9.90,10

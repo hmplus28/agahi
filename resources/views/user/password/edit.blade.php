@@ -1,0 +1,53 @@
+@extends('layouts.app', ['title' => 'تغییر رمز عبور | ' . config('app.name'), 'robots' => 'noindex, nofollow'])
+
+@section('content')
+<section class="form-page">
+    <h1>تغییر رمز عبور</h1>
+
+    <div class="auth-info-note" role="note">
+        <strong>رمز جدید تولید و پیامک می‌شود.</strong>
+        <span>با تأیید این فرم، یک رمز جدید تصادفی برای شما ساخته می‌شود و به شمارهٔ موبایلتان پیامک خواهد شد. رمز قبلی بلافاصله غیرفعال می‌شود و در سایر دستگاه‌ها از حساب خارج می‌شوید.</span>
+    </div>
+
+    @if(session('success'))
+        <div class="alert alert-success" role="status">
+            <span aria-hidden="true">✓</span>
+            <div>{{ session('success') }}</div>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-error" role="alert">
+            <span aria-hidden="true">!</span>
+            <div>
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
+    <form method="post" action="{{ route('user.password.update') }}">
+        @csrf
+        @method('PUT')
+
+        <label class="check-label">
+            <input type="checkbox" name="confirm" value="1" required>
+            <span>می‌دانم که رمز قبلی غیرفعال می‌شود و رمز جدید پیامک می‌شود. تأیید می‌کنم.</span>
+        </label>
+
+        <button class="button" type="submit">تولید رمز جدید و ارسال پیامک</button>
+    </form>
+
+    <p><a href="{{ route("user.dashboard") }}">بازگشت به پروفایل</a></p>
+</section>
+
+<style>
+.auth-info-note{background:#f0f1fa;border:1px solid #c6c7ee;border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.85rem;color:#3e4095;}
+.auth-info-note strong{display:block;margin-bottom:.25rem;}
+.auth-info-note span{display:block;line-height:1.5;}
+
+</style>
+@endsection

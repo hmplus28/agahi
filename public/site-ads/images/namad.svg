@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
+  <rect width="200" height="60" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="100" y="25" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#16a34a">نماد اعتماد</text>
+  <text x="100" y="45" text-anchor="middle" font-family="Arial" font-size="10" fill="#15803d">الکترونیک</text>
+</svg>
