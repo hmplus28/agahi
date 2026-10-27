@@ -1,0 +1,98 @@
+name: agahi
+
+x-app-base: &app-base
+  build:
+    context: .
+    target: app
+  restart: unless-stopped
+  volumes:
+    - app_public:/var/www/html/storage/app/public
+
+x-app-env: &app-env
+  APP_NAME: "سامانه آگهی"
+  APP_ENV: ${APP_ENV:-production}
+  APP_DEBUG: ${APP_DEBUG:-false}
+  APP_KEY: ${APP_KEY:-}
+  APP_URL: ${APP_URL:-http://localhost:8080}
+  APP_LOCALE: fa
+  APP_FALLBACK_LOCALE: fa
+  APP_MAINTENANCE_DRIVER: file
+  BCRYPT_ROUNDS: "12"
+  DB_CONNECTION: pgsql
+  DB_HOST: db
+  DB_PORT: "5432"
+  DB_DATABASE: ${POSTGRES_DB:-agahi}
+  DB_USERNAME: ${POSTGRES_USER:-agahi}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+  SESSION_DRIVER: database
+  SESSION_LIFETIME: "120"
+  SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-false}
+  CACHE_STORE: database
+  QUEUE_CONNECTION: sync
+  FILESYSTEM_DISK: public
+  LOG_CHANNEL: stderr
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  SMS_PROVIDER: ${SMS_PROVIDER:-log}
+  IPPANEL_API_KEY: ${IPPANEL_API_KEY:-}
+  IPPANEL_BASE_URL: ${IPPANEL_BASE_URL:-https://edge.ippanel.com/v1}
+  SMS_SENDER_NUMBER: ${SMS_SENDER_NUMBER:-}
+  FREE_AD_DURATION_DAYS: "30"
+  MAX_AD_IMAGES: "5"
+  MAX_AD_LINKS: "5"
+  RUN_MIGRATIONS: "false"
+  RUN_SEEDER: "false"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-agahi}
+      POSTGRES_USER: ${POSTGRES_USER:-agahi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-agahi} -d ${POSTGRES_DB:-agahi}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    <<: *app-base
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *app-env
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+      RUN_SEEDER: ${RUN_SEEDER:-false}
+
+  web:
+    build:
+      context: .
+      target: web
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    volumes:
+      - app_public:/var/www/html/storage/app/public
+
+  scheduler:
+    <<: *app-base
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+    environment:
+      <<: *app-env
+      RUN_MIGRATIONS: "false"
+      RUN_SEEDER: "false"
+
+volumes:
+  pgdata:
+  app_public:
