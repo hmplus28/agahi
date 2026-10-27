@@ -32,6 +32,10 @@ class DatabaseSeeder extends Seeder
         $admin = User::query()->firstOrCreate(['mobile' => '09120000000'], ['email' => 'admin@example.test', 'first_name' => 'مدیر', 'last_name' => 'سامانه', 'password' => Hash::make('ChangeMe123!'), 'plaintext_password' => 'ChangeMe123!', 'role' => UserRole::SuperAdmin, 'is_active' => true, 'is_staff' => true]);
         Tariff::query()->firstOrCreate(['code' => 'FREE_30'], ['title' => 'آگهی رایگان ۳۰ روزه', 'price' => 0, 'service_type' => 'ad', 'duration_days' => 30, 'is_active' => true]);
 
+        // Varied demo dataset (250 active ads + admin queue samples, all
+        // tagged source='demo'). Re-runnable; never touches real rows.
+        $this->call(DemoContentSeeder::class);
+
         if (Ad::query()->where('slug', self::DEMO_SLUG)->exists()) {
             return;
         }
