@@ -12,6 +12,7 @@ use App\Domains\Notifications\Providers\IpPanelSmsProvider;
 use App\Domains\Notifications\Providers\LogSmsProvider;
 use App\Models\Country;
 use App\Models\Province;
+use App\Support\HttpsPolicy;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -40,7 +41,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if ($this->app->environment('production')) {
+        if (HttpsPolicy::shouldForce(
+            $this->app->environment('production'),
+            (string) config('app.url'),
+            request()->getScheme(),
+            request()->header('X-Forwarded-Proto'),
+        )) {
             URL::forceScheme('https');
         }
 
