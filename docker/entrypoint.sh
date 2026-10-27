@@ -3,6 +3,17 @@ set -e
 
 cd /var/www/html
 
+# ── runtime storage dirs: git tracks no empty dirs and .dockerignore
+#    excludes storage contents, so they may be missing in the image;
+#    view:cache (and Blade at runtime) needs storage/framework/views ──
+mkdir -p \
+    storage/app/public \
+    storage/framework/cache/data \
+    storage/framework/sessions \
+    storage/framework/testing \
+    storage/framework/views \
+    storage/logs
+
 # ── fresh manifests: the committed ones may reference dev packages ──
 rm -f bootstrap/cache/packages.php bootstrap/cache/services.php
 
