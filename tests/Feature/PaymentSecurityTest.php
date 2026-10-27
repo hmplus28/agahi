@@ -43,7 +43,7 @@ class PaymentSecurityTest extends TestCase
         $category = Category::query()->create(['title' => 'خدمات', 'slug' => 'services']);
 
         $this->ad = Ad::query()->create([
-            'code'              => 'SEC' . str_pad((string) random_int(1, 999999), 6, '0', STR_PAD_LEFT),
+            'code'              => (string) random_int(700100000, 700199999),
             'slug'              => 'security-test-ad-' . random_int(1, 9999),
             'user_id'           => $this->user->id,
             'title'             => 'آگهی تست امنیت',

@@ -79,7 +79,7 @@ class SharedHostingWorkflowTest extends TestCase
         $city = City::query()->create(['province_id' => $province->id, 'name' => 'تهران', 'slug' => 'tehran']);
         $category = Category::query()->create(['title' => 'خدمات', 'slug' => 'services']);
         $ad = Ad::query()->create([
-            'code' => 'HOST'.str_pad((string) random_int(1, 999999), 6, '0', STR_PAD_LEFT),
+            'code' => (string) random_int(700200000, 700299999),
             'slug' => 'hosting-test',
             'user_id' => $user->id,
             'title' => 'آگهی تست هاست',

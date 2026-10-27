@@ -35,8 +35,8 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/search', SearchController::class)->name('search');
 Route::get('/category/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/tag/{keyword}', [TagController::class, 'show'])->name('tag.show')->where('keyword', '.*');
-Route::get('/ad/{ad}/{slug}', [PublicAdController::class, 'show'])->where('ad', '[A-Za-z0-9]+')->name('ads.show');
-Route::post('/ad/{ad}/report', [AdReportController::class, 'store'])->where('ad', '[A-Za-z0-9]+')->middleware('throttle:3,10')->name('ads.reports.store');
+Route::get('/ad/{ad}/{slug}', [PublicAdController::class, 'show'])->whereNumber('ad')->name('ads.show');
+Route::post('/ad/{ad}/report', [AdReportController::class, 'store'])->whereNumber('ad')->middleware('throttle:3,10')->name('ads.reports.store');
 
 Route::get('/guest/ad/create', [GuestAdController::class, 'create'])->name('guest.ad.create');
 Route::post('/guest/ad/create', [GuestAdController::class, 'store'])->middleware('throttle:10,1')->name('guest.ad.store');

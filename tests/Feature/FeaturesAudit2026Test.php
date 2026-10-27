@@ -34,7 +34,7 @@ class FeaturesAudit2026Test extends TestCase
     {
         $geo = $this->seedGeo();
         return Ad::query()->create(array_merge([
-            'code'                       => 'AUD' . random_int(1000, 9999),
+            'code'                       => (string) random_int(700300000, 700399999),
             'slug'                       => 'audit-ad-' . random_int(1000, 9999),
             'user_id'                    => $owner->id,
             'title'                      => 'آگهی تستی',
@@ -267,8 +267,8 @@ class FeaturesAudit2026Test extends TestCase
     public function test_user_expired_ads_page_lists_expired_ads(): void
     {
         $user = User::factory()->create();
-        $ad = $this->makeAd($user, ['status' => AdStatus::Expired, 'expires_at' => now()->subDay(), 'title' => 'آگهی منقضی', 'slug' => 'expired-ad-' . random_int(1000, 9999), 'code' => 'EXP' . random_int(1000, 9999)]);
-        $ad2 = $this->makeAd($user, ['status' => AdStatus::Active, 'expires_at' => now()->addDay(), 'title' => 'آگهی فعال', 'slug' => 'active-ad-' . random_int(1000, 9999), 'code' => 'ACT' . random_int(1000, 9999)]);
+        $ad = $this->makeAd($user, ['status' => AdStatus::Expired, 'expires_at' => now()->subDay(), 'title' => 'آگهی منقضی', 'slug' => 'expired-ad-' . random_int(1000, 9999), 'code' => (string) random_int(700500000, 700599999)]);
+        $ad2 = $this->makeAd($user, ['status' => AdStatus::Active, 'expires_at' => now()->addDay(), 'title' => 'آگهی فعال', 'slug' => 'active-ad-' . random_int(1000, 9999), 'code' => (string) random_int(700600000, 700699999)]);
 
 
 

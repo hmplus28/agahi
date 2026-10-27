@@ -229,7 +229,7 @@ class SadadGatewayTest extends TestCase
         $category = \App\Models\Category::query()->create(['title' => 'خدمات', 'slug' => 'services']);
 
         $ad = \App\Models\Ad::query()->create([
-            'code' => 'SAD001',
+            'code' => '700110004',
             'slug' => 'sadad-test-ad',
             'user_id' => $user->id,
             'title' => 'آگهی سداد',

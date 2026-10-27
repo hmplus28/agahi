@@ -16,6 +16,7 @@ use App\Models\Province;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use DomainException;
@@ -39,12 +40,21 @@ class ModerationController extends Controller
         $fromDate = $request->string('from_date')->toString();
         $toDate   = $request->string('to_date')->toString();
 
+        // ads.code is a bigint column (numeric codes since migration
+        // 2026_09_08_000001) - a plain LIKE on it makes PostgreSQL fail with
+        // "operator does not exist: bigint ~~ unknown", so cast per driver.
+        $codeColumn = match (DB::getDriverName()) {
+            'pgsql'            => 'code::text',
+            'mysql', 'mariadb' => 'CAST(code AS CHAR)',
+            default            => 'CAST(code AS TEXT)',
+        };
+
 
         $adsQuery = Ad::query()
             ->with(['user', 'city', 'category'])
             ->when($status && !in_array($status, ['pending', 'expired_pending'], true), fn ($q) => $q->where('status', $status))
             ->when($term, fn ($q) => $q->where(fn ($q) => $q
-                ->where('code', 'like', $term.'%')
+                ->whereRaw($codeColumn.' like ?', [$term.'%'])
                 ->orWhere('mobile_1', 'like', $term.'%')
                 ->orWhere('title', 'like', '%'.$term.'%')))
             ->when($type === 'registered', fn ($q) => $q->where('source', 'user_panel'))
@@ -62,8 +72,8 @@ class ModerationController extends Controller
             ->when(in_array($status, ['active', 'inactive', 'deleted', 'draft', 'needs_permit', 'pending_payment', 'pending_approval'], true), fn ($q) => $q->whereRaw('0=1'))
             ->when($type === 'registered', fn ($q) => $q->whereRaw('0=1'))
             ->when($term, fn ($q) => $q->where(fn ($q) => $q
-                ->whereRaw("json_extract(ad_data, '$.title') like ?", ['%'.$term.'%'])
-                ->orWhereRaw("json_extract(ad_data, '$.mobile_1') like ?", [$term.'%'])));
+                ->where('ad_data->title', 'like', '%'.$term.'%')
+                ->orWhere('ad_data->mobile_1', 'like', $term.'%')));
 
         $ads = $adsQuery->latest()->get()->map(fn ($ad) => [
             'type' => 'registered',

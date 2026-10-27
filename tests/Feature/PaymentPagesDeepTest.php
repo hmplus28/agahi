@@ -36,7 +36,7 @@ class PaymentPagesDeepTest extends TestCase
         $title = $overrides['title'] ?? ('آگهی پرداخت '.$n);
 
         return Ad::query()->create(array_merge([
-            'code'                       => 'PAY'.$n,
+            'code'                       => (string) $n,
             'slug'                       => 'pay-ad-'.$n,
             'user_id'                    => $owner->id,
             'title'                      => $title,
