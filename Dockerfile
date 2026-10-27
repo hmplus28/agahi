@@ -1,26 +1,10 @@
 # syntax=docker/dockerfile:1
 
 # ─────────────────────────────────────────────────────────────
-# 1) assets — build Vite assets from source
-# ─────────────────────────────────────────────────────────────
-FROM node:22-alpine AS assets
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
-COPY vite.config.js ./
-COPY resources ./resources
-# resources/css/app.css imports this file and scans it via @source
-COPY public/assets ./public/assets
-# Laravel's default pagination views are NOT in git (vendor/ is gitignored),
-# so take them from the "vendor" stage instead of the build context
-COPY --from=vendor /app/vendor/laravel/framework/src/Illuminate/Pagination/resources/views \
-     ./vendor/laravel/framework/src/Illuminate/Pagination/resources/views
-# @source glob target (empty at build time is fine, keeps the glob resolvable)
-RUN mkdir -p storage/framework/views
-RUN npm run build
-
-# ─────────────────────────────────────────────────────────────
-# 2) vendor — production composer dependencies
+# 1) vendor — production composer dependencies
+#    MUST stay before the "assets" stage: assets copies the Laravel
+#    pagination views from here, and Docker only allows
+#    COPY --from=<stage> for stages defined EARLIER in this file.
 # ─────────────────────────────────────────────────────────────
 FROM php:8.3-cli-alpine AS vendor
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -45,6 +29,25 @@ COPY public ./public
 COPY resources ./resources
 COPY routes ./routes
 RUN composer dump-autoload --optimize --no-dev --no-scripts
+
+# ─────────────────────────────────────────────────────────────
+# 2) assets — build Vite assets from source
+# ─────────────────────────────────────────────────────────────
+FROM node:22-alpine AS assets
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY vite.config.js ./
+COPY resources ./resources
+# resources/css/app.css imports this file and scans it via @source
+COPY public/assets ./public/assets
+# Laravel's default pagination views are NOT in git (vendor/ is gitignored),
+# so take them from the "vendor" stage defined above
+COPY --from=vendor /app/vendor/laravel/framework/src/Illuminate/Pagination/resources/views \
+     ./vendor/laravel/framework/src/Illuminate/Pagination/resources/views
+# @source glob target (empty at build time is fine, keeps the glob resolvable)
+RUN mkdir -p storage/framework/views
+RUN npm run build
 
 # ─────────────────────────────────────────────────────────────
 # 3) app — php-fpm runtime
