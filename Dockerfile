@@ -65,7 +65,16 @@ COPY --chown=www-data:www-data . .
 COPY --from=vendor /app/vendor ./vendor
 COPY --from=assets /app/public/build ./public/build
 
-RUN chown -R www-data:www-data storage bootstrap/cache public \
+# git tracks no empty dirs and .dockerignore excludes storage contents,
+# so create the runtime dirs Laravel needs (view:cache fails otherwise)
+RUN mkdir -p \
+        storage/app/public \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/testing \
+        storage/framework/views \
+        storage/logs \
+    && chown -R www-data:www-data storage bootstrap/cache public \
     && chmod +x docker/entrypoint.sh
 
 USER www-data
