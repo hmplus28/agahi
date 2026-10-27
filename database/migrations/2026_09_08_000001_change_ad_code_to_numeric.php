@@ -120,14 +120,35 @@ return new class extends Migration
                 ]);
             }
 
-            Schema::table('ads', function (Blueprint $table): void {
-                $table->dropIndex('ads_code_unique');
-                $table->dropColumn('code');
-            });
+            if ($driver === 'pgsql') {
+                // PostgreSQL: ->unique() creates a CONSTRAINT whose backing index
+                // cannot be dropped directly (SQLSTATE 2BP01) - drop the constraint
+                // instead, which removes the index with it.
+                DB::statement('ALTER TABLE ads DROP CONSTRAINT IF EXISTS ads_code_unique');
+                Schema::table('ads', function (Blueprint $table): void {
+                    $table->dropColumn('code');
+                });
+            } else {
+                Schema::table('ads', function (Blueprint $table): void {
+                    $table->dropIndex('ads_code_unique');
+                    $table->dropColumn('code');
+                });
+            }
 
             Schema::table('ads', function (Blueprint $table): void {
                 $table->renameColumn('new_code', 'code');
             });
+
+            if ($driver === 'pgsql') {
+                // keep the constraint name consistent with the MySQL/SQLite result
+                $constraint = DB::selectOne(
+                    "SELECT 1 FROM information_schema.table_constraints
+                     WHERE table_name = 'ads' AND constraint_name = 'ads_new_code_unique'"
+                );
+                if ($constraint) {
+                    DB::statement('ALTER TABLE ads RENAME CONSTRAINT ads_new_code_unique TO ads_code_unique');
+                }
+            }
         }
     }
 
