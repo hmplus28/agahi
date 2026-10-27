@@ -65,6 +65,42 @@ class UserFacingPagesTest extends TestCase
             ->assertSee(route('login'), false);
     }
 
+    public function test_homepage_lists_all_ads_paginated_at_100_without_featured_section(): void
+    {
+        $data = $this->seedGeo();
+        $user = User::factory()->create();
+
+        for ($i = 1; $i <= 101; $i++) {
+            $user->ads()->create([
+                'title' => "آگهی تستی شماره $i",
+                'slug' => "test-ad-$i",
+                'description' => "توضیحات تستی برای آگهی شماره $i با طول کافی.",
+                'category_id' => $data['category']->id,
+                'city_id' => $data['city']->id,
+                'status' => 'active',
+                'published_at' => now()->subMinutes(500 - $i),
+                'expires_at' => now()->addDays(30),
+                'price' => 0,
+                'mobile_1' => '09120000000',
+                'normalized_title' => 'ad'.$i,
+                'normalized_description' => 'desc'.$i,
+                'normalized_title_hash' => md5('ad'.$i),
+                'normalized_description_hash' => md5('desc'.$i),
+            ]);
+        }
+
+        $page1 = $this->get('/')
+            ->assertOk()
+            ->assertDontSee('آگهی‌های منتخب', false)
+            ->assertSee('همه آگهی‌ها')
+            ->getContent();
+
+        $this->assertSame(100, substr_count($page1, '<article class="ad-card'), 'page 1 must render exactly 100 ad cards');
+
+        $page2 = $this->get('/?page=2')->assertOk()->getContent();
+        $this->assertSame(1, substr_count($page2, '<article class="ad-card'), 'page 2 must render the remaining ad card');
+    }
+
     public function test_login_page_renders(): void
     {
         $this->get(route('login'))

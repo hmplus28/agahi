@@ -103,19 +103,12 @@
 })();
 </script>
 
-@if($featured->isNotEmpty())
-<section class="section" aria-labelledby="featured-title">
-    <div class="section-heading"><div><h2 id="featured-title">آگهی‌های منتخب</h2><p>آگهی‌هایی که بیشتر دیده می‌شوند.</p></div></div>
-    <div class="ad-grid ad-grid--context">@foreach($featured as $ad)<x-ad-card :ad="$ad" />@endforeach @if($featured->count() < 3)<x-post-ad-cta title="آگهی شما می‌تواند منتخب باشد" subtitle="با ثبت آگهی، مشتریان نزدیک شما را پیدا می‌کنند." />@endif</div>
-</section>
-@endif
-
-<section class="section" aria-labelledby="latest-title">
-    <div class="section-heading"><div><h2 id="latest-title">تازه‌ترین آگهی‌ها <span class="ads-count-badge">{{ to_persian_digits(number_format($totalActive)) }} آگهی</span></h2></div></div>
-    @if($latest->isNotEmpty())
-        <div class="ad-grid ad-grid--context">@foreach($latest as $ad)<x-ad-card :ad="$ad" />@endforeach</div>
-        @if($latest->hasPages())
-            <div class="pagination-wrap">{{ $latest->links() }}</div>
+<section class="section" aria-labelledby="all-ads-title">
+    <div class="section-heading"><div><h2 id="all-ads-title">همه آگهی‌ها <span class="ads-count-badge">{{ to_persian_digits(number_format($totalActive)) }} آگهی</span></h2></div></div>
+    @if($ads->isNotEmpty())
+        <div class="ad-grid ad-grid--context">@foreach($ads as $ad)<x-ad-card :ad="$ad" />@endforeach</div>
+        @if($ads->hasPages())
+            <div class="pagination-wrap">{{ $ads->links() }}</div>
         @endif
     @else
         <div class="empty-state empty-state--wide"><strong>هنوز آگهی فعالی ثبت نشده است.</strong><span>اولین آگهی را ثبت کنید و این بازار را شروع کنید.</span><a class="button button-small" href="{{ route('user.ads.create') }}">ثبت آگهی</a></div>

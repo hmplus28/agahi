@@ -11,6 +11,6 @@ class ExampleTest extends TestCase
 
     public function test_homepage_renders_without_client_side_data_loading(): void
     {
-        $this->get('/')->assertOk()->assertSee('تازه‌ترین آگهی‌ها');
+        $this->get('/')->assertOk()->assertSee('همه آگهی‌ها');
     }
 }

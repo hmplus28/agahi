@@ -43,6 +43,7 @@
     </div>
 </article>
 
+@once
 <style>
 /* ─────────── Featured / Urgent ad-card variants ─────────── */
 
@@ -108,3 +109,4 @@
     color: #ffffff;
 }
 </style>
+@endonce
