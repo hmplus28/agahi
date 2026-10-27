@@ -2,23 +2,9 @@
 .github
 .gitattributes
 node_modules
-# exclude all of vendor EXCEPT the pagination views that
-# resources/css/app.css references via @source (needed by the
-# "assets" build stage; documented dockerignore re-include chain)
-vendor/*
-!vendor/laravel
-vendor/laravel/*
-!vendor/laravel/framework
-vendor/laravel/framework/*
-!vendor/laravel/framework/src
-vendor/laravel/framework/src/*
-!vendor/laravel/framework/src/Illuminate
-vendor/laravel/framework/src/Illuminate/*
-!vendor/laravel/framework/src/Illuminate/Pagination
-vendor/laravel/framework/src/Illuminate/Pagination/*
-!vendor/laravel/framework/src/Illuminate/Pagination/resources
-vendor/laravel/framework/src/Illuminate/Pagination/resources/*
-!vendor/laravel/framework/src/Illuminate/Pagination/resources/views
+# vendor is not in git anyway and is installed by the "vendor" stage;
+# the assets stage pulls the pagination views it needs from that stage
+vendor
 public/storage
 public/build
 public/hot
