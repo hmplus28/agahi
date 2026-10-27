@@ -42,7 +42,7 @@ class AdminSupportToolsTest extends TestCase
         $category = Category::query()->create(['title' => 'خدمات', 'slug' => 'services']);
 
         return Ad::query()->create([
-            'code' => 'RPT1234567', 'slug' => 'reported-ad', 'user_id' => $owner->id,
+            'code' => '700110003', 'slug' => 'reported-ad', 'user_id' => $owner->id,
             'title' => 'آگهی گزارش‌شده', 'normalized_title' => 'آگهی گزارش‌شده',
             'normalized_title_hash' => hash('sha256', 'آگهی گزارش‌شده'),
             'description' => 'توضیحات', 'normalized_description' => 'توضیحات',

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Domains\Ads\Enums\AdStatus;
+use App\Domains\Ads\Services\AdCodeService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 
 class Ad extends Model
 {
@@ -23,7 +23,7 @@ class Ad extends Model
     protected static function booted(): void
     {
         static::creating(function (self $ad): void {
-            $ad->code ??= strtoupper(Str::random(10));
+            $ad->code ??= AdCodeService::next();
             $ad->sort_at ??= now();
         });
     }

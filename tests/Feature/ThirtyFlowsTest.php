@@ -49,7 +49,7 @@ class ThirtyFlowsTest extends TestCase
         $title = $overrides['title'] ?? $this->uniqueTitle('آگهی تستی');
 
         return Ad::query()->create(array_merge([
-            'code'                       => 'FLW'.(++self::$seq).random_int(100, 999),
+            'code'                       => (string) (700400000 + (++self::$seq)),
             'slug'                       => 'flow-ad-'.(++self::$seq).'-'.random_int(100, 999),
             'user_id'                    => $owner->id,
             'title'                      => $title,

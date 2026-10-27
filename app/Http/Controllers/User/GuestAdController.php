@@ -67,7 +67,6 @@ class GuestAdController extends Controller
 
                 $ad = Ad::query()->create([
                     ...$data,
-                    'code'                       => strtoupper(Str::random(10)),
                     'slug'                       => Str::slug($data['title'], '-', 'fa') ?: Str::random(8),
                     'normalized_title'           => $fingerprints['title'],
                     'normalized_description'     => $fingerprints['description'],
