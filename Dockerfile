@@ -11,8 +11,9 @@ COPY vite.config.js ./
 COPY resources ./resources
 # resources/css/app.css imports this file and scans it via @source
 COPY public/assets ./public/assets
-# resources/css/app.css scans Laravel's default pagination views via @source
-COPY vendor/laravel/framework/src/Illuminate/Pagination/resources/views \
+# Laravel's default pagination views are NOT in git (vendor/ is gitignored),
+# so take them from the "vendor" stage instead of the build context
+COPY --from=vendor /app/vendor/laravel/framework/src/Illuminate/Pagination/resources/views \
      ./vendor/laravel/framework/src/Illuminate/Pagination/resources/views
 # @source glob target (empty at build time is fine, keeps the glob resolvable)
 RUN mkdir -p storage/framework/views
