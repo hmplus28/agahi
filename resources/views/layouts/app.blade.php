@@ -45,11 +45,20 @@
             html{font-family:sans-serif;-webkit-text-size-adjust:100%;tab-size:4;line-height:1.5}
             body{margin:0;background:#f9fafb;color:#1f2937}
             .container{width:100%;max-width:1280px;margin-inline:auto;padding-inline:1rem}
+            .header-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:1rem;padding-block:.625rem}
+            .header-top>.header-brand{justify-self:start}.header-top>.header-search{justify-self:center}.header-top>.header-actions--end{justify-self:end}
+            .header-bottom{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:1rem;padding-block:.375rem .625rem;border-top:1px solid #f3f4f6}
+            .header-bottom>.city-picker{justify-self:start}.header-bottom>.header-nav{justify-self:center}.header-bottom>.header-phone{justify-self:end}
+            .header-brand{display:inline-flex;align-items:center;gap:.55rem;text-decoration:none}
+            .header-brand .brand-name{font-weight:800;font-size:1.02rem;color:#111827;white-space:nowrap}
+            .header-search{display:flex;align-items:center;gap:.5rem;width:100%;max-width:560px;height:42px;background:#f4f6f7;border:1px solid transparent;border-radius:11px;padding:0 11px}
+            .header-search svg{width:18px;height:18px;fill:none;stroke:#6b7784;stroke-width:2;stroke-linecap:round;flex:0 0 auto}
+            .header-search input{border:0;outline:0;background:transparent;flex:1;min-width:0;font:inherit;font-size:.9rem;color:#17212b}
+            .header-search button{border:0;background:transparent;color:#2c2e72;font-weight:750;font-size:.84rem;cursor:pointer;white-space:nowrap}
+            .header-nav{display:flex;justify-content:center;align-items:center;gap:.25rem;flex-wrap:wrap}
+            .header-nav a{padding:.3rem .65rem;border-radius:8px;font-size:.85rem;color:#4b5563;text-decoration:none}
+            .header-nav a:hover{background:#f0f1fa;color:#4b4dbe}
             .site-header{background:#fff;border-bottom:1px solid #f3f4f6;position:sticky;top:0;z-index:50}
-            .header-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;padding-block:.625rem}
-            .header-top>.header-actions--start{justify-self:start}.header-top>.brand{justify-self:center}.header-top>.header-actions--end{justify-self:end}
-            .header-bottom{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;padding-block:.375rem .625rem;border-top:1px solid #f3f4f6}
-            .header-bottom>.city-picker{justify-self:start}.header-bottom>.header-phone{justify-self:center}.header-bottom>.header-dropdown{justify-self:end}
             .brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;font-weight:700;font-size:1.15rem;color:#111827;flex-shrink:0}
             .brand-mark{display:flex;align-items:center;justify-content:center;width:2.125rem;height:2.125rem;border-radius:.625rem;background:#4b4dbe;color:#fff;font-size:1.125rem;font-weight:800}
             .post-ad-button{display:flex;align-items:center;gap:.25rem;background:#c00c1a;color:#fff;font-size:.875rem;font-weight:600;padding:.625rem 1rem;border-radius:.625rem;text-decoration:none;white-space:nowrap;flex-shrink:0}
@@ -173,9 +182,22 @@
 @endphp
 
 <header class="site-header" role="banner">
-    
+
+    {{-- Row 1: brand (right) | site-wide search (center) | actions (left) --}}
     <div class="container header-top">
-        <div class="header-actions header-actions--start">
+        <a class="brand header-brand" href="{{ route('home') }}" aria-label="صفحهٔ اصلی {{ config('app.name') }}">
+            <img class="brand-logo" src="/img/logo.png" alt="{{ config('app.name') }}">
+            <span class="brand-name">{{ config('agahi.brand_name', config('app.name')) }}</span>
+        </a>
+
+        <form class="header-search" method="get" action="{{ route('search') }}" role="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.25 4.25"/></svg>
+            <label class="sr-only" for="header-q">جست‌وجو در آگهی‌ها</label>
+            <input id="header-q" type="search" name="q" value="{{ request('q') }}" placeholder="جست‌وجو در آگهی‌ها…" autocomplete="off">
+            <button type="submit">جست‌وجو</button>
+        </form>
+
+        <div class="header-actions header-actions--end header-actions--guest">
             @auth
                 @if (auth()->user()->is_staff)
                     <nav class="role-switch" aria-label="تغییر نقش">
@@ -183,74 +205,40 @@
                         <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.*') ? 'active' : '' }}">پنل مدیریت</a>
                     </nav>
                 @endif
-            @endauth
-        </div>
-
-        <a class="brand" href="{{ route('home') }}" aria-label="صفحهٔ اصلی {{ config('app.name') }}">
-            <img class="brand-logo" src="/img/logo.png" alt="{{ config('app.name') }}">
-        </a>
-
-        @auth
-            <div class="header-actions header-actions--end header-actions--guest">
                 <a class="post-ad-button" href="{{ route('user.ads.create') }}"><span aria-hidden="true">＋</span> ثبت آگهی</a>
                 <form method="post" action="{{ route('logout') }}" style="display:inline">
                     @csrf
                     <button type="submit" class="login-button" style="cursor:pointer">خروج</button>
                 </form>
-            </div>
-        @else
-            <div class="header-actions header-actions--end header-actions--guest">
+            @else
                 <a class="post-ad-button" href="{{ route('guest.ad.create') }}"><span aria-hidden="true">＋</span> ثبت آگهی</a>
                 <a class="login-button" href="{{ route('login') }}">ورود</a>
-            </div>
-        @endauth
+            @endauth
+        </div>
     </div>
 
-    
+    {{-- Row 2: location picker (right) | quick links (center) | support phone (left) --}}
     <div class="container header-bottom">
         <button class="city-picker" type="button" id="city-picker-trigger" aria-haspopup="dialog" aria-controls="city-modal" aria-expanded="false">
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.33 7-12a7 7 0 1 0-14 0c0 6.67 7 12 7 12Z"/><circle cx="12" cy="9" r="2.25"/></svg>
             <span id="city-picker-label">{{ $pickerLabel }}</span><span class="chevron">⌄</span>
         </button>
 
-        <a class="header-phone" href="tel:{{ \App\Models\SiteSetting::get('branding.support_phone_href', config('agahi.support_phone_href')) }}" dir="ltr">
-            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>
-            <span dir="ltr" style="text-align:left">تبلیغات: {{ to_persian_digits(\App\Models\SiteSetting::get('branding.support_phone', config('agahi.support_phone'))) }}</span>
-        </a>
+        <nav class="header-nav" aria-label="پیوندهای اصلی">
+            <a href="{{ route('site-ads.pricing') }}">تعرفهٔ آگهی</a>
+            <a href="{{ route('site-ads.rules') }}">قوانین</a>
+            <a href="{{ route('about') }}">درباره ما</a>
+            <a href="{{ route('contact') }}">تماس با ما</a>
+        </nav>
 
-        <div class="header-dropdown" id="header-dropdown">
-            <button class="header-dropdown__trigger" type="button" aria-haspopup="true" aria-expanded="false">
-                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
-                <span class="chevron">⌄</span>
-            </button>
-            <div class="header-dropdown__menu">
-                <a href="{{ route('about') }}">درباره ما</a>
-                <a href="{{ route('contact') }}">تماس با ما</a>
-            </div>
-        </div>
+        <a class="header-phone" href="tel:{{ \App\Models\SiteSetting::get('branding.support_phone_href', config('agahi.support_phone_href')) }}" dir="ltr">
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>
+            <span dir="ltr">{{ to_persian_digits(\App\Models\SiteSetting::get('branding.support_phone', config('agahi.support_phone'))) }}</span>
+        </a>
     </div>
 </header>
 
 @include('public.partner_buttons')
-
-<script>
-(function(){
-    var dd=document.getElementById('header-dropdown');
-    if(!dd)return;
-    var trigger=dd.querySelector('.header-dropdown__trigger');
-    var menu=dd.querySelector('.header-dropdown__menu');
-    trigger.addEventListener('click',function(e){
-        e.stopPropagation();
-        var open=menu.classList.toggle('is-open');
-        trigger.setAttribute('aria-expanded',open?'true':'false');
-    });
-    document.addEventListener('click',function(){
-        menu.classList.remove('is-open');
-        trigger.setAttribute('aria-expanded','false');
-    });
-    menu.addEventListener('click',function(e){e.stopPropagation();});
-})();
-</script>
 
 <main id="main-content" class="page-shell container" role="main">
     @if (session('success'))

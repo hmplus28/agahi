@@ -8,25 +8,10 @@
     if ($ad->is_colored)  $classes .= ' ad-card--colored';
 @endphp
 
-{{-- RTL card layout (Divar-style): the text block renders on the RIGHT
-     and the thumbnail renders on the LEFT, matching Persian reading flow.
-     The price is a number, so it sits on the LEFT in its own color. --}}
+{{-- Classic vertical card view (نمای کارتی): image on top, text below.
+     The price is a number, so it sits on the LEFT of the title row in
+     its own distinct color (RTL: text starts right, numbers end left). --}}
 <article class="{{ $classes }}">
-    @if($ad->is_urgent)
-        <div class="ad-card__urgent-ribbon" aria-label="آگهی فوری">فوری</div>
-    @endif
-
-    <div class="card-body">
-        <div class="card-head">
-            <h3><a href="{{ $ad->publicUrl() }}">{{ $ad->title }}</a></h3>
-            <p class="price" dir="auto">{{ $ad->priceLabel() }}</p>
-        </div>
-        <div class="card-meta">
-            <span class="muted">{{ $ad->city?->name ?? '—' }}</span>
-            <span class="muted" title="{{ $ad->published_at ? jdate_human($ad->published_at) : '' }}">{{ $ad->published_at ? to_persian_digits(jdate($ad->published_at)) : '—' }}</span>
-        </div>
-    </div>
-
     <a class="card-image" href="{{ $ad->publicUrl() }}" aria-label="مشاهدهٔ آگهی {{ $ad->title }}">
         @php($image = $ad->images->firstWhere('is_primary', true) ?? $ad->images->first())
         @if($image)
@@ -47,6 +32,21 @@
         @if($ad->is_urgent)   <span class="badge badge-danger">فوری</span>   @endif
         @if($ad->is_featured) <span class="badge badge-featured">ویژه</span> @endif
     </div>
+    @endif
+
+    <div class="card-body">
+        <div class="card-head">
+            <h3><a href="{{ $ad->publicUrl() }}">{{ $ad->title }}</a></h3>
+            <p class="price" dir="auto">{{ $ad->priceLabel() }}</p>
+        </div>
+        <div class="card-meta">
+            <span class="muted">{{ $ad->city?->name ?? '—' }}</span>
+            <span class="muted" title="{{ $ad->published_at ? jdate_human($ad->published_at) : '' }}">{{ $ad->published_at ? to_persian_digits(jdate($ad->published_at)) : '—' }}</span>
+        </div>
+    </div>
+
+    @if($ad->is_urgent)
+        <div class="ad-card__urgent-ribbon" aria-label="آگهی فوری">فوری</div>
     @endif
 </article>
 

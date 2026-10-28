@@ -39,7 +39,7 @@ class UserFacingPagesTest extends TestCase
             ->assertSee('جست‌وجو', false);
     }
 
-    public function test_homepage_has_header_with_brand_phone_city_dropdown(): void
+    public function test_homepage_has_header_with_brand_phone_city_nav(): void
     {
         $this->get('/')
             ->assertOk()
@@ -49,7 +49,8 @@ class UserFacingPagesTest extends TestCase
             ->assertSee('brand-logo', false)
             ->assertSee('header-phone', false)
             ->assertSee('city-picker', false)
-            ->assertSee('header-dropdown', false)
+            ->assertSee('header-search', false)
+            ->assertSee('header-nav', false)
             ->assertSee('۰۲۱-۰۰۰۰۰۰۰۰', false);
     }
 
@@ -234,7 +235,7 @@ class UserFacingPagesTest extends TestCase
         ]);
     }
 
-    public function test_header_dropdown_has_about_and_contact_links(): void
+    public function test_header_nav_has_about_and_contact_links(): void
     {
         $this->get('/')
             ->assertOk()
