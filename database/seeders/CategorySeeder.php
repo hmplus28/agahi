@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Models\Ad;
 use App\Models\Category;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
@@ -86,6 +88,76 @@ class CategorySeeder extends Seeder
                 }
             }
         }
+
+        // Older DatabaseSeeder versions created a second «خدمات» root
+        // (slug "services") alongside this seeder's root — merge duplicates
+        // so the homepage category grid never shows the same title twice.
+        $this->dedupeRootCategories();
+
+        // Public pages cache the root-category grid; refresh it.
+        Cache::forget('public.root_categories.v2');
+    }
+
+    /**
+     * Merge root categories that share the same title. The root with the
+     * most children wins; the thinner duplicates donate their ads and
+     * children, then are deleted. Safe against restrictOnDelete on
+     * ads.category_id (ads are re-pointed first) and nullOnDelete on
+     * categories.parent_id (children are moved first).
+     */
+    private function dedupeRootCategories(): void
+    {
+        $roots = Category::query()->whereNull('parent_id')->orderBy('id')->get();
+        $groups = [];
+
+        foreach ($roots as $root) {
+            $key = trim((string) $root->title);
+            $groups[$key][] = $root;
+        }
+
+        foreach ($groups as $group) {
+            if (count($group) < 2) {
+                continue;
+            }
+            // Canonical: most children; ties broken by lowest id.
+            $canonical = $group[0];
+            foreach ($group as $root) {
+                if ($root->children()->count() > $canonical->children()->count()) {
+                    $canonical = $root;
+                }
+            }
+            foreach ($group as $root) {
+                if ($root->is($canonical)) {
+                    continue;
+                }
+                $this->mergeRootInto($root, $canonical);
+            }
+        }
+    }
+
+    private function mergeRootInto(Category $duplicate, Category $canonical): void
+    {
+        // Ads attached to the duplicate root itself.
+        Ad::query()->where('category_id', $duplicate->id)->update(['category_id' => $canonical->id]);
+
+        foreach ($duplicate->children()->get() as $dupChild) {
+            $twin = Category::query()
+                ->where('parent_id', $canonical->id)
+                ->where('title', $dupChild->title)
+                ->first();
+
+            if ($twin === null || $dupChild->children()->exists()) {
+                // No same-title twin, or subtree too deep to merge: move it.
+                $dupChild->update(['parent_id' => $canonical->id]);
+                continue;
+            }
+
+            // Same-title leaf twin exists: donate the ads, then remove.
+            Ad::query()->where('category_id', $dupChild->id)->update(['category_id' => $twin->id]);
+            $dupChild->delete();
+        }
+
+        $duplicate->delete();
     }
 
     private function uniqueSlug(string $base): string

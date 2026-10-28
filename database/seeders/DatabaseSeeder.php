@@ -27,8 +27,6 @@ class DatabaseSeeder extends Seeder
         $iran = Country::query()->firstOrCreate(['slug' => 'iran'], ['name' => 'ایران', 'is_active' => true]);
         $tehran = Province::query()->firstOrCreate(['country_id' => $iran->id, 'slug' => 'tehran'], ['name' => 'تهران', 'is_active' => true]);
         $city = City::query()->firstOrCreate(['province_id' => $tehran->id, 'slug' => 'tehran'], ['name' => 'تهران', 'is_active' => true]);
-        $services = Category::query()->firstOrCreate(['slug' => 'services'], ['title' => 'خدمات', 'is_active' => true]);
-        $repair = Category::query()->firstOrCreate(['slug' => 'repair'], ['parent_id' => $services->id, 'title' => 'تعمیرات', 'is_active' => true]);
         $admin = User::query()->firstOrCreate(['mobile' => '09120000000'], ['email' => 'admin@example.test', 'first_name' => 'مدیر', 'last_name' => 'سامانه', 'password' => Hash::make('ChangeMe123!'), 'plaintext_password' => 'ChangeMe123!', 'role' => UserRole::SuperAdmin, 'is_active' => true, 'is_staff' => true]);
         Tariff::query()->firstOrCreate(['code' => 'FREE_30'], ['title' => 'آگهی رایگان ۳۰ روزه', 'price' => 0, 'service_type' => 'ad', 'duration_days' => 30, 'is_active' => true]);
 
@@ -40,7 +38,15 @@ class DatabaseSeeder extends Seeder
 
         // Varied demo dataset (250 active ads + admin queue samples, all
         // tagged source='demo'). Re-runnable; never touches real rows.
+        // Also seeds the full category tree (and dedupes it) — the services/
+        // repair categories for the sample ad are resolved AFTER this call
+        // so we reuse the seeded tree instead of creating a duplicate root.
         $this->call(DemoContentSeeder::class);
+
+        $services = Category::query()->whereNull('parent_id')->where('title', 'خدمات')->orderBy('id')->first()
+            ?? Category::query()->firstOrCreate(['slug' => 'services'], ['title' => 'خدمات', 'is_active' => true]);
+        $repair = Category::query()->where('parent_id', $services->id)->where('title', 'تعمیرات')->first()
+            ?? Category::query()->firstOrCreate(['slug' => 'repair'], ['parent_id' => $services->id, 'title' => 'تعمیرات', 'is_active' => true]);
 
         if (Ad::query()->where('slug', self::DEMO_SLUG)->exists()) {
             return;

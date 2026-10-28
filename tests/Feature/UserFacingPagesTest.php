@@ -30,13 +30,43 @@ class UserFacingPagesTest extends TestCase
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('home-hero', false)
+            ->assertSee('home-promos', false)
             ->assertSee('home-search-section', false)
             ->assertSee('name="q"', false)
             ->assertSee('name="category"', false)
             ->assertSee('name="min_price"', false)
             ->assertSee('name="max_price"', false)
+            ->assertSee('name="province"', false)
+            ->assertSee('name="city"', false)
             ->assertSee('جست‌وجو', false);
+    }
+
+    public function test_homepage_renders_all_content_sections(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('home-categories', false)
+            ->assertSee('home-stats', false)
+            ->assertSee('home-steps', false)
+            ->assertSee('home-benefits', false)
+            ->assertSee('home-faq', false)
+            ->assertSee('img/banners/post-free.jpg', false)
+            ->assertSee('img/banners/promote.jpg', false)
+            ->assertSee('img/banners/categories.jpg', false)
+            ->assertSee('دسته‌بندی‌های خدمات', false)
+            ->assertSee('سوالات متداول', false);
+    }
+
+    public function test_homepage_category_grid_links_root_and_children(): void
+    {
+        $root = Category::query()->create(['title' => 'دیجیتال', 'slug' => 'digital', 'is_active' => true]);
+        $child = $root->children()->create(['title' => 'موبایل', 'slug' => 'mobile', 'is_active' => true]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee(route('categories.show', 'digital'), false)
+            ->assertSee(route('categories.show', 'mobile'), false)
+            ->assertSee('موبایل');
     }
 
     public function test_homepage_has_header_with_brand_phone_city_nav(): void

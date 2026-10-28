@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Support\PersianNormalizer;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -117,6 +118,16 @@ class DemoContentSeeder extends Seeder
         // categories and cities to attach ads to. Both are idempotent.
         $this->call(CategorySeeder::class);
         $this->call(IranCitiesSeeder::class);
+
+        // The layout city-picker caches provinces/cities forever; after
+        // (re)seeding geo data those caches must be invalidated or the
+        // header picker and the homepage search keep serving stale data.
+        Cache::forget('layout.provinces.v1');
+        Cache::forget('layout.countries.v1');
+        Cache::forget('public.root_categories.v2');
+        Cache::forget('public.total_active_ads.v1');
+        Cache::forget('public.home_stats.v1');
+        Cache::forget('public.home_banner.v1');
 
         DB::transaction(function (): void {
             $this->flushDemoData();
