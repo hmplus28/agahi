@@ -12,8 +12,8 @@
         $selectedCountry ? 'کشور: '.$selectedCountry->name : null,
         $selectedProvince ? 'استان: '.$selectedProvince->name : null,
         $selectedCity ? 'شهر: '.$selectedCity->name : null,
-        filled(request('min_price')) ? 'از '.number_format((int) request('min_price')).' تومان' : null,
-        filled(request('max_price')) ? 'تا '.number_format((int) request('max_price')).' تومان' : null,
+        filled(request('min_price')) ? 'از '.to_persian_digits(number_format((int) request('min_price'))).' تومان' : null,
+        filled(request('max_price')) ? 'تا '.to_persian_digits(number_format((int) request('max_price'))).' تومان' : null,
     ])->filter();
 @endphp
 
@@ -78,7 +78,7 @@
 
     <section class="search-results" aria-labelledby="search-results-heading">
         <h2 id="search-results-heading" class="sr-only">نتایج جست‌وجو</h2>
-        <div class="result-bar" aria-live="polite"><strong>{{ number_format($ads->total()) }}</strong> آگهی پیدا شد @if(request('q')) برای «{{ request('q') }}» @endif</div>
+        <div class="result-bar" aria-live="polite"><strong>{{ to_persian_digits(number_format($ads->total())) }}</strong> آگهی پیدا شد @if(request('q')) برای «{{ request('q') }}» @endif</div>
         @if($activeFilters->isNotEmpty())
             <div class="active-filters" aria-label="فیلترهای فعال">
                 @foreach($activeFilters as $filter)<span>{{ $filter }}</span>@endforeach

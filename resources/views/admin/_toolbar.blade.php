@@ -2,6 +2,7 @@
 <nav class="admin-toolbar" aria-label="ماژول‌های مدیریت">
     <div class="admin-toolbar__inner">
         <a href="{{ route('admin.ads.index') }}" class="admin-toolbar__link @if(request()->routeIs('admin.ads.*')) active @endif">📦 آگهی‌ها</a>
+        <a href="{{ route('admin.pending-ads.index') }}" class="admin-toolbar__link @if(request()->routeIs('admin.pending-ads.*')) active @endif">📮 آگهی‌های ناموفق</a>
         <a href="{{ route('admin.catalog.index', 'categories') }}" class="admin-toolbar__link @if(request()->route('type') === 'categories') active @endif">📂 دسته‌بندی‌ها</a>
         <a href="{{ route('admin.catalog.index', 'countries') }}" class="admin-toolbar__link @if(request()->route('type') === 'countries') active @endif">🌍 مکان‌ها</a>
         <a href="{{ route('admin.catalog.index', 'tariffs') }}" class="admin-toolbar__link @if(request()->route('type') === 'tariffs') active @endif">💰 تعرفه‌ها</a>
@@ -11,7 +12,7 @@
         <a href="{{ route('admin.tickets.index') }}" class="admin-toolbar__link @if(request()->routeIs('admin.tickets.*')) active @endif">💬 تیکت‌ها</a>
         <a href="{{ route('admin.payments.index') }}" class="admin-toolbar__link @if(request()->routeIs('admin.payments.*')) active @endif">💳 پرداخت‌ها</a>
         @if($pendingReminders > 0)
-            <a href="{{ route('admin.expiry-reminders.index') }}" class="admin-toolbar__link admin-toolbar__link--alert @if(request()->routeIs('admin.expiry-reminders.*')) active @endif">⏰ یادآوری انقضا <span class="badge badge-warning">{{ number_format($pendingReminders) }}</span></a>
+            <a href="{{ route('admin.expiry-reminders.index') }}" class="admin-toolbar__link admin-toolbar__link--alert @if(request()->routeIs('admin.expiry-reminders.*')) active @endif">⏰ یادآوری انقضا <span class="badge badge-warning">{{ to_persian_digits(number_format($pendingReminders)) }}</span></a>
         @else
             <a href="{{ route('admin.expiry-reminders.index') }}" class="admin-toolbar__link @if(request()->routeIs('admin.expiry-reminders.*')) active @endif">⏰ یادآوری انقضا</a>
         @endif

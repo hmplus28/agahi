@@ -41,7 +41,7 @@
                     <td>{{ $ad->title }}</td>
                     <td>{{ $ad->code }}</td>
                     <td>{{ $ad->city?->name }}</td>
-                    <td>{{ number_format($ad->views_count) }}</td>
+                    <td>{{ to_persian_digits(number_format($ad->views_count)) }}</td>
                     <td><span class="badge">{{ $ad->status->label() }}</span></td>
                     <td>
                         <div class="row-actions">

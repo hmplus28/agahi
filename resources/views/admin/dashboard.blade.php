@@ -22,12 +22,12 @@
     @foreach($counts as $status=>$count)
         <a class="stat stat-link" href="{{ route('admin.ads.index', ['status' => $status]) }}">
             <span>{{ $statusEmojis[$status] ?? '📌' }} {{ \App\Domains\Ads\Enums\AdStatus::from($status)->label() }}</span>
-            <strong>{{ number_format($count) }}</strong>
+            <strong>{{ to_persian_digits(number_format($count)) }}</strong>
         </a>
     @endforeach
     <a class="stat stat-link" href="{{ route('admin.tickets.index') }}">
         <span>💬 تیکت باز</span>
-        <strong>{{ number_format($openTickets) }}</strong>
+        <strong>{{ to_persian_digits(number_format($openTickets)) }}</strong>
     </a>
 </div>
 

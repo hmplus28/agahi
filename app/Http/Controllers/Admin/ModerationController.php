@@ -177,6 +177,24 @@ class ModerationController extends Controller
         return back()->with('success', 'وضعیت آگهی به‌روزرسانی شد.');
     }
 
+    /**
+     * Guest submissions that never completed registration/checkout
+     * (PendingAd rows). This page previously existed only as an orphan
+     * view - no route rendered it, so the admin toolbar was missing there.
+     */
+    public function pendingAds(Request $request): View
+    {
+        $status = $request->string('status')->toString();
+
+        $pendingAds = PendingAd::query()
+            ->when(in_array($status, ['pending', 'completed', 'expired'], true), fn ($query) => $query->where('status', $status))
+            ->orderByDesc('created_at')
+            ->paginate(30)
+            ->withQueryString();
+
+        return view('admin.pending-ads.index', compact('pendingAds', 'status'));
+    }
+
     public function finalizePending(Request $request, PendingAd $pending, AdSubmissionService $service): RedirectResponse
     {
         $data = $pending->ad_data;

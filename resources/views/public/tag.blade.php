@@ -4,7 +4,7 @@
 <section class="tag-page">
     <header class="tag-header">
         <h1>آگهی‌های برچسب «{{ $keyword }}»</h1>
-        <p class="muted">{{ number_format($ads->total()) }} آگهی با این برچسب یافت شد.</p>
+        <p class="muted">{{ to_persian_digits(number_format($ads->total())) }} آگهی با این برچسب یافت شد.</p>
     </header>
 
     @if($ads->isNotEmpty())
@@ -14,7 +14,7 @@
             @endforeach
         </div>
         @if($ads->hasPages())
-            <div class="pagination-wrap">{{ $ads->links() }}</div>
+            {{ $ads->links() }}
         @endif
     @else
         <div class="empty-state">

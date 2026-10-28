@@ -48,7 +48,7 @@
                         @endif
                     </td>
                     <td dir="ltr">{{ $payment->invoice?->invoice_number ?? '—' }}</td>
-                    <td>{{ number_format($payment->amount) }}</td>
+                    <td>{{ to_persian_digits(number_format($payment->amount)) }}</td>
                     <td>{{ $payment->gateway }}</td>
                     <td dir="ltr">{{ $payment->reference_id ?? '—' }}</td>
                     <td>
