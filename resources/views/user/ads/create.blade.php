@@ -56,6 +56,67 @@
             <label class="wide">کلمات کلیدی (اختیاری)
                 <input type="hidden" name="keywords_json" id="keywords-json" value="{{ old('keywords_json', is_array(old('keywords')) ? json_encode(old('keywords')) : '') }}">
             </label>
+
+            {{-- ─── Paid / free options (same catalog as the guest form) ─── --}}
+            <div class="form-section-title wide">بسته آگهی / انتخاب خدمات</div>
+            <div class="choice-box wide">
+                @foreach($tariffs as $tariff)
+                    <label class="check service-option">
+                        <input type="checkbox" name="services[]" value="{{ $tariff->id }}" data-price="{{ $tariff->price }}" data-is-free="{{ $tariff->code === 'FREE_30' ? '1' : '0' }}" @checked($tariff->code==='FREE_30') onchange="handleServiceClick(this)">
+                        <span>
+                            <strong>{{ $tariff->title }}</strong>
+                            @if($tariff->description)<span class="muted">{{ $tariff->description }}</span>@endif
+                            <span class="service-price">{{ $tariff->price===0 ? 'رایگان' : to_persian_digits(number_format($tariff->price / 10)).' تومان' }}</span>
+                        </span>
+                    </label>
+                @endforeach
+            </div>
+            <div class="total-price-section wide">
+                <div class="total-price-box">
+                    <span>جمع مبلغ:</span>
+                    <span id="total-price" class="total-price-amount">۰ تومان</span>
+                </div>
+            </div>
+            <style>
+            .total-price-section{margin-top:1rem;padding:1rem;background:#f0f1fa;border:1px solid #c6c7ee;border-radius:.5rem}
+            .total-price-box{display:flex;justify-content:space-between;align-items:center;font-size:1rem;font-weight:700;color:#3e4095}
+            .total-price-amount{font-size:1.25rem;color:#0c8a4d}
+            </style>
+            <script>
+            // Free tariff and paid tariffs are mutually exclusive.
+            function handleServiceClick(checkbox){
+                var isFree=checkbox.getAttribute('data-is-free')==='1';
+                if(checkbox.checked&&isFree){
+                    document.querySelectorAll('input[name="services[]"]').forEach(function(cb){
+                        if(cb.getAttribute('data-is-free')!=='1'&&cb!==checkbox){cb.checked=false;}
+                    });
+                }else if(checkbox.checked&&!isFree){
+                    document.querySelectorAll('input[name="services[]"]').forEach(function(cb){
+                        if(cb.getAttribute('data-is-free')==='1'&&cb!==checkbox){cb.checked=false;}
+                    });
+                }
+                calculateTotal();
+            }
+            function calculateTotal(){
+                var total=0;
+                document.querySelectorAll('input[name="services[]"]:checked').forEach(function(checkbox){
+                    total+=parseInt(checkbox.getAttribute('data-price'))||0;
+                });
+                var totalInToman=Math.round(total/10);
+                var totalElement=document.getElementById('total-price');
+                if(totalElement){
+                    totalElement.textContent=totalInToman===0?'۰ تومان':toFaDigits(numberFormat(totalInToman))+' تومان';
+                }
+            }
+            function numberFormat(num){
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');
+            }
+            function toFaDigits(value){
+                return String(value).replace(/[0-9]/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'[+d];});
+            }
+            calculateTotal();
+            </script>
+
             <label class="wide file-upload-area">
                 <span class="file-upload-label">تصاویر (حداکثر ۵ فایل، JPG/PNG/WebP)</span>
                 <input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple id="ad-images-input" hidden>

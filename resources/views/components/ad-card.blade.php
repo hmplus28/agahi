@@ -1,15 +1,31 @@
 @php
     // Featured ads are visually pinned: different background + border.
     // Urgent (فوری) ads get a red ribbon on top of the card.
+    // Colored (رنگی) ads get a soft yellow background (paid option).
     $classes = 'ad-card';
     if ($ad->is_featured) $classes .= ' ad-card--featured';
     if ($ad->is_urgent)   $classes .= ' ad-card--urgent';
+    if ($ad->is_colored)  $classes .= ' ad-card--colored';
 @endphp
 
+{{-- RTL card layout (Divar-style): the text block renders on the RIGHT
+     and the thumbnail renders on the LEFT, matching Persian reading flow.
+     The price is a number, so it sits on the LEFT in its own color. --}}
 <article class="{{ $classes }}">
     @if($ad->is_urgent)
         <div class="ad-card__urgent-ribbon" aria-label="آگهی فوری">فوری</div>
     @endif
+
+    <div class="card-body">
+        <div class="card-head">
+            <h3><a href="{{ $ad->publicUrl() }}">{{ $ad->title }}</a></h3>
+            <p class="price" dir="auto">{{ $ad->priceLabel() }}</p>
+        </div>
+        <div class="card-meta">
+            <span class="muted">{{ $ad->city?->name ?? '—' }}</span>
+            <span class="muted" title="{{ $ad->published_at ? jdate_human($ad->published_at) : '' }}">{{ $ad->published_at ? to_persian_digits(jdate($ad->published_at)) : '—' }}</span>
+        </div>
+    </div>
 
     <a class="card-image" href="{{ $ad->publicUrl() }}" aria-label="مشاهدهٔ آگهی {{ $ad->title }}">
         @php($image = $ad->images->firstWhere('is_primary', true) ?? $ad->images->first())
@@ -32,22 +48,13 @@
         @if($ad->is_featured) <span class="badge badge-featured">ویژه</span> @endif
     </div>
     @endif
-
-    <div class="card-body">
-        <h3><a href="{{ $ad->publicUrl() }}">{{ $ad->title }}</a></h3>
-        <p class="price" dir="auto">{{ $ad->priceLabel() }}</p>
-        <div class="card-meta">
-            <span class="muted">{{ $ad->city?->name ?? '—' }}</span>
-            <span class="muted" title="{{ $ad->published_at ? jdate_human($ad->published_at) : '' }}">{{ $ad->published_at ? to_persian_digits(jdate($ad->published_at)) : '—' }}</span>
-        </div>
-    </div>
 </article>
 
 @once
 <style>
-/* ─────────── Featured / Urgent ad-card variants ─────────── */
+/* ─────────── Featured / Urgent / Colored ad-card variants ─────────── */
 
-/* Featured ads get a soft teal background + thicker border so they
+/* Featured ads get a soft indigo background + thicker border so they
    visually stand out from the regular cards in the grid. */
 .ad-card--featured {
     background: linear-gradient(180deg, #f0f1fa 0%, #ffffff 100%);
@@ -91,6 +98,13 @@
     border: 2px solid #dc2626;
     background: linear-gradient(180deg, #fef2f2 0%, #ffffff 50%, #f0f1fa 100%);
 }
+
+/* Paid “رنگی” option: soft yellow background inside the lists. */
+.ad-card--colored {
+    background: #fffbeb;
+    border-color: #f1e3ad;
+}
+.ad-card--colored .card-body h3 a { color: #8a6d1a; }
 
 /* Image count badge on cards with multiple photos. */
 .card-image-count {

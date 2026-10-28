@@ -176,6 +176,23 @@
                             <span class="badge {{ $item['status_class'] }}">
                                 {{ $item['status_label'] }}
                             </span>
+                            @if($ad->adServices->isNotEmpty())
+                                <div style="display:grid;gap:.25rem;margin-top:.35rem;justify-items:start;">
+                                    @foreach($ad->adServices as $svc)
+                                        <span class="badge"
+                                              style="{{ $svc->status === 'active' ? 'background:#eaf7f2;color:#126452;' : 'background:#fef3c7;color:#92400e;' }}"
+                                              title="{{ $svc->tariff?->description ?? '' }}">
+                                            {{ $svc->tariff?->title ?? 'خدمت' }}{{ $svc->status !== 'active' ? ' — در انتظار فعال‌سازی' : '' }}
+                                        </span>
+                                        @if($svc->status !== 'active')
+                                            <form method="post" action="{{ route('admin.ads.services.activate', ['ad' => $ad, 'service' => $svc]) }}">
+                                                @csrf
+                                                <button type="submit" class="button button-small" style="font-size:.68rem;padding:.2rem .5rem;">فعال‌سازی خدمت</button>
+                                            </form>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
                         </td>
                         <td>
                             @php($firstImage = $ad->images?->first())
