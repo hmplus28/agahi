@@ -5,11 +5,16 @@
 #    MUST stay before the "assets" stage: assets copies the Laravel
 #    pagination views from here, and Docker only allows
 #    COPY --from=<stage> for stages defined EARLIER in this file.
+#    Base image, instruction order and extension list are kept
+#    IDENTICAL to the "app" stage below, so BuildKit shares its
+#    cached install-php-extensions layer instead of downloading
+#    and compiling everything twice (big build-time win).
 # ─────────────────────────────────────────────────────────────
-FROM php:8.3-cli-alpine AS vendor
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+FROM php:8.3-fpm-alpine AS vendor
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions gd intl pdo_pgsql zip pcntl
+RUN install-php-extensions gd intl pdo_pgsql zip opcache pcntl
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 COPY composer.json composer.lock ./
