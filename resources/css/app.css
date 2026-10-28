@@ -275,8 +275,13 @@ a.pg-btn:hover { border-color: #4b4dbe; color: #3e4095; background: #f0f1fa; box
 .ads-count-badge { display: inline-block; vertical-align: middle; margin-inline-start: .5rem; padding: .15rem .75rem; border-radius: 999px; background: #f0f1fa; color: #3e4095; font-size: .85rem; font-weight: 700; }
 .home-search-section { max-width: 900px; margin: 0 auto 2.5rem; text-align: center; }
 .home-search-form { background: #fff; border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem 1.25rem; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
-.home-search-row { display: flex; gap: .625rem; align-items: stretch; flex-wrap: wrap; justify-content: center; }
-.home-search-input-wrap { flex: 2; min-width: 180px; position: relative; display: flex; }
+.home-search-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: .625rem; align-items: stretch; }
+.home-search-grid__wide { grid-column: span 2; }
+.home-field { display: flex; min-width: 0; }
+.home-field select { width: 100%; height: 100%; min-height: 42px; padding-inline: .65rem; border: 1px solid #e5e7eb; border-radius: .5rem; font-size: .85rem; font-family: inherit; background: #f9fafb; color: #17212b; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.home-field select:focus { outline: none; border-color: #4b4dbe; box-shadow: 0 0 0 3px rgba(62,64,149,.12); background: #fff; }
+.home-field select:disabled { color: #a6afb8; cursor: not-allowed; }
+.home-search-input-wrap { min-width: 0; position: relative; display: flex; }
 .home-search-input-wrap svg { fill: none; stroke: #9ca3af; stroke-width: 2; width: 1.15rem; height: 1.15rem; position: absolute; top: 50%; right: .75rem; translate: 0 -50%; pointer-events: none; }
 .home-search-input-wrap input { width: 100%; padding-inline: 2.5rem .75rem; border: 1px solid #e5e7eb; border-radius: .5rem; font-size: .9rem; font-family: inherit; background: #f9fafb; transition: border-color .15s, box-shadow .15s; }
 .home-search-input-wrap input:focus { outline: none; border-color: #4b4dbe; box-shadow: 0 0 0 3px rgba(62,64,149,.12); background: #fff; }
@@ -286,12 +291,75 @@ a.pg-btn:hover { border-color: #4b4dbe; color: #3e4095; background: #f0f1fa; box
 .home-price-wrap { flex: 1; min-width: 130px; display: flex; }
 .home-price-wrap input { width: 100%; padding-inline: .5rem; border: 1px solid #e5e7eb; border-radius: .5rem; font-size: .85rem; font-family: inherit; background: #f9fafb; text-align: center; }
 .home-price-wrap input:focus { outline: none; border-color: #4b4dbe; box-shadow: 0 0 0 3px rgba(62,64,149,.12); }
-.home-search-row .button { flex: 0 0 auto; padding-inline: 1.5rem; border-radius: .5rem; font-size: .9rem; font-weight: 700; background: #4b4dbe; color: #fff; border: none; cursor: pointer; white-space: nowrap; transition: background .15s; }
-.home-search-row .button:hover { background: #3e4095; }
+.home-search-grid .button { padding-inline: 1.5rem; border-radius: .5rem; font-size: .9rem; font-weight: 700; background: #4b4dbe; color: #fff; border: none; cursor: pointer; white-space: nowrap; transition: background .15s; }
+.home-search-grid .button:hover { background: #3e4095; }
 @media (max-width: 640px) {
     .home-hero { padding: 2rem 1rem; }
-    .home-search-row { flex-direction: column; }
-    .home-search-row > * { flex: 1 1 100%; }
+    .home-search-grid { grid-template-columns: 1fr; }
+    .home-search-grid__wide { grid-column: auto; }
+}
+
+/* ───────── Default promo banners (shown when no admin banner is set) ───────── */
+.home-promos { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-bottom: 25px; }
+.promo-banner { position: relative; display: block; border-radius: var(--radius); overflow: hidden; background: #fff; border: 1px solid var(--line); text-decoration: none; transition: transform .18s, box-shadow .18s; }
+.promo-banner:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.promo-banner img { width: 100%; aspect-ratio: 1.35; object-fit: cover; display: block; }
+.promo-banner__overlay { position: absolute; inset: auto 0 0 0; padding: 26px 16px 13px; display: grid; gap: 2px; background: linear-gradient(180deg, rgba(13,22,32,0) 0%, rgba(13,22,32,.82) 62%); color: #fff; }
+.promo-banner__overlay strong { font-size: .98rem; line-height: 1.6; }
+.promo-banner__overlay > span { font-size: .78rem; opacity: .94; line-height: 1.7; }
+.promo-banner__cta { display: inline-flex; align-items: center; justify-self: start; margin-top: 7px; background: #fff; color: #2c2e72; font-size: .78rem; font-weight: 800; border-radius: 999px; padding: 5px 12px; transition: background .15s, color .15s; }
+.promo-banner:hover .promo-banner__cta { background: #4b4dbe; color: #fff; }
+
+/* ───────── Homepage stats strip ───────── */
+.home-stats .stat { display: grid; justify-items: start; gap: 1px; }
+.home-stats .stat svg { width: 21px; height: 21px; fill: none; stroke: #4b4dbe; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 6px; }
+.home-stats .stat strong { color: #2c2e72; letter-spacing: -.02em; }
+
+/* ───────── Steps (ثبت آگهی در سه گام) ───────── */
+.steps-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+.step-card { position: relative; display: grid; align-content: start; gap: 5px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 16px 16px; transition: border-color .18s, box-shadow .18s; }
+.step-card:hover { border-color: #b7c0ea; box-shadow: var(--shadow); }
+.step-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--brand-soft); color: #2c2e72; }
+.step-icon svg, .benefit-icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.step-num { position: absolute; top: 12px; inset-inline-end: 14px; font-size: 1.9rem; font-weight: 900; color: #e2e4f5; line-height: 1; }
+.step-card h3 { margin: 4px 0 0; font-size: 1rem; }
+.step-card p { margin: 0; color: #647180; font-size: .86rem; line-height: 1.8; }
+
+/* ───────── Benefits (چرا این سامانه؟) ───────── */
+.benefits-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+.benefit-card { display: grid; align-content: start; gap: 5px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 16px; transition: border-color .18s, box-shadow .18s; }
+.benefit-card:hover { border-color: #b7c0ea; box-shadow: var(--shadow); }
+.benefit-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--brand-soft); color: #2c2e72; }
+.benefit-card h3 { margin: 4px 0 0; font-size: .98rem; }
+.benefit-card p { margin: 0; color: #647180; font-size: .86rem; line-height: 1.8; }
+
+/* ───────── FAQ (سوالات متداول) ───────── */
+.faq-list { display: grid; gap: 9px; max-width: 900px; margin-inline: auto; }
+.faq-item { background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; transition: border-color .15s; }
+.faq-item:hover { border-color: #c6c9ec; }
+.faq-item summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 16px; font-weight: 750; font-size: .93rem; cursor: pointer; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-chevron { color: #9aa3ad; font-size: 1.05rem; transition: transform .18s; flex: 0 0 auto; }
+.faq-item[open] .faq-chevron { transform: rotate(180deg); }
+.faq-item[open] summary { border-bottom: 1px solid var(--line); color: #2c2e72; }
+.faq-item p { margin: 0; padding: 12px 16px 15px; color: #4d5965; font-size: .88rem; line-height: 1.9; }
+
+/* ───────── Footer link icons ───────── */
+.footer-inner nav a { display: inline-flex; align-items: center; gap: 5px; }
+.footer-inner nav a svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: .8; flex: 0 0 auto; }
+
+@media (max-width: 1040px) {
+    .home-search-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .home-search-grid__wide { grid-column: span 2; }
+    .benefits-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 760px) {
+    .home-promos { grid-template-columns: 1fr; }
+    .home-search-grid { grid-template-columns: 1fr; }
+    .home-search-grid__wide { grid-column: auto; }
+    .steps-grid, .benefits-grid { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .promo-banner img { aspect-ratio: 1.6; }
 }
 
 /* ─────────── Ad cards: classic vertical card view (نمای کارتی) ───────────
