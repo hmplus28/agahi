@@ -185,7 +185,7 @@
                         <span>
                             <strong>{{ $tariff->title }}</strong>
                             @if($tariff->description)<span class="muted">{{ $tariff->description }}</span>@endif
-                            <span class="service-price">{{ $tariff->price===0 ? 'رایگان' : number_format($tariff->price / 10).' تومان' }}</span>
+                            <span class="service-price">{{ $tariff->price===0 ? 'رایگان' : to_persian_digits(number_format($tariff->price / 10)).' تومان' }}</span>
                         </span>
                     </label>
                 @endforeach
@@ -341,12 +341,16 @@ function calculateTotal() {
     var totalInToman = Math.round(total / 10);
     var totalElement = document.getElementById('total-price');
     if (totalElement) {
-        totalElement.textContent = totalInToman === 0 ? '0 تومان' : number_format(totalInToman) + ' تومان';
+        totalElement.textContent = totalInToman === 0 ? '۰ تومان' : toFaDigits(number_format(totalInToman)) + ' تومان';
     }
 }
 
 function number_format(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function toFaDigits(value) {
+    return String(value).replace(/[0-9]/g, function(d) { return '۰۱۲۳۴۵۶۷۸۹'[+d]; });
 }
 
 // محاسبه اولیه بعد از لود صفحه

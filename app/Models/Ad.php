@@ -83,6 +83,6 @@ class Ad extends Model
     public function priceLabel(): string
     {
         $price = $this->displayPrice();
-        return $price === null ? 'توافقی' : number_format($price).' ریال';
+        return $price === null ? 'توافقی' : to_persian_digits(number_format($price)).' ریال';
     }
 }

@@ -171,7 +171,7 @@
                         <td dir="ltr"><span dir="ltr">{{ $ad->code }}</span></td>
                         <td dir="ltr">{{ $ad->user->mobile ?? $ad->mobile_1 ?? '—' }}</td>
                         <td>{{ $ad->city?->name ?? '—' }}</td>
-                        <td>{{ number_format($ad->views_count) }}</td>
+                        <td>{{ to_persian_digits(number_format($ad->views_count)) }}</td>
                         <td>
                             <span class="badge {{ $item['status_class'] }}">
                                 {{ $item['status_label'] }}

@@ -6,5 +6,5 @@
 @if($category->children->isNotEmpty())
 <section class="subcategories" aria-labelledby="subcategories-title"><h2 id="subcategories-title">زیر‌دسته‌ها</h2>@foreach($category->children as $child)<a href="{{ route('categories.show',$child) }}">{{ $child->title }}</a>@endforeach</section>
 @endif
-<section aria-label="آگهی‌های دسته"><div class="result-bar"><strong>{{ number_format($ads->total()) }}</strong> آگهی در این دسته</div><div class="ad-grid">@forelse($ads as $ad)<x-ad-card :ad="$ad" />@empty<p class="muted">در این دسته هنوز آگهی فعالی وجود ندارد.</p>@endforelse</div>{{ $ads->links() }}</section>
+<section aria-label="آگهی‌های دسته"><div class="result-bar"><strong>{{ to_persian_digits(number_format($ads->total())) }}</strong> آگهی در این دسته</div><div class="ad-grid">@forelse($ads as $ad)<x-ad-card :ad="$ad" />@empty<p class="muted">در این دسته هنوز آگهی فعالی وجود ندارد.</p>@endforelse</div>{{ $ads->links() }}</section>
 @endsection

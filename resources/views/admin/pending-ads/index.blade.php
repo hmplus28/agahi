@@ -37,10 +37,10 @@
         <tbody>
             @forelse($pendingAds as $pending)
                 <tr>
-                    <td>{{ jdate($pending->created_at) }}</td>
+                    <td>{{ to_persian_digits(jdate($pending->created_at)) }}</td>
                     <td>{{ $pending->ad_data['title'] ?? '—' }}</td>
                     <td dir="ltr">{{ $pending->ad_data['mobile_1'] ?? '—' }}</td>
-                    <td>{{ \App\Models\City::find($pending->ad_data['city_id'])->name ?? '—' }}</td>
+                    <td>{{ \App\Models\City::find($pending->ad_data['city_id'] ?? null)?->name ?? '—' }}</td>
                     <td>
                         <span class="badge @if($pending->status==='completed')badge-success @elseif($pending->status==='expired')badge-danger @endif">
                             @if($pending->status==='pending') در انتظار
@@ -49,7 +49,7 @@
                             @endif
                         </span>
                     </td>
-                    <td>{{ jdate($pending->expires_at) }}</td>
+                    <td>{{ $pending->expires_at ? to_persian_digits(jdate($pending->expires_at)) : '—' }}</td>
                 </tr>
             @empty
                 <tr><td colspan="6" style="text-align:center;padding:2rem;">موردی برای نمایش وجود ندارد.</td></tr>

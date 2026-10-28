@@ -50,8 +50,8 @@
 
         <dl class="details">
             <dt>کد آگهی</dt><dd dir="ltr">{{ $ad->code }}</dd>
-            <dt>بازدید</dt><dd>{{ number_format($ad->views_count) }}</dd>
-            <dt>تاریخ انتشار</dt><dd>{{ jdate($ad->published_at) }}</dd>
+            <dt>بازدید</dt><dd>{{ to_persian_digits(number_format($ad->views_count)) }}</dd>
+            <dt>تاریخ انتشار</dt><dd>{{ to_persian_digits(jdate($ad->published_at)) }}</dd>
             @if($ad->expires_at)
                 <dt>تاریخ انقضا</dt><dd>{{ jdate($ad->expires_at) }}</dd>
             @endif
