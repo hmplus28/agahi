@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domains\Billing;
 
 use App\Domains\Ads\Enums\AdStatus;
+use App\Domains\Ads\Services\AdServiceActivator;
 use App\Domains\Ads\Services\AdWorkflow;
 use App\Domains\Billing\Contracts\PaymentGateway;
 use App\Models\Ad;
@@ -24,33 +25,57 @@ final class PaymentService
     public function __construct(
         private readonly PaymentGateway $gateway,
         private readonly AdWorkflow $workflow,
+        private readonly AdServiceActivator $activator,
     ) {}
 
     public function createInvoice(User $user, Ad $ad, Tariff $tariff): Invoice
     {
+        return $this->createInvoiceForAd($user, $ad, [$tariff]);
+    }
+
+    /**
+     * Create ONE invoice covering any number of tariffs for an ad (multi-item).
+     * Each item keeps its tariff_id in metadata so settlement can activate
+     * every purchased service individually.
+     */
+    public function createInvoiceForAd(User $user, Ad $ad, iterable $tariffs): Invoice
+    {
         if ($ad->user_id !== $user->id) {
             abort(403, 'این آگهی متعلق به شما نیست؛ امکان صدور فاکتور برای آگهی دیگران وجود ندارد.');
         }
-        if (!$tariff->is_active) throw new LogicException('تعرفهٔ انتخابی فعال نیست.');
 
-        return DB::transaction(function () use ($user, $ad, $tariff): Invoice {
+        $tariffs = collect($tariffs);
+        if ($tariffs->isEmpty()) {
+            throw new LogicException('هیچ تعرفه‌ای برای صدور فاکتور انتخاب نشده است.');
+        }
+        foreach ($tariffs as $tariff) {
+            if (!$tariff->is_active) throw new LogicException('تعرفهٔ انتخابی فعال نیست.');
+        }
+
+        return DB::transaction(function () use ($user, $ad, $tariffs): Invoice {
+            $subtotal = (int) $tariffs->sum(fn (Tariff $tariff) => (int) $tariff->price);
+
             $invoice = Invoice::query()->create([
                 'invoice_number' => 'INV-'.now()->format('Ymd').'-'.Str::upper(Str::random(8)),
                 'user_id'        => $user->id,
                 'ad_id'          => $ad->id,
                 'status'         => 'pending',
-                'subtotal'       => $tariff->price,
+                'subtotal'       => $subtotal,
                 'discount'       => 0,
-                'total'          => $tariff->price,
+                'total'          => $subtotal,
             ]);
-            InvoiceItem::query()->create([
-                'invoice_id'  => $invoice->id,
-                'title'       => $tariff->title,
-                'quantity'    => 1,
-                'unit_price'  => $tariff->price,
-                'total_price' => $tariff->price,
-                'metadata'    => ['tariff_id' => $tariff->id, 'service_type' => $tariff->service_type],
-            ]);
+
+            foreach ($tariffs as $tariff) {
+                InvoiceItem::query()->create([
+                    'invoice_id'  => $invoice->id,
+                    'title'       => $tariff->title,
+                    'quantity'    => 1,
+                    'unit_price'  => $tariff->price,
+                    'total_price' => $tariff->price,
+                    'metadata'    => ['tariff_id' => $tariff->id, 'service_type' => $tariff->service_type],
+                ]);
+            }
+
             return $invoice->load('items');
         });
     }
@@ -206,26 +231,16 @@ final class PaymentService
             $tariff = $tariffId ? Tariff::query()->find($tariffId) : null;
             if (!$tariff) continue;
 
-            $start = now();
-            $expires = $tariff->duration_days ? now()->addDays($tariff->duration_days) : null;
-
             AdService::query()->create([
                 'ad_id'      => $ad->id,
                 'tariff_id'  => $tariff->id,
-                'starts_at'  => $start,
-                'expires_at' => $expires,
+                'starts_at'  => now(),
+                'expires_at' => $tariff->duration_days ? now()->addDays($tariff->duration_days) : null,
                 'status'     => 'active',
                 'metadata'   => ['invoice_id' => $invoice->id],
             ]);
 
-            match ($tariff->service_type) {
-                'renewal', 'ad' => $this->activateOrExtend($ad, $expires),
-                'featured'      => $ad->update(['is_featured' => true]),
-                'urgent'        => $ad->update(['is_urgent' => true]),
-                'colored'       => $ad->update(['is_colored' => true]),
-                'ladder'        => $ad->update(['last_ladder_at' => now(), 'sort_at' => now()]),
-                default         => null,
-            };
+            $this->activator->apply($ad, $tariff);
         }
 
 
@@ -236,13 +251,5 @@ final class PaymentService
         }
 
         return $payment->refresh();
-    }
-
-    private function activateOrExtend(Ad $ad, ?\DateTimeInterface $expires): void
-    {
-        if ($expires) $ad->update(['expires_at' => $expires]);
-        if ($ad->status === AdStatus::Expired) {
-            $this->workflow->transition($ad, AdStatus::Active, null, 'تمدید پس از پرداخت');
-        }
     }
 }

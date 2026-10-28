@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Domains\Ads\Enums\AdStatus;
+use App\Domains\Ads\Services\AdServiceActivator;
 use App\Domains\Ads\Services\AdSubmissionService;
 use App\Domains\Ads\Services\AdWorkflow;
 use App\Http\Controllers\Controller;
 use App\Models\Ad;
+use App\Models\AdService;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\PendingAd;
@@ -51,7 +53,7 @@ class ModerationController extends Controller
 
 
         $adsQuery = Ad::query()
-            ->with(['user', 'city', 'category'])
+            ->with(['user', 'city', 'category', 'adServices.tariff'])
             ->when($status && !in_array($status, ['pending', 'expired_pending'], true), fn ($q) => $q->where('status', $status))
             ->when($term, fn ($q) => $q->where(fn ($q) => $q
                 ->whereRaw($codeColumn.' like ?', [$term.'%'])
@@ -221,16 +223,12 @@ class ModerationController extends Controller
         }
 
         if (!empty($services)) {
+            $activator = app(AdServiceActivator::class);
             foreach ($services as $tariffId) {
                 $tariff = \App\Models\Tariff::find($tariffId);
                 if ($tariff && $tariff->is_active) {
-                    \App\Models\AdService::create([
-                        'ad_id' => $ad->id,
-                        'tariff_id' => $tariff->id,
-                        'starts_at' => now(),
-                        'expires_at' => $tariff->duration_days ? now()->addDays($tariff->duration_days) : null,
-                        'status' => 'active',
-                    ]);
+                    // attach() also applies the flags (ویژه/فوری/رنگی/نردبان).
+                    $activator->attach($ad, $tariff, 'active', ['context' => 'admin_finalize']);
                 }
             }
         }
@@ -238,6 +236,19 @@ class ModerationController extends Controller
         $pending->update(['status' => 'completed']);
 
         return back()->with('success', 'آگهی ناموفق با کد ' . $ad->code . ' ثبت شد.');
+    }
+
+    /**
+     * Manually activate a pending ad service (e.g. after cash/payment
+     * coordination with the submitter). Applies the tariff flags too.
+     */
+    public function activateService(Request $request, Ad $ad, AdService $service, AdServiceActivator $activator): RedirectResponse
+    {
+        abort_unless((int) $service->ad_id === (int) $ad->id, 404);
+
+        $activator->activate($service);
+
+        return back()->with('success', 'خدمت «'.($service->tariff?->title ?? '—').'» برای آگهی «'.$ad->title.'» فعال شد.');
     }
 
     public function destroyPending(PendingAd $pending): RedirectResponse

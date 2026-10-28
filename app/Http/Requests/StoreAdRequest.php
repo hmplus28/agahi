@@ -54,6 +54,8 @@ class StoreAdRequest extends FormRequest
             'category_id' => ['required', 'exists:categories,id'],
             'images' => ['nullable', 'array', 'max:5'],
             'images.*' => ['file', 'image', 'max:5120'],
+            'services' => ['nullable', 'array', 'max:11'],
+            'services.*' => ['integer', 'exists:tariffs,id'],
         ];
     }
 

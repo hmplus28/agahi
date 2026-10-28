@@ -270,3 +270,67 @@ a.pg-btn:hover { border-color: #4b4dbe; color: #3e4095; background: #f0f1fa; box
     .home-search-row { flex-direction: column; }
     .home-search-row > * { flex: 1 1 100%; }
 }
+
+/* ─────────── RTL ad cards (Divar-style horizontal rows) ───────────
+   Persian reading flow: text block on the RIGHT (start), thumbnail on
+   the LEFT (end). Price is a number, so it lives on the LEFT of the
+   text block in its own distinct color. */
+:root { --price: #0c8a4d; }
+
+.ad-grid, .ad-grid--context { grid-template-columns: 1fr; gap: 10px; }
+
+.ad-card { flex-direction: row; align-items: stretch; }
+
+.ad-card .card-image {
+    flex: 0 0 150px;
+    width: 150px;
+    aspect-ratio: auto;
+    min-height: 118px;
+    align-self: stretch;
+    order: 2;
+}
+.ad-card .card-image img { height: 100%; }
+
+.ad-card .card-body { padding: 11px 14px; min-width: 0; }
+.ad-card .card-body h3 { min-height: 0; font-size: .98rem; line-height: 1.7; }
+
+.card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+}
+.card-head .price {
+    margin: 0;
+    flex-shrink: 0;
+    text-align: left;
+    color: var(--price);
+    font-size: .98rem;
+    font-weight: 850;
+}
+/* Distinct price color everywhere an amount shows up. */
+.detail-price { color: var(--price); }
+
+/* Badges (فوری/ویژه) sit on top of the thumbnail, which is on the
+   inline-END (LEFT) side in RTL. */
+.ad-card .badge-row { inset-inline-start: auto; inset-inline-end: 9px; }
+
+/* ─────────── Paid options section (ad submission forms) ─────────── */
+.service-option { align-items: flex-start; padding: .55rem .65rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #fff; transition: border-color .15s, background .15s; }
+.service-option:hover { border-color: #b7c0ea; background: #f8f9ff; }
+.service-option:has(input:checked) { border-color: #5557b8; background: #f0f1fa; }
+.service-option input[type="checkbox"] { margin-top: .45rem; }
+.service-option strong { display: block; font-size: .9rem; color: var(--ink); }
+.service-option .muted { display: block; font-size: .78rem; }
+.service-price { display: block; margin-top: .2rem; font-size: .82rem; font-weight: 800; color: var(--price); }
+.choice-box { display: grid; gap: .5rem; }
+
+@media (max-width: 760px) {
+    .ad-card .card-image { flex-basis: 120px; width: 120px; min-height: 104px; }
+    .ad-card .card-body { padding: 10px 12px; }
+    .ad-card .card-body h3 { font-size: .9rem; }
+    .card-head .price { font-size: .9rem; }
+}
+@media (max-width: 380px) {
+    .ad-card .card-image { flex-basis: 100px; width: 100px; min-height: 96px; }
+}

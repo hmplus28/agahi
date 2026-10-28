@@ -88,6 +88,7 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->as('admin.')->group(funct
     Route::get('/pending-ads', [ModerationController::class, 'pendingAds'])->name('pending-ads.index');
     Route::patch('/ads/{ad}/status', [ModerationController::class, 'transition'])->name('ads.transition');
     Route::patch('/ads/{ad}/edit', [ModerationController::class, 'edit'])->name('ads.edit');
+    Route::post('/ads/{ad}/services/{service}/activate', [ModerationController::class, 'activateService'])->name('ads.services.activate');
 
 
     Route::post('/pending-ads/{pending}/finalize', [ModerationController::class, 'finalizePending'])->name('pending-ads.finalize');

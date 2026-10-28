@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\User;
 
 use App\Domains\Ads\Enums\AdStatus;
+use App\Domains\Ads\Services\AdServiceActivator;
 use App\Domains\Ads\Services\AdSubmissionService;
 use App\Http\Controllers\Controller;
 use App\Models\Ad;
@@ -34,7 +35,7 @@ class GuestAdController extends Controller
         ]);
     }
 
-    public function store(Request $request, AdSubmissionService $service): RedirectResponse
+    public function store(Request $request, AdSubmissionService $service, AdServiceActivator $activator): RedirectResponse
     {
 
 
@@ -60,8 +61,17 @@ class GuestAdController extends Controller
 
         $uploads = $request->file('images', []);
 
+        // Selected paid/free options (tariffs). Free ones apply instantly;
+        // paid ones are parked as "pending" rows so the moderation team can
+        // activate them from the admin panel after payment coordination.
+        $selectedTariffs = Tariff::query()
+            ->whereIn('id', (array) $request->input('services', []))
+            ->where('is_active', true)
+            ->orderBy('price')
+            ->get();
+
         try {
-            DB::transaction(function () use ($data, $uploads, $request, $service): void {
+            DB::transaction(function () use ($data, $uploads, $request, $service, $activator, $selectedTariffs): void {
                 $fingerprints = app(\App\Domains\Ads\Services\DuplicateDetector::class)
                     ->fingerprints($data['title'], $data['description']);
 
@@ -81,12 +91,24 @@ class GuestAdController extends Controller
                 foreach ($uploads as $index => $upload) {
                     app(\App\Domains\Ads\Services\AdImageProcessor::class)->store($ad, $upload, $index);
                 }
+
+                foreach ($selectedTariffs as $tariff) {
+                    $activator->attach(
+                        $ad,
+                        $tariff,
+                        $tariff->price > 0 ? 'pending' : 'active',
+                        ['context' => 'guest_submission'],
+                    );
+                }
             });
         } catch (ValidationException $e) {
             throw $e;
         }
 
-        return redirect()->route('home')->with('success', 'آگهی شما با موفقیت ثبت شد و پس از تأیید مدیریت منتشر خواهد شد.');
+        $hasPaidSelection = $selectedTariffs->contains(fn (Tariff $tariff) => $tariff->price > 0);
+
+        return redirect()->route('home')->with('success', 'آگهی شما با موفقیت ثبت شد و پس از تأیید مدیریت منتشر خواهد شد.'
+            . ($hasPaidSelection ? ' خدمات پولی انتخاب‌شده پس از هماهنگی پرداخت و تأیید مدیریت فعال می‌شود.' : ''));
     }
 
     public function validateAd(Request $request): array
@@ -109,6 +131,8 @@ class GuestAdController extends Controller
             'address'       => ['nullable', 'string', 'max:500'],
             'images'        => ['nullable', 'array', 'max:5'],
             'images.*'      => ['file', 'image', 'max:5120'],
+            'services'      => ['nullable', 'array', 'max:11'],
+            'services.*'    => ['integer', 'exists:tariffs,id'],
         ], [
             'city_id.required'    => 'انتخاب شهر الزامی است.',
             'category_id.required'=> 'انتخاب دسته‌بندی الزامی است.',
