@@ -110,7 +110,7 @@ class ThirtyFlowsTest extends TestCase
     {
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('home-promos', false)
+            ->assertSee('home-hero', false)
             ->assertSee('name="q"', false)
             ->assertSee('name="min_price"', false)
             ->assertSee('ثبت آگهی', false);
@@ -671,7 +671,7 @@ class ThirtyFlowsTest extends TestCase
         $this->assertFalse($setting['is_active']);
 
         \Illuminate\Support\Facades\Cache::forget('public.home_banner.v1');
-        $this->get(route('home'))->assertSee('home-promos', false);
+        $this->get(route('home'))->assertSee('class="hero-content"', false);
 
         $path = $setting['path'];
         $this->actingAs($admin)->delete(route('admin.banner.destroy'))->assertRedirect(route('admin.banner.index'));
