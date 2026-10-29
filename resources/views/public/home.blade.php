@@ -34,6 +34,9 @@
             <div class="home-cat-wrap">
                 <x-category-modal :categories="$allCategories" name="category" :selected-category-id="old('category')" :hide-label="true" />
             </div>
+            <div class="home-geo-wrap">
+                <x-geo-modal :provinces="$provinces" :cities="$cities" name-province="province" name-city="city" :selected-province-id="old('province')" :selected-city-id="old('city')" :hide-label="true" placeholder="استان / شهر" />
+            </div>
             <div class="home-price-wrap">
                 <label class="sr-only" for="home-min-price">حداقل قیمت</label>
                 <input id="home-min-price" type="text" name="min_price" min="0" placeholder="حداقل قیمت (تومان)" inputmode="numeric" autocomplete="off">

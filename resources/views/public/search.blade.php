@@ -43,24 +43,9 @@
             </label>
 
             
-            <label class="field-label">استان
-                <select name="province" data-filter-select data-cascade-province>
-                    <option value="">همهٔ استان‌ها</option>
-                    @foreach($provinces as $province)
-                        <option value="{{ $province->id }}" data-country="{{ $province->country_id }}" @selected(request('province')==$province->id)>{{ $province->name }}</option>
-                    @endforeach
-                </select>
-            </label>
-
-            
-            <label class="field-label">شهر
-                <select name="city" data-filter-select data-cascade-city>
-                    <option value="">همهٔ شهرها</option>
-                    @foreach($cities as $city)
-                        <option value="{{ $city->id }}" data-province="{{ $city->province_id }}" @selected(request('city')==$city->id)>{{ $city->name }}</option>
-                    @endforeach
-                </select>
-            </label>
+            <div class="field-label">استان / شهر
+                <x-geo-modal :provinces="$provinces" :cities="$cities" :selected-province-id="request('province')" :selected-city-id="request('city')" :hide-label="true" placeholder="همهٔ شهرها" />
+            </div>
 
             
             <div class="price-fields">
@@ -110,24 +95,5 @@
 .price-fields .field-label{flex:1}
 .price-fields .input-with-unit input{width:100%}
 </style>
-
-<script>
-(function(){
-    var provinceSel=document.querySelector('[data-cascade-province]');
-    var citySel=document.querySelector('[data-cascade-city]');
-    if(provinceSel&&citySel){
-        var allOpts=Array.from(citySel.options);
-        provinceSel.addEventListener('change',function(){
-            var pid=this.value;
-            var first=citySel.options[0];
-            citySel.innerHTML='';citySel.appendChild(first);
-            allOpts.forEach(function(o){
-                if(!pid||o.dataset.province===pid){citySel.appendChild(o.cloneNode(true));}
-            });
-            citySel.value='';
-        });
-    }
-})();
-</script>
 
 @endsection

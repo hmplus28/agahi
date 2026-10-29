@@ -141,8 +141,8 @@
                 <span class="file-upload-wrap">
                     <input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple id="guest-images">
                     <label class="file-upload-btn" for="guest-images">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        انتخاب فایل
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        انتخاب تصاویر
                     </label>
                     <span class="file-upload-name" id="guest-images-name">فایلی انتخاب نشده</span>
                 </span>
@@ -170,8 +170,8 @@
                 <span class="file-upload-wrap">
                     <input type="file" name="permit_image" accept="image/jpeg,image/png,image/webp" id="guest-permit-image">
                     <label class="file-upload-btn" for="guest-permit-image">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        انتخاب فایل
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        انتخاب تصویر مجوز
                     </label>
                     <span class="file-upload-name" id="guest-permit-image-name">فایلی انتخاب نشده</span>
                 </span>
@@ -278,15 +278,19 @@
     var imgInput=document.getElementById('guest-images');
     if(imgInput){
         imgInput.addEventListener('change',function(){
+            /* دادهٔ compressed: تازه پس از بازنویسی files یک رویداد change مصنوعی
+               ارسال می‌شود؛ این گارد از حلقهٔ بی‌نهایت فشرده‌سازی جلوگیری می‌کند */
+            if(imgInput.dataset.compressed==='1'){delete imgInput.dataset.compressed;return;}
             if(!imgInput.files||!imgInput.files.length)return;
             var files=Array.prototype.slice.call(imgInput.files);
+            if(!files.some(function(f){return f.size>300*1024&&f.type.match(/^image\/(jpeg|png|webp)$/);})){return;}
             var dt=new DataTransfer();
             var done=0;
             files.forEach(function(file){
                 compressImage(file,function(compressed){
                     dt.items.add(compressed);
                     done++;
-                    if(done===files.length){imgInput.files=dt.files;imgInput.dispatchEvent(new Event('change'));}
+                    if(done===files.length){imgInput.dataset.compressed='1';imgInput.files=dt.files;imgInput.dispatchEvent(new Event('change'));}
                 });
             });
         });
@@ -425,10 +429,10 @@ function initImagePreview(inputId, previewId, nameId, countId){
             box.appendChild(del);
             preview.appendChild(box);
         });
-        if(input.files&&input.files.length&&name){name.textContent=input.files.length+' فایل انتخاب شد';}
+        if(input.files&&input.files.length&&name){name.textContent=toFaDigits(input.files.length)+' فایل انتخاب شد';}
         else if(name){name.textContent='فایلی انتخاب نشده';}
         if(countEl){
-            countEl.textContent=fileCount>0?fileCount+' از '+maxImages+' تصویر انتخاب شده':'';
+            countEl.textContent=fileCount>0?toFaDigits(fileCount)+' از '+toFaDigits(maxImages)+' تصویر انتخاب شده':'';
         }
     }
     function update(){render(input.files);}
