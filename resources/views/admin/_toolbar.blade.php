@@ -26,3 +26,15 @@
         </form>
     </div>
 </nav>
+<script>
+    /* Keep the toolbar stuck right below the sticky site header: the header
+       height varies per breakpoint, so measure it instead of hardcoding. */
+    (function () {
+        var header = document.querySelector('.site-header');
+        var toolbar = document.querySelector('.admin-toolbar');
+        if (!header || !toolbar) return;
+        var apply = function () { toolbar.style.top = header.offsetHeight + 'px'; };
+        apply();
+        window.addEventListener('resize', apply);
+    })();
+</script>

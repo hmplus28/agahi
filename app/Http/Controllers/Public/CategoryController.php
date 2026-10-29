@@ -6,4 +6,4 @@ use App\Http\Controllers\Controller;
 use App\Models\Ad;
 use App\Models\Category;
 use Illuminate\View\View;
-class CategoryController extends Controller { public function show(Category $category): View { abort_unless($category->is_active,404); return view('public.categories.show',['category'=>$category->load(['children'=>fn($q)=>$q->active()]),'ads'=>Ad::query()->publiclyVisible()->where('category_id',$category->id)->with(['city','images'])->orderedForListing()->paginate(24)]); } }
+class CategoryController extends Controller { public function show(Category $category): View { abort_unless($category->is_active,404); return view('public.categories.show',['category'=>$category->load(['children'=>fn($q)=>$q->active()]),'ads'=>Ad::query()->publiclyVisible()->where('category_id',$category->id)->with(['city','images'])->withCount('links')->orderedForListing()->paginate(24)]); } }

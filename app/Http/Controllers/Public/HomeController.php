@@ -38,7 +38,7 @@ class HomeController extends Controller
         // Home is a plain listing of every publicly visible ad - no separate
         // "featured" section. Featured/urgent ads still float to the top via
         // orderedForListing(); 100 cards per page, the rest paginates.
-        $ads = Ad::query()->publiclyVisible()->with(['city', 'images'])->orderedForListing()->paginate(100);
+        $ads = Ad::query()->publiclyVisible()->with(['city', 'images'])->withCount('links')->orderedForListing()->paginate(100);
         $banner = HomeBanner::get();
 
         $totalActive = Cache::remember('public.total_active_ads.v1', now()->addMinutes(10), fn (): int => Ad::query()->publiclyVisible()->count());

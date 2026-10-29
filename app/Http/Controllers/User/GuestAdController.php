@@ -46,6 +46,17 @@ class GuestAdController extends Controller
             $request->merge(['mobile_2' => PersianNormalizer::mobile((string) $request->input('mobile_2'))]);
         }
 
+        // Drop untouched link slots so an empty row never counts toward the
+        // per-link surcharge, then keep well-formed rows only.
+        $linkRows = [];
+        foreach ((array) $request->input('links', []) as $link) {
+            if (! is_array($link)) continue;
+            $url = trim((string) ($link['url'] ?? ''));
+            if ($url === '') continue;
+            $linkRows[] = ['type' => (string) ($link['type'] ?? 'site'), 'url' => $url];
+        }
+        $request->merge(['links' => $linkRows]);
+
         $data = $this->validateAd($request);
 
 
@@ -70,8 +81,13 @@ class GuestAdController extends Controller
             ->orderBy('price')
             ->get();
 
+        // Persisted separately (Ad::create ignores non-fillable keys, but keep
+        // the payload explicit).
+        $linkRows = array_values((array) ($data['links'] ?? []));
+        unset($data['links']);
+
         try {
-            DB::transaction(function () use ($data, $uploads, $request, $service, $activator, $selectedTariffs): void {
+            DB::transaction(function () use ($data, $uploads, $request, $service, $activator, $selectedTariffs, $linkRows): void {
                 $fingerprints = app(\App\Domains\Ads\Services\DuplicateDetector::class)
                     ->fingerprints($data['title'], $data['description']);
 
@@ -87,6 +103,15 @@ class GuestAdController extends Controller
                     'submit_ip'                  => $request->ip(),
                     'sort_at'                    => now(),
                 ]);
+
+                foreach ($linkRows as $index => $link) {
+                    $ad->allLinks()->create([
+                        'type'       => (string) ($link['type'] ?? 'site'),
+                        'url'        => (string) $link['url'],
+                        'sort_order' => $index,
+                        'is_active'  => true,
+                    ]);
+                }
 
                 foreach ($uploads as $index => $upload) {
                     app(\App\Domains\Ads\Services\AdImageProcessor::class)->store($ad, $upload, $index);
@@ -106,7 +131,6 @@ class GuestAdController extends Controller
         }
 
         $hasPaidSelection = $selectedTariffs->contains(fn (Tariff $tariff) => $tariff->price > 0);
-
         return redirect()->route('home')->with('success', 'آگهی شما با موفقیت ثبت شد و پس از تأیید مدیریت منتشر خواهد شد.'
             . ($hasPaidSelection ? ' خدمات پولی انتخاب‌شده پس از هماهنگی پرداخت و تأیید مدیریت فعال می‌شود.' : ''));
     }
@@ -131,6 +155,9 @@ class GuestAdController extends Controller
             'address'       => ['nullable', 'string', 'max:500'],
             'images'        => ['nullable', 'array', 'max:5'],
             'images.*'      => ['file', 'image', 'max:5120'],
+            'links'         => ['nullable', 'array', 'max:5'],
+            'links.*.type'  => ['required_with:links.*.url', 'in:site,aparat,eitaa,bale,rubika,whatsapp,telegram,instagram'],
+            'links.*.url'   => ['required', 'string', 'max:500', 'url'],
             'services'      => ['nullable', 'array', 'max:11'],
             'services.*'    => ['integer', 'exists:tariffs,id'],
         ], [

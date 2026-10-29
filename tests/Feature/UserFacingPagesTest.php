@@ -39,7 +39,7 @@ class UserFacingPagesTest extends TestCase
             ->assertSee('جست‌وجو', false);
     }
 
-    public function test_homepage_has_header_with_brand_phone_city_nav(): void
+    public function test_homepage_has_header_with_brand_phone_city(): void
     {
         $this->get('/')
             ->assertOk()
@@ -50,8 +50,10 @@ class UserFacingPagesTest extends TestCase
             ->assertSee('header-phone', false)
             ->assertSee('city-picker', false)
             ->assertSee('header-search', false)
-            ->assertSee('header-nav', false)
-            ->assertSee('۰۲۱-۰۰۰۰۰۰۰۰', false);
+            ->assertSee('۰۲۱-۰۰۰۰۰۰۰۰', false)
+            // Quick links (تعرفهٔ آگهی / قوانین / درباره ما / تماس با ما)
+            // were intentionally removed from the header per feedback.
+            ->assertDontSee('header-nav', false);
     }
 
     public function test_homepage_has_post_ad_button_for_guests(): void
