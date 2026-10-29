@@ -4,6 +4,9 @@ x-app-base: &app-base
   build:
     context: .
     target: app
+    args:
+      ALPINE_MIRROR: ${ALPINE_MIRROR:-}
+      COMPOSER_MIRROR: ${COMPOSER_MIRROR:-}
   restart: unless-stopped
   volumes:
     - app_public:/var/www/html/storage/app/public
@@ -72,6 +75,9 @@ services:
     build:
       context: .
       target: web
+      args:
+        ALPINE_MIRROR: ${ALPINE_MIRROR:-}
+        COMPOSER_MIRROR: ${COMPOSER_MIRROR:-}
     restart: unless-stopped
     depends_on:
       - app

@@ -9,16 +9,31 @@
 #    IDENTICAL to the "app" stage below, so BuildKit shares its
 #    cached install-php-extensions layer instead of downloading
 #    and compiling everything twice (big build-time win).
+#
+#    Mirror overrides for servers with slow/blocked default CDNs
+#    (e.g. Iranian datacenters) — pass via compose build args:
+#      ALPINE_MIRROR    apk mirror, MUST include the /alpine suffix
+#                       e.g. https://mirrors.aliyun.com/alpine
+#      COMPOSER_MIRROR  packagist-compatible mirror
+#                       e.g. https://mirrors.aliyun.com/composer
 # ─────────────────────────────────────────────────────────────
 FROM php:8.3-fpm-alpine AS vendor
+ARG ALPINE_MIRROR=""
+ARG COMPOSER_MIRROR=""
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions gd intl pdo_pgsql zip opcache pcntl
+RUN if [ -n "$ALPINE_MIRROR" ]; then \
+        sed -i "s#https://dl-cdn.alpinelinux.org/alpine#${ALPINE_MIRROR}#g" /etc/apk/repositories; \
+    fi \
+    && install-php-extensions gd intl pdo_pgsql zip opcache pcntl
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 COPY composer.json composer.lock ./
-RUN composer install \
+RUN if [ -n "$COMPOSER_MIRROR" ]; then \
+        composer config -g repos.packagist composer "${COMPOSER_MIRROR}"; \
+    fi \
+    && composer install \
     --no-dev \
     --prefer-dist \
     --no-interaction \
@@ -56,11 +71,17 @@ RUN npm run build
 
 # ─────────────────────────────────────────────────────────────
 # 3) app — php-fpm runtime
+#    NOTE: the ARG + RUN below must stay byte-identical to the
+#    "vendor" stage so BuildKit shares the cached layer.
 # ─────────────────────────────────────────────────────────────
 FROM php:8.3-fpm-alpine AS app
 
+ARG ALPINE_MIRROR=""
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions gd intl pdo_pgsql zip opcache pcntl
+RUN if [ -n "$ALPINE_MIRROR" ]; then \
+        sed -i "s#https://dl-cdn.alpinelinux.org/alpine#${ALPINE_MIRROR}#g" /etc/apk/repositories; \
+    fi \
+    && install-php-extensions gd intl pdo_pgsql zip opcache pcntl
 
 COPY docker/php.ini /usr/local/etc/php/conf.d/zz-agahi.ini
 
