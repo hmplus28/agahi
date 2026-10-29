@@ -45,6 +45,30 @@ class HomeController extends Controller
 
         $allCategories = Category::query()->active()->select(['id', 'parent_id', 'title'])->orderBy('title')->get();
 
-        return view('public.home', compact('categories', 'ads', 'banner', 'allCategories', 'totalActive'));
+        // Province/city data for the home search card popup filter.
+        // Cached as plain arrays (not Eloquent models) so unserialize() can
+        // never hit __PHP_Incomplete_Class after code changes or deploys.
+        $provinces = Cache::remember('public.geo.provinces.v1', now()->addHour(), fn (): array => \App\Models\Province::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'country_id'])
+            ->map(fn ($p): array => ['id' => $p->id, 'name' => $p->name, 'country_id' => $p->country_id])
+            ->all());
+        $cities = Cache::remember('public.geo.cities.v1', now()->addHour(), fn (): array => \App\Models\City::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'province_id'])
+            ->map(fn ($c): array => ['id' => $c->id, 'name' => $c->name, 'province_id' => $c->province_id])
+            ->all());
+
+        return view('public.home', [
+            'categories' => $categories,
+            'ads' => $ads,
+            'banner' => $banner,
+            'allCategories' => $allCategories,
+            'totalActive' => $totalActive,
+            'provinces' => collect($provinces),
+            'cities' => collect($cities),
+        ]);
     }
 }

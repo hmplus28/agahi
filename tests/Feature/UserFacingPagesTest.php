@@ -34,9 +34,25 @@ class UserFacingPagesTest extends TestCase
             ->assertSee('home-search-section', false)
             ->assertSee('name="q"', false)
             ->assertSee('name="category"', false)
-            ->assertSee('name="min_price"', false)
-            ->assertSee('name="max_price"', false)
+            // Province/city popup filter (geo modal) inside the search card
+            ->assertSee('data-geo-modal', false)
+            ->assertSee('data-geo-province-input', false)
+            ->assertSee('data-geo-city-input', false)
+            ->assertSee('name="province"', false)
+            ->assertSee('name="city"', false)
+            ->assertSee('min_price', false)
+            ->assertSee('max_price', false)
             ->assertSee('جست‌وجو', false);
+    }
+
+    public function test_homepage_geo_popup_lists_provinces_and_cities(): void
+    {
+        $data = $this->seedGeo();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee($data['province']->name, false)
+            ->assertSee($data['city']->name, false);
     }
 
     public function test_homepage_has_header_with_brand_phone_city(): void
@@ -140,7 +156,13 @@ class UserFacingPagesTest extends TestCase
             ->assertSee('name="city_id"', false)
             ->assertSee('name="mobile_1"', false)
             ->assertSee('name="hamrah_1"', false)
-            ->assertSee('name="sobit_1"', false);
+            ->assertSee('name="sobit_1"', false)
+            // Custom Persian file-upload buttons (no native “Choose File” left visible)
+            ->assertSee('file-upload-btn', false)
+            ->assertSee('انتخاب تصاویر', false)
+            ->assertSee('انتخاب تصویر مجوز', false)
+            // Image compression loop guard is in place
+            ->assertSee('dataset.compressed', false);
     }
 
     public function test_contact_page_renders(): void
@@ -168,7 +190,10 @@ class UserFacingPagesTest extends TestCase
     {
         $this->get(route('search'))
             ->assertOk()
-            ->assertSee('جست‌وجو', false);
+            ->assertSee('جست‌وجو', false)
+            // Province/city now open in the shared geo popup instead of raw selects
+            ->assertSee('data-geo-modal', false)
+            ->assertDontSee('data-cascade-province', false);
     }
 
     public function test_user_create_ad_renders(): void

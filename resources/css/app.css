@@ -276,14 +276,14 @@ a.pg-btn:hover { border-color: #4b4dbe; color: #3e4095; background: #f0f1fa; box
 .home-search-section { max-width: 900px; margin: 0 auto 2.5rem; text-align: center; }
 .home-search-form { background: #fff; border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem 1.25rem; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
 .home-search-row { display: flex; gap: .625rem; align-items: stretch; flex-wrap: wrap; justify-content: center; }
-.home-search-input-wrap { flex: 2; min-width: 180px; position: relative; display: flex; }
+.home-search-input-wrap { flex: 2; min-width: 165px; position: relative; display: flex; }
 .home-search-input-wrap svg { fill: none; stroke: #9ca3af; stroke-width: 2; width: 1.15rem; height: 1.15rem; position: absolute; top: 50%; right: .75rem; translate: 0 -50%; pointer-events: none; }
 .home-search-input-wrap input { width: 100%; padding-inline: 2.5rem .75rem; border: 1px solid #e5e7eb; border-radius: .5rem; font-size: .9rem; font-family: inherit; background: #f9fafb; transition: border-color .15s, box-shadow .15s; }
 .home-search-input-wrap input:focus { outline: none; border-color: #4b4dbe; box-shadow: 0 0 0 3px rgba(62,64,149,.12); background: #fff; }
-.home-cat-wrap { flex: 1; min-width: 160px; display: flex; }
+.home-cat-wrap { flex: 1; min-width: 148px; display: flex; }
 .home-cat-wrap .cat-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding-inline: .75rem; border: 1px solid #e5e7eb; border-radius: .5rem; font-size: .85rem; font-family: inherit; background: #f9fafb; cursor: pointer; transition: border-color .15s; }
 .home-cat-wrap .cat-trigger:focus { outline: none; border-color: #4b4dbe; box-shadow: 0 0 0 3px rgba(62,64,149,.12); }
-.home-price-wrap { flex: 1; min-width: 130px; display: flex; }
+.home-price-wrap { flex: 1; min-width: 118px; display: flex; }
 .home-price-wrap input { width: 100%; padding-inline: .5rem; border: 1px solid #e5e7eb; border-radius: .5rem; font-size: .85rem; font-family: inherit; background: #f9fafb; text-align: center; }
 .home-price-wrap input:focus { outline: none; border-color: #4b4dbe; box-shadow: 0 0 0 3px rgba(62,64,149,.12); }
 .home-search-row .button { flex: 0 0 auto; padding-inline: 1.5rem; border-radius: .5rem; font-size: .9rem; font-weight: 700; background: #4b4dbe; color: #fff; border: none; cursor: pointer; white-space: nowrap; transition: background .15s; }
@@ -330,3 +330,34 @@ a.pg-btn:hover { border-color: #4b4dbe; color: #3e4095; background: #f0f1fa; box
 .service-option .muted { display: block; font-size: .78rem; }
 .service-price { display: block; margin-top: .2rem; font-size: .82rem; font-weight: 800; color: var(--price); }
 .choice-box { display: grid; gap: .5rem; }
+
+/* ─────────── Geo modal (پاپ‌آپ استان / شهر) — same pattern as category modal ─────────── */
+.geo-modal { position: relative; }
+.geo-trigger { display: inline-flex; align-items: center; justify-content: space-between; gap: .5rem; width: 100%; padding: .5rem .75rem; border: 1px solid #e5e7eb; border-radius: .5rem; background: #f9fafb; font-family: inherit; font-size: .85rem; color: #374151; cursor: pointer; transition: border-color .15s; }
+.geo-trigger:hover { border-color: #d1d5db; }
+.geo-trigger:focus { outline: none; border-color: #4b4dbe; box-shadow: 0 0 0 3px rgba(62,64,149,.12); }
+.geo-trigger-main { display: inline-flex; align-items: center; gap: .4rem; min-width: 0; }
+.geo-trigger-main > svg { width: .95rem; height: .95rem; flex-shrink: 0; color: #6b7280; }
+.geo-trigger-main > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.geo-trigger-main > span.has-value { color: #3e4095; font-weight: 600; }
+.geo-trigger .geo-caret { flex-shrink: 0; color: #6b7280; }
+.geo-cols { grid-template-columns: 1fr 1fr; }
+.geo-foot-actions { display: inline-flex; align-items: center; gap: .5rem; }
+.geo-clear { border: 0; background: transparent; color: #6b7280; font-size: .82rem; font-family: inherit; padding: .5rem .35rem; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.geo-clear:hover { color: #dc2626; }
+.home-geo-wrap { flex: 1; min-width: 142px; display: flex; }
+.home-geo-wrap .geo-trigger { padding-inline: .75rem; }
+
+/* ─────────── File upload (انتخاب فایل) — shared custom Persian button ─────────── */
+.file-upload-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: .625rem; width: 100%; position: relative; }
+.file-upload-wrap input[type="file"] { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.file-upload-btn { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem 1.1rem; background: #4b4dbe; color: #fff; border: 0; border-radius: .625rem; font-size: .85rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: background .15s, transform .1s, box-shadow .15s; box-shadow: 0 1px 3px rgba(62,64,149,.25); }
+.file-upload-btn:hover { background: #3e4095; box-shadow: 0 2px 6px rgba(62,64,149,.3); }
+.file-upload-btn:active { transform: scale(.97); }
+.file-upload-btn svg { width: 1.05rem; height: 1.05rem; flex-shrink: 0; }
+.file-upload-btn:focus-visible { outline: 3px solid rgba(62,64,149,.35); outline-offset: 2px; }
+.file-upload-name { font-size: .8rem; color: #6b7280; }
+
+/* Sticky filter panel forms its own stacking context (position:sticky) which
+   would trap the fixed cat/geo modal overlays below later-painted ad cards. */
+.filter-panel { z-index: 20; }
