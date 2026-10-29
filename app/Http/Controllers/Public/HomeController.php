@@ -7,8 +7,6 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Ad;
 use App\Models\Category;
-use App\Models\City;
-use App\Models\User;
 use App\Support\HomeBanner;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
@@ -45,16 +43,8 @@ class HomeController extends Controller
 
         $totalActive = Cache::remember('public.total_active_ads.v1', now()->addMinutes(10), fn (): int => Ad::query()->publiclyVisible()->count());
 
-        // Homepage stats strip: cities under coverage + registered members.
-        $stats = Cache::remember('public.home_stats.v1', now()->addMinutes(10), function (): array {
-            return [
-                'cities' => City::query()->where('is_active', true)->count(),
-                'users'  => User::query()->count(),
-            ];
-        });
-
         $allCategories = Category::query()->active()->select(['id', 'parent_id', 'title'])->orderBy('title')->get();
 
-        return view('public.home', compact('categories', 'ads', 'banner', 'allCategories', 'totalActive', 'stats'));
+        return view('public.home', compact('categories', 'ads', 'banner', 'allCategories', 'totalActive'));
     }
 }

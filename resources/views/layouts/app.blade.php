@@ -48,7 +48,7 @@
             .header-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:1rem;padding-block:.625rem}
             .header-top>.header-brand{justify-self:start}.header-top>.header-search{justify-self:center}.header-top>.header-actions--end{justify-self:end}
             .header-bottom{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:1rem;padding-block:.375rem .625rem;border-top:1px solid #f3f4f6}
-            .header-bottom>.city-picker{justify-self:start}.header-bottom>.header-nav{justify-self:center}.header-bottom>.header-phone{justify-self:end}
+            .header-bottom>.city-picker{justify-self:start}.header-bottom>.header-phone{justify-self:center}.header-bottom>.header-nav{justify-self:end}
             .header-brand{display:inline-flex;align-items:center;gap:.55rem;text-decoration:none}
             .header-brand .brand-name{font-weight:800;font-size:1.02rem;color:#111827;white-space:nowrap}
             .header-search{display:flex;align-items:center;gap:.5rem;width:100%;max-width:560px;height:42px;background:#f4f6f7;border:1px solid transparent;border-radius:11px;padding:0 11px}
@@ -111,21 +111,6 @@
                 font-size: .875rem;
                 text-decoration: none;
                 transition: color .15s;
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-            }
-            .site-footer nav a svg,
-            .footer-inner nav a svg {
-                width: 15px;
-                height: 15px;
-                fill: none;
-                stroke: currentColor;
-                stroke-width: 1.8;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-                opacity: .8;
-                flex: 0 0 auto;
             }
             .site-footer nav a:hover,
             .footer-inner nav a:hover {
@@ -287,13 +272,13 @@
             <p>بازار ساده و امن برای پیدا کردن و ثبت آگهی در شهر شما. با چند کلیک آگهی بدهید یا نیازتان را پیدا کنید.</p>
         </div>
         <nav aria-label="پیوندهای پایی">
-            <a href="{{ route('search') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.25 4.25"/></svg> جست‌وجوی آگهی‌ها</a>
-            <a href="{{ route('guest.ad.create') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg> ثبت آگهی رایگان</a>
-            <a href="{{ route('site-ads.pricing') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5"/></svg> تعرفهٔ آگهی</a>
-            <a href="{{ route('terms') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg> قوانین و مقررات</a>
-            <a href="{{ route('about') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 12h1v4h1"/></svg> درباره ما</a>
-            <a href="{{ route('contact') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"/></svg> تماس با ما</a>
-            <a href="{{ route('login') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> حساب کاربری</a>
+            <a href="{{ route('search') }}">جست‌وجوی آگهی‌ها</a>
+            <a href="{{ route('guest.ad.create') }}">ثبت آگهی رایگان</a>
+            <a href="{{ route('site-ads.pricing') }}">تعرفهٔ آگهی</a>
+            <a href="{{ route('terms') }}">قوانین و مقررات</a>
+            <a href="{{ route('about') }}">درباره ما</a>
+            <a href="{{ route('contact') }}">تماس با ما</a>
+            <a href="{{ route('login') }}">حساب کاربری</a>
         </nav>
         <div class="footer-trust" aria-label="نماد اعتماد الکترونیکی">
             <a referrerpolicy='origin' target='_blank' rel='noopener noreferrer' href='https://trustseal.enamad.ir/?id=253106&Code=raCKPaxVFmWC7Luf6YfW7bNVywPyzbJb'>
