@@ -47,17 +47,14 @@
             .container{width:100%;max-width:1280px;margin-inline:auto;padding-inline:1rem}
             .header-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:1rem;padding-block:.625rem}
             .header-top>.header-brand{justify-self:start}.header-top>.header-search{justify-self:center}.header-top>.header-actions--end{justify-self:end}
-            .header-bottom{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:1rem;padding-block:.375rem .625rem;border-top:1px solid #f3f4f6}
-            .header-bottom>.city-picker{justify-self:start}.header-bottom>.header-phone{justify-self:center}.header-bottom>.header-nav{justify-self:end}
+            .header-bottom{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:1rem;padding-block:.375rem .625rem;border-top:1px solid #f3f4f6}
+            .header-bottom>.city-picker{justify-self:start}.header-bottom>.header-phone{justify-self:center}
             .header-brand{display:inline-flex;align-items:center;gap:.55rem;text-decoration:none}
             .header-brand .brand-name{font-weight:800;font-size:1.02rem;color:#111827;white-space:nowrap}
             .header-search{display:flex;align-items:center;gap:.5rem;width:100%;max-width:560px;height:42px;background:#f4f6f7;border:1px solid transparent;border-radius:11px;padding:0 11px}
             .header-search svg{width:18px;height:18px;fill:none;stroke:#6b7784;stroke-width:2;stroke-linecap:round;flex:0 0 auto}
             .header-search input{border:0;outline:0;background:transparent;flex:1;min-width:0;font:inherit;font-size:.9rem;color:#17212b}
             .header-search button{border:0;background:transparent;color:#2c2e72;font-weight:750;font-size:.84rem;cursor:pointer;white-space:nowrap}
-            .header-nav{display:flex;justify-content:center;align-items:center;gap:.25rem;flex-wrap:wrap}
-            .header-nav a{padding:.3rem .65rem;border-radius:8px;font-size:.85rem;color:#4b5563;text-decoration:none}
-            .header-nav a:hover{background:#f0f1fa;color:#4b4dbe}
             .site-header{background:#fff;border-bottom:1px solid #f3f4f6;position:sticky;top:0;z-index:50}
             .brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;font-weight:700;font-size:1.15rem;color:#111827;flex-shrink:0}
             .brand-mark{display:flex;align-items:center;justify-content:center;width:2.125rem;height:2.125rem;border-radius:.625rem;background:#4b4dbe;color:#fff;font-size:1.125rem;font-weight:800}
@@ -217,19 +214,12 @@
         </div>
     </div>
 
-    {{-- Row 2: location picker (right) | quick links (center) | support phone (left) --}}
+    {{-- Row 2: location picker (right) | support phone (center) --}}
     <div class="container header-bottom">
         <button class="city-picker" type="button" id="city-picker-trigger" aria-haspopup="dialog" aria-controls="city-modal" aria-expanded="false">
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.33 7-12a7 7 0 1 0-14 0c0 6.67 7 12 7 12Z"/><circle cx="12" cy="9" r="2.25"/></svg>
             <span id="city-picker-label">{{ $pickerLabel }}</span><span class="chevron">⌄</span>
         </button>
-
-        <nav class="header-nav" aria-label="پیوندهای اصلی">
-            <a href="{{ route('site-ads.pricing') }}">تعرفهٔ آگهی</a>
-            <a href="{{ route('site-ads.rules') }}">قوانین</a>
-            <a href="{{ route('about') }}">درباره ما</a>
-            <a href="{{ route('contact') }}">تماس با ما</a>
-        </nav>
 
         <a class="header-phone" href="tel:{{ \App\Models\SiteSetting::get('branding.support_phone_href', config('agahi.support_phone_href')) }}" dir="ltr">
             <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>

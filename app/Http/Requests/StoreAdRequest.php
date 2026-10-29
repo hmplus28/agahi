@@ -21,6 +21,16 @@ class StoreAdRequest extends FormRequest
             (array) $this->input('keywords', []),
         )));
 
+        // Keep only rows with a non-empty URL; blank rows are ignored so an
+        // untouched link slot never counts toward the per-link surcharge.
+        $links = [];
+        foreach ((array) $this->input('links', []) as $link) {
+            if (! is_array($link)) continue;
+            $url = trim((string) ($link['url'] ?? ''));
+            if ($url === '') continue;
+            $links[] = ['type' => (string) ($link['type'] ?? 'site'), 'url' => $url];
+        }
+
         $this->merge([
             'title' => PersianNormalizer::text($this->input('title')),
             'description' => PersianNormalizer::text($this->input('description')),
@@ -29,6 +39,7 @@ class StoreAdRequest extends FormRequest
             'mobile_1' => $this->filled('mobile_1') ? PersianNormalizer::mobile((string) $this->input('mobile_1')) : null,
             'mobile_2' => $this->filled('mobile_2') ? PersianNormalizer::mobile((string) $this->input('mobile_2')) : null,
             'keywords' => $keywords,
+            'links' => $links,
         ]);
     }
 
@@ -39,6 +50,9 @@ class StoreAdRequest extends FormRequest
             'description' => ['required', 'string', 'max:6000'],
             'keywords' => ['nullable', 'array', 'max:11'],
             'keywords.*' => ['string', 'max:80', 'distinct'],
+            'links' => ['nullable', 'array', 'max:5'],
+            'links.*.type' => ['required_with:links.*.url', 'in:site,aparat,eitaa,bale,rubika,whatsapp,telegram,instagram'],
+            'links.*.url' => ['required', 'string', 'max:500', 'url'],
             'price' => ['nullable', 'integer', 'min:0'],
             'full_name' => ['nullable', 'string', 'max:160'],
             'business_name' => ['nullable', 'string', 'max:160'],

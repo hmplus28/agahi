@@ -72,7 +72,11 @@ class Ad extends Model
         $perImage = (int) \App\Models\SiteSetting::get('pricing.price_per_extra_image', config('agahi.price_per_extra_image', 20));
 
 
-        $linkCount = $this->relationLoaded('links') ? $this->links->count() : $this->links()->count();
+        // Prefer the eager-loaded withCount('links') value to avoid N+1 in
+        // card grids; fall back to relation helpers elsewhere.
+        $linkCount = array_key_exists('links_count', $this->attributes)
+            ? (int) $this->attributes['links_count']
+            : ($this->relationLoaded('links') ? $this->links->count() : $this->links()->count());
         $imageCount = $this->relationLoaded('images') ? $this->images->count() : $this->images()->count();
 
         $surcharges = ($linkCount * $perLink) + (max(0, $imageCount - 1) * $perImage);

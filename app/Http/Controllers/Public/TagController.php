@@ -20,7 +20,7 @@ class TagController extends Controller
 
         $ads = Ad::query()
             ->publiclyVisible()
-            ->with(['city', 'images', 'category'])
+            ->with(['city', 'images', 'category'])->withCount('links')
             ->whereJsonContains('keywords', $keyword)
             ->orderedForListing()
             ->paginate(24)
