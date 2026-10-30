@@ -23,7 +23,7 @@
             </span>
         @endif
         @if($ad->images->count() > 1)
-            <span class="card-image-count" aria-label="تعداد تصاویر">{{ $ad->images->count() }} تصویر</span>
+            <span class="card-image-count" aria-label="تعداد تصاویر">{{ to_persian_digits((string) $ad->images->count()) }} تصویر</span>
         @endif
     </a>
 
@@ -48,6 +48,10 @@
     @if($ad->is_urgent)
         <div class="ad-card__urgent-ribbon" aria-label="آگهی فوری">فوری</div>
     @endif
+
+    {{-- Whole-card click target: covers the card so clicking anywhere
+         opens the ad page. Inner links stay for semantics/SEO. --}}
+    <a class="card-stretch" href="{{ $ad->publicUrl() }}" tabindex="-1" aria-hidden="true"></a>
 </article>
 
 @once
