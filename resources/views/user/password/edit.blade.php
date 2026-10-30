@@ -1,53 +1,39 @@
 @extends('layouts.app', ['title' => 'تغییر رمز عبور | ' . config('app.name'), 'robots' => 'noindex, nofollow'])
 
 @section('content')
-<section class="form-page">
-    <h1>تغییر رمز عبور</h1>
+<x-auth-shell
+    title="تغییر رمز عبور"
+    subtitle="رمز جدید ساخته شده و به موبایل شما پیامک می‌شود."
+    :features="[
+        'رمز جدید به‌طور خودکار و امن ساخته می‌شود',
+        'رمز قبلی بلافاصله غیرفعال می‌شود',
+        'در سایر دستگاه‌ها از حساب خارج می‌شوید',
+    ]"
+    footnote="اگر به شمارهٔ موبایل حساب دسترسی ندارید، این کار را انجام ندهید.">
 
-    <div class="auth-info-note" role="note">
-        <strong>رمز جدید تولید و پیامک می‌شود.</strong>
-        <span>با تأیید این فرم، یک رمز جدید تصادفی برای شما ساخته می‌شود و به شمارهٔ موبایلتان پیامک خواهد شد. رمز قبلی بلافاصله غیرفعال می‌شود و در سایر دستگاه‌ها از حساب خارج می‌شوید.</span>
+    <div class="auth-note" role="note">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.5 2.9.7a2 2 0 0 1 1.6 2Z"/></svg>
+        <div>
+            <strong>رمز جدید تولید و پیامک می‌شود.</strong>
+            با تأیید این فرم، یک رمز جدید تصادفی برای شما ساخته می‌شود و به شمارهٔ موبایلتان پیامک خواهد شد. رمز قبلی بلافاصله غیرفعال می‌شود.
+        </div>
     </div>
-
-    @if(session('success'))
-        <div class="alert alert-success" role="status">
-            <span aria-hidden="true">✓</span>
-            <div>{{ session('success') }}</div>
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div class="alert alert-error" role="alert">
-            <span aria-hidden="true">!</span>
-            <div>
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        </div>
-    @endif
 
     <form method="post" action="{{ route('user.password.update') }}">
         @csrf
         @method('PUT')
 
-        <label class="check-label">
+        <label class="auth-check">
             <input type="checkbox" name="confirm" value="1" required>
-            <span>می‌دانم که رمز قبلی غیرفعال می‌شود و رمز جدید پیامک می‌شود. تأیید می‌کنم.</span>
+            <span>می‌دانم رمز قبلی غیرفعال می‌شود و رمز جدید پیامک می‌شود؛ تأیید می‌کنم.</span>
         </label>
+        @error('confirm')<p class="auth-error">{{ $message }}</p>@enderror
 
-        <button class="button" type="submit">تولید رمز جدید و ارسال پیامک</button>
+        <button class="button auth-submit" type="submit">تولید رمز جدید و ارسال پیامک</button>
     </form>
 
-    <p><a href="{{ route("user.dashboard") }}">بازگشت به پروفایل</a></p>
-</section>
-
-<style>
-.auth-info-note{background:#f0f1fa;border:1px solid #c6c7ee;border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.85rem;color:#3e4095;}
-.auth-info-note strong{display:block;margin-bottom:.25rem;}
-.auth-info-note span{display:block;line-height:1.5;}
-
-</style>
+    <x-slot:links>
+        <p><a href="{{ route('user.dashboard') }}">بازگشت به داشبورد کاربری</a></p>
+    </x-slot:links>
+</x-auth-shell>
 @endsection
