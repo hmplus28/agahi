@@ -1,44 +1,44 @@
 @extends('layouts.app', ['title' => 'بازیابی رمز عبور | ' . config('app.name'), 'robots' => 'noindex, nofollow'])
 
 @section('content')
-<section class="auth-card">
-    <h1>بازیابی رمز عبور</h1>
-
-    <div class="auth-info-note" role="note">
-        <strong>دو حالت موجود است:</strong>
-        <span>«یادآوری رمز»: رمز فعلیِ سامانه دوباره پیامک می‌شود (رمز تغییر نمی‌کند).</span>
-        <span>«ساخت رمز جدید»: رمز قبلی غیرفعال می‌شود و رمز جدیدی برایتان پیامک می‌گردد.</span>
-    </div>
+<x-auth-shell
+    title="بازیابی رمز عبور"
+    subtitle="رمز عبور با پیامک برای شما ارسال می‌شود."
+    :features="[
+        'ارسال فوری رمز با پیامک',
+        'امکان ساخت رمز جدید در صورت نیاز',
+        'بدون نیاز به تماس با پشتیبانی',
+    ]"
+    footnote="پیامک‌های سامانه ممکن است چند دقیقه طول بکشد؛ پوشهٔ پیام‌های ناشناس را هم بررسی کنید.">
 
     <form method="post">
         @csrf
-        <label>شمارهٔ موبایل
-            <input name="mobile" value="{{ old('mobile') }}" inputmode="numeric" placeholder="09123456789" required autocomplete="tel">
-        </label>
+        <div class="auth-field">
+            <label for="mobile">شمارهٔ موبایل</label>
+            <input id="mobile" name="mobile" value="{{ old('mobile') }}" inputmode="numeric" dir="ltr" placeholder="09123456789" required autocomplete="tel">
+            @error('mobile')<p class="auth-error">{{ $message }}</p>@enderror
+        </div>
 
-        <fieldset class="action-choice">
-            <legend>انتخاب نوع درخواست:</legend>
-            <label class="check-label">
+        <fieldset class="radio-cards">
+            <legend>چه درخواستی دارید؟</legend>
+            <label class="radio-card">
                 <input type="radio" name="action" value="remind" checked>
-                <span>یادآوری رمز فعلی (رمز تغییر نمی‌کند)</span>
+                <strong>یادآوری رمز فعلی</strong>
+                <span>رمز فعلی حساب شما دوباره پیامک می‌شود و تغییری نمی‌کند.</span>
             </label>
-            <label class="check-label">
+            <label class="radio-card">
                 <input type="radio" name="action" value="rotate">
-                <span>ساخت رمز جدید (رمز قبلی غیرفعال می‌شود)</span>
+                <strong>ساخت رمز جدید</strong>
+                <span>رمز قبلی غیرفعال می‌شود و رمز جدیدی برایتان پیامک می‌گردد.</span>
             </label>
         </fieldset>
 
-        <button class="button" type="submit">ارسال درخواست</button>
+        <button class="button auth-submit" type="submit">ارسال درخواست</button>
     </form>
-    <p>رمز عبور دارید؟ <a href="{{ route('login') }}">وارد شوید.</a></p>
-</section>
 
-<style>
-.auth-info-note{background:#f0f1fa;border:1px solid #c6c7ee;border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.85rem;color:#3e4095;}
-.auth-info-note strong{display:block;margin-bottom:.25rem;}
-.auth-info-note span{display:block;line-height:1.5;margin-top:.25rem;}
-.action-choice{border:1px solid #e5e7eb;border-radius:.5rem;padding:.75rem 1rem;margin:.5rem 0 1.25rem;}
-.action-choice legend{font-size:.75rem;font-weight:600;color:#374151;padding:0 .25rem;}
-
-</style>
+    <x-slot:links>
+        <p>رمز عبورتان را به یاد آوردید؟ <a href="{{ route('login') }}">وارد شوید</a></p>
+        <p>حساب کاربری ندارید؟ <a href="{{ route('register') }}">ثبت‌نام کنید</a></p>
+    </x-slot:links>
+</x-auth-shell>
 @endsection
