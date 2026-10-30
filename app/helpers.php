@@ -38,22 +38,22 @@ function jdate_human($date = null): string
         return 'همین الان';
     }
     if ($diff < 60) {
-        return "{$diff} دقیقه پیش";
+        return to_persian_digits((string) $diff).' دقیقه پیش';
     }
     $hours = (int) round($diff / 60);
     if ($hours < 24) {
-        return "{$hours} ساعت پیش";
+        return to_persian_digits((string) $hours).' ساعت پیش';
     }
     $days = (int) round($diff / 1440);
     if ($days < 30) {
-        return "{$days} روز پیش";
+        return to_persian_digits((string) $days).' روز پیش';
     }
     $months = (int) round($days / 30);
     if ($months < 12) {
-        return "{$months} ماه پیش";
+        return to_persian_digits((string) $months).' ماه پیش';
     }
 
-    return (int) round($months / 12) . ' سال پیش';
+    return to_persian_digits((string) (int) round($months / 12)).' سال پیش';
 }
 
 function explode_date_parts($date): array

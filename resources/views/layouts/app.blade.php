@@ -47,10 +47,9 @@
             .container{width:100%;max-width:1280px;margin-inline:auto;padding-inline:1rem}
             .header-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:1rem;padding-block:.625rem}
             .header-top>.header-brand{justify-self:start}.header-top>.header-search{justify-self:center}.header-top>.header-actions--end{justify-self:end}
-            .header-bottom{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:1rem;padding-block:.375rem .625rem;border-top:1px solid #f3f4f6}
+            .header-bottom{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;padding-block:.375rem .625rem;border-top:1px solid #f3f4f6}
             .header-bottom>.city-picker{justify-self:start}.header-bottom>.header-phone{justify-self:center}
             .header-brand{display:inline-flex;align-items:center;gap:.55rem;text-decoration:none}
-            .header-brand .brand-name{font-weight:800;font-size:1.02rem;color:#111827;white-space:nowrap}
             .header-search{display:flex;align-items:center;gap:.5rem;width:100%;max-width:560px;height:42px;background:#f4f6f7;border:1px solid transparent;border-radius:11px;padding:0 11px}
             .header-search svg{width:18px;height:18px;fill:none;stroke:#6b7784;stroke-width:2;stroke-linecap:round;flex:0 0 auto}
             .header-search input{border:0;outline:0;background:transparent;flex:1;min-width:0;font:inherit;font-size:.9rem;color:#17212b}
@@ -184,7 +183,6 @@
     <div class="container header-top">
         <a class="brand header-brand" href="{{ route('home') }}" aria-label="صفحهٔ اصلی {{ config('app.name') }}">
             <img class="brand-logo" src="/img/logo.png" alt="{{ config('app.name') }}">
-            <span class="brand-name">{{ config('agahi.brand_name', config('app.name')) }}</span>
         </a>
 
         <form class="header-search" method="get" action="{{ route('search') }}" role="search">
@@ -276,7 +274,7 @@
             </a>
             <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjM2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtMTIwIDI0M2w5NC01NCAwLTEwOSAtOTQgNTQgMCAxMDkgMCAweCIgZmlsbD0iIzgwODI4NSIvPjxwYXRoIGQ9Im0xMjAgMjU0bC0xMDMtNjAgMC0xMTkgMTAzLTYwIDEwMyA2MCAwIDExOSAtMTAzIDYweiIgc3R5bGU9ImZpbGw6bm9uZTtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLXdpZHRoOjU7c3Ryb2tlOiMwMGFlZWYiLz48cGF0aCBkPSJtMjE0IDgwbC05NC01NCAtOTQgNTQgOTQgNTQgOTQtNTR6IiBmaWxsPSIjMDBhZWVmIi8+PHBhdGggZD0ibTI2IDgwbDAgMTA5IDk0IDU0IDAtMTA5IC05NC01NCAwIDB6IiBmaWxsPSIjNTg1OTViIi8+PHBhdGggZD0ibTEyMCAxNTdsNDctMjcgMC0yMyAtNDctMjcgLTQ3IDI3IDAgNTQgNDcgMjcgNDctMjciIHN0eWxlPSJmaWxsOm5vbmU7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS13aWR0aDoxNTtzdHJva2U6I2ZmZiIvPjx0ZXh0IHg9IjE1IiB5PSIzMDAiIGZvbnQtc2l6ZT0iMjVweCIgZm9udC1mYW1pbHk9IidCIFlla2FuJyIgc3R5bGU9ImZpbGw6IzI5Mjk1Mjtmb250LXdlaWdodDpib2xkIj7Yudi22Ygg2KfYqtit2KfYr9uM2Ycg2qnYtNmI2LHbjDwvdGV4dD48dGV4dCB4PSI4IiB5PSIzNDMiIGZvbnQtc2l6ZT0iMjVweCIgZm9udC1mYW1pbHk9IidCIFlla2FuJyIgc3R5bGU9ImZpbGw6IzI5Mjk1Mjtmb250LXdlaWdodDpib2xkIj7YqdiizKqAg2Yg2qnYp9iy2YfYp9uMINGF2KzYp9iy24w8L3RleHQ+PC9zdmc+" alt="نماد اتحادیه" onclick="window.open('https://ecunion.ir/verify/shetabe.ir?token=159123862273e76a61a5', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=580, height=600, top=30')" style="cursor:pointer; width: 96px;height: 144px;">
         </div>
-        <p class="copyright">© {{ jalali_year() }} {{ config('app.name') }} — تمام حقوق محفوظ است. | توسعه توسط <a href="https://daynacode.ir" target="_blank" rel="noopener" style="color:#b9bbe8;text-decoration:none;font-weight:600;">تیم دایناکد</a></p>
+        <p class="copyright">© {{ to_persian_digits((string) jalali_year()) }} {{ config('app.name') }} — تمام حقوق محفوظ است. | توسعه توسط <a href="https://daynacode.ir" target="_blank" rel="noopener" style="color:#b9bbe8;text-decoration:none;font-weight:600;">تیم دایناکد</a></p>
     </div>
 </footer>
 
