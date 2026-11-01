@@ -16,6 +16,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Public\AdController as PublicAdController;
 use App\Http\Controllers\Public\AdReportController;
 use App\Http\Controllers\Public\CategoryController;
+use App\Http\Controllers\Public\CityPageController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\SearchController;
 use App\Http\Controllers\Public\TagController;
@@ -79,7 +80,10 @@ Route::middleware('auth')->prefix('user')->as('user.')->group(function (): void 
     Route::get('/password', [PasswordController::class, 'edit'])->name('password.edit');
     Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [TicketController::class, 'reply'])->middleware('throttle:10,1')->name('tickets.reply');
     Route::post('/tickets', [TicketController::class, 'store'])->middleware('throttle:5,1')->name('tickets.store');
+    Route::get('/invoices/{invoice}', [\App\Http\Controllers\User\InvoiceController::class, 'show'])->name('invoices.show');
 });
 
 Route::middleware(['auth', 'staff'])->prefix('admin')->as('admin.')->group(function (): void {
@@ -115,6 +119,8 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->as('admin.')->group(funct
     Route::post('/tickets/{ticket}/sms', [AdminTicketController::class, 'sendSms'])->name('tickets.sms');
     Route::post('/sms/templates', [AdminSmsTemplateController::class, 'store'])->name('sms.templates.store');
     Route::get('/payments', [AdminBillingController::class, 'index'])->name('payments.index');
+    Route::patch('/payments/{payment}/confirm', [AdminBillingController::class, 'confirm'])->name('payments.confirm');
+    Route::patch('/payments/{payment}/reject', [AdminBillingController::class, 'reject'])->name('payments.reject');
     Route::get('/expiry-reminders', [\App\Http\Controllers\Admin\ExpiryReminderController::class, 'index'])->name('expiry-reminders.index');
     Route::post('/expiry-reminders/{reminder}/approve', [\App\Http\Controllers\Admin\ExpiryReminderController::class, 'approve'])->name('expiry-reminders.approve');
     Route::post('/expiry-reminders/{reminder}/reject', [\App\Http\Controllers\Admin\ExpiryReminderController::class, 'reject'])->name('expiry-reminders.reject');
@@ -137,7 +143,22 @@ Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 Route::get('/sitemap.xml', [SeoController::class, 'sitemapIndex'])->name('sitemap.index');
 Route::get('/sitemaps/ads-{page}.xml', [SeoController::class, 'adsSitemap'])->whereNumber('page')->name('sitemap.ads');
 Route::get('/sitemaps/categories.xml', [SeoController::class, 'categoriesSitemap'])->name('sitemap.categories');
+Route::get('/sitemaps/locations.xml', [SeoController::class, 'locationsSitemap'])->name('sitemap.locations');
 
+// ── PRD §38 URL architecture (city/category hierarchy) ──────────────────────
+// Registered LAST (before the 404 fallback) so specific routes above always
+// win. Deep ad URLs 301 to the canonical /ad/{code}/{slug}.
+Route::get('/{citySlug}/{categorySlug}/{subSlug}/{adSlug}/ad/{code}', [PublicAdController::class, 'deepAd'])
+    ->whereNumber('code')->name('city.deep-ad-sub');
+Route::get('/{citySlug}/{categorySlug}/{adSlug}/ad/{code}', [PublicAdController::class, 'deepAd'])
+    ->whereNumber('code')->name('city.deep-ad');
+Route::get('/{citySlug}/{categorySlug}/{subSlug}', [CityPageController::class, 'subCategory'])->name('city.sub-category');
+Route::get('/{citySlug}/{categorySlug}', [CityPageController::class, 'category'])->name('city.category');
+Route::get('/{citySlug}', [CityPageController::class, 'city'])->name('city.show');
+
+// PRD §69 - 404/410 handling: unknown paths render the branded 404 page
+// (previously this was a 302 redirect to home, which confused users and
+// crawlers alike).
 Route::fallback(function () {
-    return redirect()->route('home', [], 302);
+    return response()->view('errors.404', [], 404);
 });

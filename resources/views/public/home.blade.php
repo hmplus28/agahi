@@ -1,4 +1,22 @@
-@extends('layouts.app')
+@extends('layouts.app', ['canonical' => route('home').($ads->currentPage() > 1 ? '?page='.$ads->currentPage() : '')])
+
+@push('head')
+@php
+    // PRD §51 - Organization structured data on the homepage.
+    $ldOrganization = [
+        '@'.'context' => 'https://schema.org',
+        '@'.'type' => 'Organization',
+        'name' => config('app.name'),
+        'url' => url('/'),
+        'contactPoint' => [[
+            '@'.'type' => 'ContactPoint',
+            'telephone' => '+98-'.ltrim(preg_replace('/[^0-9]/', '', (string) \App\Models\SiteSetting::get('branding.support_phone', config('agahi.support_phone', ''))), '0'),
+            'contactType' => 'customer service',
+        ]],
+    ];
+@endphp
+<script type="application/ld+json">{!! json_encode($ldOrganization, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
+@endpush
 
 @section('content')
 <h1>{{ config('agahi.brand_name', 'سامانه آگهی') }} — هر چیزی که نیاز دارید، نزدیک شما پیدا کنید</h1>
@@ -75,6 +93,42 @@
 })();
 </script>
 
+<section class="section" aria-labelledby="home-cats-title">
+    <div class="section-heading"><div><h2 id="home-cats-title">دسته‌بندی‌های اصلی</h2><p>دستهٔ موردنظر خود را انتخاب کنید.</p></div></div>
+    <div class="home-cats">
+        @foreach($categories as $rootCategory)
+            <div class="home-cat">
+                <a class="home-cat__title" href="{{ route('categories.show', ['category' => $rootCategory['slug']]) }}">{{ $rootCategory['title'] }}</a>
+                @if(!empty($rootCategory['children']))
+                    <div class="home-cat__children">
+                        @foreach(array_slice($rootCategory['children'], 0, 5) as $child)
+                            <a href="{{ route('categories.show', ['category' => $child['slug']]) }}">{{ $child['title'] }}</a>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        @endforeach
+    </div>
+</section>
+
+@if($featuredAds->isNotEmpty() && $ads->currentPage() === 1)
+<section class="section" aria-labelledby="featured-title">
+    <div class="section-heading"><div><h2 id="featured-title">آگهی‌های ویژه</h2><p>آگهی‌هایی که با سرویس ویژه در ابتدا نمایش داده می‌شوند.</p></div></div>
+    <div class="ad-grid ad-grid--context">@foreach($featuredAds as $ad)<x-ad-card :ad="$ad" />@endforeach</div>
+</section>
+@endif
+
+@if($topCities->isNotEmpty())
+<section class="section" aria-labelledby="top-cities-title">
+    <div class="section-heading"><div><h2 id="top-cities-title">جست‌وجو در شهرها</h2><p>آگهی‌های شهر خود را مستقیم ببینید.</p></div></div>
+    <div class="subcategories">
+        @foreach($topCities as $topCity)
+            <a href="{{ route('city.show', $topCity->slug) }}">{{ $topCity->name }}</a>
+        @endforeach
+    </div>
+</section>
+@endif
+
 <section class="section" aria-labelledby="all-ads-title">
     <div class="section-heading"><div><h2 id="all-ads-title">{{ $tehranOnly ? 'آگهی‌های تهران' : 'همه آگهی‌ها' }} <span class="ads-count-badge">{{ to_persian_digits(number_format($totalActive)) }} آگهی</span></h2></div><a class="button button-small" href="{{ $tehranOnly ? route('home', ['all' => 1]) : route('home') }}">{{ $tehranOnly ? 'نمایش همهٔ شهرها' : 'فقط آگهی‌های تهران' }}</a></div>
     @if($ads->isNotEmpty())
@@ -86,4 +140,17 @@
         <div class="empty-state empty-state--wide"><strong>{{ $tehranOnly ? 'هنوز آگهی فعالی در تهران ثبت نشده است.' : 'هنوز آگهی فعالی ثبت نشده است.' }}</strong><span>اولین آگهی را ثبت کنید و این بازار را شروع کنید.</span><a class="button button-small" href="{{ route('user.ads.create') }}">ثبت آگهی</a></div>
     @endif
 </section>
+
+@once
+<style>
+/* ─────────── PRD §32 - main categories grid on the homepage ─────────── */
+.home-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.875rem}
+.home-cat{background:#fff;border:1px solid #e8eaee;border-radius:12px;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.5rem}
+.home-cat__title{font-weight:700;color:#3e4095;text-decoration:none;font-size:1rem}
+.home-cat__title:hover{text-decoration:underline}
+.home-cat__children{display:flex;flex-wrap:wrap;gap:.25rem .6rem}
+.home-cat__children a{font-size:.78rem;color:#6b7280;text-decoration:none}
+.home-cat__children a:hover{color:#4b4dbe}
+</style>
+@endonce
 @endsection

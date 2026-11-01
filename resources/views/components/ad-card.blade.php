@@ -15,7 +15,9 @@
     <a class="card-image" href="{{ $ad->publicUrl() }}" aria-label="مشاهدهٔ آگهی {{ $ad->title }}">
         @php($image = $ad->images->firstWhere('is_primary', true) ?? $ad->images->first())
         @if($image)
-            <img src="{{ $image->thumbUrl() }}" width="480" height="{{ max(1, (int) round(480 * $image->height / max(1, $image->width))) }}" loading="lazy" alt="{{ $ad->title }}">
+            {{-- PRD §56 - responsive images: 480w thumb for mobile cards,
+                 1280w display for larger viewports. --}}
+            <img src="{{ $image->thumbUrl() }}" srcset="{{ $image->thumbUrl() }} 480w, {{ $image->displayUrl() }} 1280w" sizes="(max-width: 700px) 92vw, 300px" width="480" height="{{ max(1, (int) round(480 * $image->height / max(1, $image->width))) }}" loading="lazy" alt="{{ $ad->title }}">
         @else
             <span class="image-placeholder card-placeholder">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m5.5 17 4.5-4 3 2.7 2.5-2.2 3 3.5"/></svg>

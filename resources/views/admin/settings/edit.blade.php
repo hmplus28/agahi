@@ -65,6 +65,37 @@
         </label>
     </fieldset>
 
+    <fieldset class="settings-section">
+        <legend>پرداخت کارت‌به‌کارت</legend>
+
+        <label class="field-label">
+            <span>شماره کارت (نمایش به کاربر هنگام خرید)</span>
+            <input name="billing_card_number" value="{{ $values['billing_card_number'] }}" dir="ltr" placeholder="6104-3372-XXXX-XXXX">
+            <span class="field-hint">خالی بماند، هنگام خرید فقط پیام «پس از واریز، مدیر بررسی می‌کند» نمایش داده می‌شود.</span>
+        </label>
+
+        <label class="field-label">
+            <span>نام صاحب کارت</span>
+            <input name="billing_card_number_holder" value="{{ $values['billing_card_number_holder'] }}">
+        </label>
+    </fieldset>
+
+    <fieldset class="settings-section">
+        <legend>سئو پیشرفته</legend>
+
+        <label class="field-label">
+            <span>دسته‌بندی‌های استخدام (slugها با کاما)</span>
+            <input name="job_category_slugs" value="{{ $values['job_category_slugs'] }}" dir="ltr" placeholder="employment,hiring">
+            <span class="field-hint">آگهی‌های این دسته‌ها JSON-LD از نوع JobPosting می‌گیرند (بند ۵۱ PRD).</span>
+        </label>
+
+        <label class="field-label">
+            <span>سفیدلیست صفحات فرود شهر×دسته (هر خط یک مورد city-slug/category-slug)</span>
+            <textarea name="landing_whitelist" rows="4" dir="ltr" placeholder="tehran/industrial">{{ $values['landing_whitelist'] }}</textarea>
+            <span class="field-hint">خالی = همهٔ صفحات شهر×دسته دارای آگهی، index هستند. پر شود = فقط ترکیب‌های همین لیست index می‌شوند (بند ۴۲ PRD).</span>
+        </label>
+    </fieldset>
+
     <button class="button" type="submit">ذخیره تنظیمات</button>
 </form>
 

@@ -130,10 +130,12 @@ class FeaturesAudit2026Test extends TestCase
 
 
 
-    public function test_unknown_url_redirects_to_home_instead_of_404(): void
+    public function test_unknown_url_renders_branded_404(): void
     {
+        // Updated for PRD §69: unknown paths now render the branded 404 page.
         $this->get('/some-page-that-does-not-exist')
-            ->assertRedirect(route('home'));
+            ->assertStatus(404)
+            ->assertSee('صفحه پیدا نشد');
     }
 
 

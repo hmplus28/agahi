@@ -78,6 +78,13 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // PRD §59 - persistent connections: one connection per php-fpm
+            // worker, reused across requests. Our PostgreSQL instance is
+            // dedicated to this app, so this is on by default; set
+            // DB_PERSISTENT=false to fall back to per-request connections.
+            'options' => extension_loaded('pdo_pgsql') ? array_filter([
+                \PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', true),
+            ]) : [],
         ],
 
         'sqlsrv' => [

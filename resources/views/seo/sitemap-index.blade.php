@@ -7,4 +7,5 @@
 <sitemap><loc>{{ route('sitemap.ads', ['page' => $page]) }}</loc></sitemap>
 @endforeach
 <sitemap><loc>{{ route('sitemap.categories') }}</loc></sitemap>
+<sitemap><loc>{{ route('sitemap.locations') }}</loc></sitemap>
 </sitemapindex>

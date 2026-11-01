@@ -263,9 +263,14 @@ class ThirtyFlowsTest extends TestCase
             ->assertDontSee('پیش‌نویس', false);
     }
 
-    public function test_flow_14_unknown_url_redirects_to_home(): void
+    public function test_flow_14_unknown_url_renders_branded_404(): void
     {
-        $this->get('/this/page/does/not/exist')->assertRedirect(route('home'));
+        // PRD §69 - unknown paths now render the branded 404 page (previously
+        // a 302 redirect to home).
+        $this->get('/this/page/does/not/exist')
+            ->assertStatus(404)
+            ->assertSee('صفحه پیدا نشد')
+            ->assertSee('۴۰۴', false);
     }
 
     public function test_flow_15_static_pages_all_render(): void
@@ -601,7 +606,7 @@ class ThirtyFlowsTest extends TestCase
     {
         $this->assertFalse(Route::has('user.profile.edit'));
         $this->assertFalse(Route::has('user.profile.update'));
-        $this->get('/user/profile')->assertRedirect(route('home'));
+        $this->get('/user/profile')->assertNotFound();
     }
 
     public function test_flow_33_sticky_admin_toolbar_css_is_shipped(): void

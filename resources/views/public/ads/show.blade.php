@@ -9,8 +9,64 @@
         '@'.'type' => 'BreadcrumbList',
         'itemListElement' => collect($seo->breadcrumbForAd($ad))->values()->map(fn($item, $index) => ['@'.'type' => 'ListItem', 'position' => $index + 1, 'name' => $item['name'], 'item' => $item['url']])->all(),
     ];
+
+    // PRD §51 - Product/Offer only when a real, visible price exists
+    // (Google forbids markup for data not shown on the page).
+    $ldProduct = null;
+    if ($ad->price !== null) {
+        $primaryImage = $ad->images->firstWhere('is_primary', true) ?? $ad->images->first();
+        $ldProduct = [
+            '@'.'context' => 'https://schema.org',
+            '@'.'type' => 'Product',
+            'name' => $ad->title,
+            'description' => \Illuminate\Support\Str::limit(trim(strip_tags($ad->description)), 300, '…'),
+            'sku' => (string) $ad->code,
+            'image' => $primaryImage?->displayUrl(),
+            'offers' => [
+                '@'.'type' => 'Offer',
+                'url' => $ad->publicUrl(),
+                'priceCurrency' => 'IRR',
+                'price' => (string) $ad->price,
+                'availability' => 'https://schema.org/InStock',
+                'itemCondition' => 'https://schema.org/UsedCondition',
+            ],
+        ];
+    }
+
+    // PRD §51 - JobPosting for ads whose category is flagged as a jobs
+    // category (admin setting: comma-separated category slugs). Only emitted
+    // when the real fields are visible on the page.
+    $ldJob = null;
+    $jobCategorySlugs = collect(explode(',', (string) \App\Models\SiteSetting::get('seo.job_category_slugs', '')))
+        ->map(fn ($slug) => trim((string) $slug))->filter()->values();
+    if ($ad->category && $jobCategorySlugs->contains(trim($ad->category->slug))) {
+        $ldJob = [
+            '@'.'context' => 'https://schema.org',
+            '@'.'type' => 'JobPosting',
+            'title' => $ad->title,
+            'description' => \Illuminate\Support\Str::limit(trim(strip_tags($ad->description)), 1000, '…'),
+            'datePosted' => $ad->published_at?->toAtomString(),
+            'validThrough' => $ad->expires_at?->toAtomString(),
+            'employmentType' => 'CONTRACTOR',
+            'hiringOrganization' => [
+                '@'.'type' => 'Organization',
+                'name' => $ad->business_name ?: ($ad->full_name ?: config('app.name')),
+            ],
+            'jobLocation' => [
+                '@'.'type' => 'Place',
+                'address' => [
+                    '@'.'type' => 'PostalAddress',
+                    'addressLocality' => $ad->city?->name,
+                    'addressRegion' => $ad->province?->name,
+                    'addressCountry' => 'IR',
+                ],
+            ],
+        ];
+    }
 @endphp
 <script type="application/ld+json">{!! json_encode($ldBreadcrumb, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
+@if($ldProduct)<script type="application/ld+json">{!! json_encode($ldProduct, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>@endif
+@if($ldJob)<script type="application/ld+json">{!! json_encode($ldJob, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>@endif
 @endpush
 
 @section('content')
@@ -25,7 +81,11 @@
 
 <nav class="breadcrumb" aria-label="مسیر صفحه">
     <a href="{{ route('home') }}">خانه</a><span>/</span>
-    @if($ad->category)<a href="{{ route('categories.show', $ad->category) }}">{{ $ad->category->title }}</a><span>/</span>@endif
+    @if($ad->category)
+    @foreach($seo->categoryChain($ad->category) as $chainNode)
+        <a href="{{ route('categories.show', $chainNode) }}">{{ $chainNode->title }}</a><span>/</span>
+    @endforeach
+    @endif
     <span>{{ $ad->title }}</span>
 </nav>
 
@@ -36,7 +96,7 @@
 
     <section class="gallery" aria-label="تصاویر آگهی">
         @forelse($ad->images as $image)
-            <img src="{{ $image->displayUrl() }}" width="{{ $image->width }}" height="{{ $image->height }}" @if($loop->first) fetchpriority="high" @else loading="lazy" @endif alt="{{ $ad->title }}">
+            <img src="{{ $image->displayUrl() }}" srcset="{{ $image->thumbUrl() }} 480w, {{ $image->displayUrl() }} 1280w" sizes="(max-width: 900px) 96vw, 620px" width="{{ $image->width }}" height="{{ $image->height }}" @if($loop->first) fetchpriority="high" @else loading="lazy" @endif alt="{{ $ad->title }}">
         @empty
             <div class="image-placeholder gallery-placeholder">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m5.5 17 4.5-4 3 2.7 2.5-2.2 3 3.5"/></svg>
@@ -53,7 +113,7 @@
         </div>
 
         <p class="detail-price" dir="rtl">{{ $ad->price === null ? 'توافقی' : 'ریال '.to_persian_digits(number_format($ad->price)) }}</p>
-        <p class="ad-date" title="{{ $ad->published_at ? jdate_human($ad->published_at) : '' }}">{{ $ad->published_at ? to_persian_digits(jdate($ad->published_at)) : '—' }} در {{ $ad->city?->name ?? '—' }}</p>
+        <p class="ad-date" title="{{ $ad->published_at ? jdate_human($ad->published_at) : '' }}">{{ $ad->published_at ? to_persian_digits(jdate($ad->published_at)) : '—' }} در @if($ad->city && $ad->city->is_active)<a href="{{ route('city.show', $ad->city->slug) }}">{{ $ad->city->name }}</a>@else{{ $ad->city?->name ?? '—' }}@endif</p>
 
         <dl class="details">
             <dt>کد آگهی</dt><dd dir="ltr">{{ to_persian_digits((string) $ad->code) }}</dd>

@@ -74,6 +74,7 @@ class PaymentPagesDeepTest extends TestCase
         return $this->actingAs($user)->post(route('user.payments.purchase'), [
             'ad_id'     => $ad->id,
             'tariff_id' => $tariff->id,
+            'method'    => 'online',
         ]);
     }
 
