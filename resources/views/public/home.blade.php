@@ -76,14 +76,14 @@
 </script>
 
 <section class="section" aria-labelledby="all-ads-title">
-    <div class="section-heading"><div><h2 id="all-ads-title">همه آگهی‌ها <span class="ads-count-badge">{{ to_persian_digits(number_format($totalActive)) }} آگهی</span></h2></div></div>
+    <div class="section-heading"><div><h2 id="all-ads-title">{{ $tehranOnly ? 'آگهی‌های تهران' : 'همه آگهی‌ها' }} <span class="ads-count-badge">{{ to_persian_digits(number_format($totalActive)) }} آگهی</span></h2></div><a class="button button-small" href="{{ $tehranOnly ? route('home', ['all' => 1]) : route('home') }}">{{ $tehranOnly ? 'نمایش همهٔ شهرها' : 'فقط آگهی‌های تهران' }}</a></div>
     @if($ads->isNotEmpty())
         <div class="ad-grid ad-grid--context">@foreach($ads as $ad)<x-ad-card :ad="$ad" />@endforeach</div>
         @if($ads->hasPages())
             {{ $ads->links() }}
         @endif
     @else
-        <div class="empty-state empty-state--wide"><strong>هنوز آگهی فعالی ثبت نشده است.</strong><span>اولین آگهی را ثبت کنید و این بازار را شروع کنید.</span><a class="button button-small" href="{{ route('user.ads.create') }}">ثبت آگهی</a></div>
+        <div class="empty-state empty-state--wide"><strong>{{ $tehranOnly ? 'هنوز آگهی فعالی در تهران ثبت نشده است.' : 'هنوز آگهی فعالی ثبت نشده است.' }}</strong><span>اولین آگهی را ثبت کنید و این بازار را شروع کنید.</span><a class="button button-small" href="{{ route('user.ads.create') }}">ثبت آگهی</a></div>
     @endif
 </section>
 @endsection
