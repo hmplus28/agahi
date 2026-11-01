@@ -33,7 +33,7 @@
                 <select name="province_id" id="guest-province" data-cascade-province disabled>
                     <option value="">ابتدا کشور را انتخاب کنید</option>
                     @foreach($provinces as $province)
-                        <option value="{{ $province->id }}" data-country="{{ $province->country_id }}" @selected(old('province_id')==$province->id)>{{ $province->name }}</option>
+                        <option value="{{ $province->id }}" data-country="{{ $province->country_id }}" @selected(old('province_id', $default_province_id) == $province->id)>{{ $province->name }}</option>
                     @endforeach
                 </select>
             </label>
@@ -42,7 +42,7 @@
                 <select name="city_id" id="guest-city" data-cascade-city required disabled>
                     <option value="">ابتدا استان را انتخاب کنید</option>
                     @foreach($cities as $city)
-                        <option value="{{ $city->id }}" data-province="{{ $city->province_id }}" @selected(old('city_id')==$city->id)>{{ $city->name }}</option>
+                        <option value="{{ $city->id }}" data-province="{{ $city->province_id }}" @selected(old('city_id', $default_city_id) == $city->id)>{{ $city->name }}</option>
                     @endforeach
                 </select>
             </label>

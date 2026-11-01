@@ -32,6 +32,9 @@ class GuestAdController extends Controller
             'provinces'  => Province::query()->where('is_active', true)->orderBy('name')->get(['id', 'country_id', 'name']),
             'cities'     => City::query()->where('is_active', true)->orderBy('name')->get(['id', 'province_id', 'name']),
             'tariffs'    => Tariff::query()->where('is_active', true)->orderBy('price')->get(['id', 'code', 'title', 'description', 'price', 'service_type', 'duration_days']),
+            // پیش‌فرض موقعیت: استان و شهر تهران
+            'default_province_id' => Province::query()->where('slug', 'tehran')->value('id'),
+            'default_city_id'     => City::query()->where('slug', 'tehran')->value('id'),
         ]);
     }
 

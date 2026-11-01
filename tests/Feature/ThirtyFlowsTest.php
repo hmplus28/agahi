@@ -741,4 +741,34 @@ class ThirtyFlowsTest extends TestCase
 
         $this->assertStringContainsString('>۱ آگهی<', $content, 'pending and expired ads must not be counted');
     }
+
+    public function test_flow_41_admin_can_move_needs_permit_ad_to_any_status(): void
+    {
+        $user = User::factory()->create();
+        $ad = $this->makeAd($user, ['title' => 'آگهی نیازمند مجوز', 'status' => AdStatus::NeedsPermit]);
+        $admin = $this->makeAdmin();
+
+        // needs_permit → pending_payment در ماتریس جریان کاربر مجاز نیست، اما پنل مدیریت باید بتواند.
+        $this->actingAs($admin)
+            ->patch(route('admin.ads.transition', $ad), [
+                'status' => AdStatus::PendingPayment->value,
+                'reason' => 'جابجایی دستی بین وضعیت‌ها',
+            ])
+            ->assertRedirect();
+
+        $ad->refresh();
+        $this->assertSame(AdStatus::PendingPayment, $ad->status);
+
+        // و از همان‌جا هم به فعال برده شود.
+        $this->actingAs($admin)
+            ->patch(route('admin.ads.transition', $ad), ['status' => AdStatus::Active->value])
+            ->assertRedirect();
+        $ad->refresh();
+        $this->assertSame(AdStatus::Active, $ad->status);
+        $this->assertDatabaseHas('ad_status_histories', [
+            'ad_id'      => $ad->id,
+            'from_status'=> AdStatus::NeedsPermit->value,
+            'to_status'  => AdStatus::PendingPayment->value,
+        ]);
+    }
 }
