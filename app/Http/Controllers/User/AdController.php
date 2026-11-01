@@ -16,7 +16,7 @@ use App\Models\Tariff;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 class AdController extends Controller {
-    private function formData(): array { return ['categories'=>Category::query()->active()->orderBy('sort_order')->get(['id','parent_id','title','slug','sort_order']),'cities'=>City::query()->where('is_active',true)->orderBy('name')->get(['id','name'])]; }
+    private function formData(): array { return ['categories'=>Category::query()->active()->orderBy('sort_order')->get(['id','parent_id','title','slug','sort_order']),'cities'=>City::query()->where('is_active',true)->orderBy('name')->get(['id','name']),'default_city_id'=>City::query()->where('slug','tehran')->value('id')]; }
     private function tariffs() { return Tariff::query()->where('is_active',true)->orderBy('price')->orderBy('sort_order')->get(['id','code','title','description','price','service_type','duration_days']); }
 
     public function create(): View { return view('user.ads.create',[...$this->formData(),'tariffs'=>$this->tariffs()]); }

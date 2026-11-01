@@ -19,7 +19,7 @@
                 <select name="city_id" required>
                     <option value="">انتخاب کنید</option>
                     @foreach($cities as $city)
-                        <option value="{{ $city->id }}" @selected(old('city_id')==$city->id)>{{ $city->name }}</option>
+                        <option value="{{ $city->id }}" @selected(old('city_id', $default_city_id) == $city->id)>{{ $city->name }}</option>
                     @endforeach
                 </select>
             </label>

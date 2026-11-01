@@ -171,7 +171,8 @@ class ModerationController extends Controller
         ]);
 
         try {
-            $workflow->transition($ad, AdStatus::from($data['status']), $request->user(), $data['reason'] ?? null);
+            // force=true: مدیر می‌تواند آگهی را از هر وضعیتی (نیازمند مجوز، منقضی و...) به هر وضعیت دیگری ببرد.
+            $workflow->transition($ad, AdStatus::from($data['status']), $request->user(), $data['reason'] ?? null, true);
         } catch (DomainException) {
             return back()->withErrors(['status' => 'تغییر وضعیت درخواستی مجاز نیست.']);
         }

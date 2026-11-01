@@ -66,7 +66,10 @@ class UserFacingPagesTest extends TestCase
             ->assertSee('header-phone', false)
             ->assertSee('city-picker', false)
             ->assertSee('header-search', false)
-            ->assertSee('۰۲۱-۰۰۰۰۰۰۰۰', false)
+            // شمارهٔ واقعی تبلیغات در هدر (با برچسب «تبلیغات:»)
+            ->assertSee('۰۲۱-۶۶۲۴۸۱۷۴', false)
+            ->assertSee('header-phone-label', false)
+            ->assertDontSee('۰۲۱-۰۰۰۰۰۰۰۰', false)
             // Quick links (تعرفهٔ آگهی / قوانین / درباره ما / تماس با ما)
             // were intentionally removed from the header per feedback.
             ->assertDontSee('header-nav', false);
@@ -163,6 +166,27 @@ class UserFacingPagesTest extends TestCase
             ->assertSee('انتخاب تصویر مجوز', false)
             // Image compression loop guard is in place
             ->assertSee('dataset.compressed', false);
+    }
+
+    public function test_guest_ad_create_form_defaults_to_tehran(): void
+    {
+        $this->seedGeo();
+
+        $content = $this->get(route('guest.ad.create'))->assertOk()->getContent();
+
+        // استان و شهر تهران باید به‌صورت پیش‌فرض انتخاب شده باشند.
+        $selectedTehran = preg_match_all('/selected(="selected")?>تهران<\/option>/u', $content);
+        $this->assertSame(2, $selectedTehran, 'both province and city must default to Tehran');
+    }
+
+    public function test_user_ad_create_form_defaults_to_tehran(): void
+    {
+        $this->seedGeo();
+        $user = User::factory()->create();
+
+        $content = $this->actingAs($user)->get(route('user.ads.create'))->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('/selected(="selected")?>تهران<\/option>/u', $content, 'city must default to Tehran');
     }
 
     public function test_contact_page_renders(): void

@@ -61,6 +61,7 @@
             .post-ad-button:hover{background:#9e0a15}
             .header-phone{display:flex;align-items:center;gap:.375rem;font-size:.875rem;color:#4b5563;text-decoration:none;flex-shrink:0}
             .header-phone:hover{color:#4b4dbe}
+            .header-phone .header-phone-label{color:#6b7280;font-weight:600;white-space:nowrap}
             .site-footer{background:#111827;color:#d1d5db;margin-top:4rem;padding-top:3rem;padding-bottom:2rem}
             .skip-link{position:absolute;top:-100%;left:1rem;z-index:1000;background:#4b4dbe;color:#fff;padding:.5rem 1rem;border-radius:.375rem;font-size:.875rem;font-weight:500}
             .alert{display:flex;align-items:flex-start;gap:.75rem;padding:1rem;border-radius:.5rem;margin-bottom:1.5rem;font-size:.875rem}
@@ -175,6 +176,12 @@
     $locationData = $provinces
         ->map(fn ($p) => ['i' => $p['id'], 'n' => $p['name'], 'cy' => $p['country_id'], 'c' => collect($p['cities'])->map(fn ($c) => [$c['id'], $c['name']])->values()->all()])
         ->values()->toJson(JSON_UNESCAPED_UNICODE);
+
+    // تلفن تبلیغات: اگر مقدار ذخیره‌شده همان placeholder قدیمی (همه صفر) باشد، شمارهٔ واقعی جایگزین می‌شود.
+    $supportPhone = (string) \App\Models\SiteSetting::get('branding.support_phone', config('agahi.support_phone'));
+    $supportPhoneHref = (string) \App\Models\SiteSetting::get('branding.support_phone_href', config('agahi.support_phone_href'));
+    if (preg_match('/^0?21[-\s]?0{8}$/', $supportPhone)) { $supportPhone = '021-66248174'; }
+    if (preg_match('/^0?21[-\s]?0{8}$/', $supportPhoneHref)) { $supportPhoneHref = '02166248174'; }
 @endphp
 
 <header class="site-header" role="banner">
@@ -219,9 +226,10 @@
             <span id="city-picker-label">{{ $pickerLabel }}</span><span class="chevron">⌄</span>
         </button>
 
-        <a class="header-phone" href="tel:{{ \App\Models\SiteSetting::get('branding.support_phone_href', config('agahi.support_phone_href')) }}" dir="ltr">
+        <a class="header-phone" href="tel:{{ $supportPhoneHref }}" dir="ltr">
             <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>
-            <span dir="ltr">{{ to_persian_digits(\App\Models\SiteSetting::get('branding.support_phone', config('agahi.support_phone'))) }}</span>
+            <span class="header-phone-label">تبلیغات:</span>
+            <span dir="ltr">{{ to_persian_digits($supportPhone) }}</span>
         </a>
     </div>
 </header>

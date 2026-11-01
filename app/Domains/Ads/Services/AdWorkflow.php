@@ -26,13 +26,17 @@ final class AdWorkflow
         'deleted' => [AdStatus::Inactive],
     ];
 
-    public function transition(Ad $ad, AdStatus $target, ?User $actor = null, ?string $reason = null): Ad
+    /**
+     * انتقال وضعیت آگهی. ماتریس TRANSITIONS برای جریان‌های سیستمی/کاربر اعمال می‌شود؛
+     * با $force=true (فقط پنل مدیریت) هر وضعیتی به هر وضعیت دیگری قابل تبدیل است.
+     */
+    public function transition(Ad $ad, AdStatus $target, ?User $actor = null, ?string $reason = null, bool $force = false): Ad
     {
-        return DB::transaction(function () use ($ad, $target, $actor, $reason): Ad {
+        return DB::transaction(function () use ($ad, $target, $actor, $reason, $force): Ad {
             $locked = Ad::query()->lockForUpdate()->findOrFail($ad->id);
             $from = $locked->status;
             if ($from === $target) return $locked;
-            if (!in_array($target, self::TRANSITIONS[$from->value] ?? [], true)) {
+            if (! $force && !in_array($target, self::TRANSITIONS[$from->value] ?? [], true)) {
                 throw new DomainException('تغییر وضعیت درخواستی مجاز نیست.');
             }
             $attributes = ['status' => $target];
