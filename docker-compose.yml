@@ -30,6 +30,8 @@ x-app-env: &app-env
   SESSION_DRIVER: database
   SESSION_LIFETIME: "120"
   SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-false}
+  # اتصال دائمی PostgreSQL (PRD §59)؛ برای خاموشی DB_PERSISTENT=false
+  DB_PERSISTENT: ${DB_PERSISTENT:-true}
   CACHE_STORE: database
   QUEUE_CONNECTION: sync
   FILESYSTEM_DISK: public

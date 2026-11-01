@@ -25,12 +25,26 @@ final class AdImageProcessor
         if ($width < 1 || $height < 1 || ($width * $height) > $maxPixels) { imagedestroy($source); throw new RuntimeException('ابعاد تصویر از حد مجاز بیشتر است.'); }
         $base = 'ads/'.now()->format('Y/m').'/'.$ad->code;
         Storage::disk('public')->makeDirectory($base);
-        $displayPath = $base.'/'.bin2hex(random_bytes(12)).'-display.webp';
-        $thumbPath = $base.'/'.bin2hex(random_bytes(12)).'-thumb.webp';
+        $position = $sortOrder + 1;
+        // PRD §52 - descriptive, SEO-friendly filenames
+        // (e.g. ads/2026/11/481432/1-cnc-machine-display.webp) instead of
+        // random hex names; the ad code stays in the directory path.
+        $displayPath = $base.'/'.$this->filename($position, $ad->slug, 'display');
+        $thumbPath = $base.'/'.$this->filename($position, $ad->slug, 'thumb');
         $this->writeWebp($source, storage_path('app/public/'.$displayPath), 1280, 80);
         $this->writeWebp($source, storage_path('app/public/'.$thumbPath), 480, 78);
         imagedestroy($source);
         return AdImage::query()->create(['ad_id' => $ad->id, 'image_thumb_path' => $thumbPath, 'image_display_path' => $displayPath, 'width' => min($width, 1280), 'height' => min($height, 1280), 'sort_order' => $sortOrder, 'is_primary' => $sortOrder === 0]);
+    }
+
+    /** PRD §52 - "{position}-{descriptive-slug}-{variant}.webp" */
+    public static function filename(int $position, ?string $slug, string $variant): string
+    {
+        $slugPart = trim((string) preg_replace('/[^\p{L}\p{N}]+/u', '-', (string) $slug), '-');
+        $slugPart = \Illuminate\Support\Str::limit($slugPart !== '' ? $slugPart : 'ad', 48, '');
+        $slugPart = rtrim($slugPart, '-');
+        if ($slugPart === '') $slugPart = 'ad';
+        return $position.'-'.$slugPart.'-'.$variant.'.webp';
     }
 
     private function correctExifOrientation(\GdImage $source, UploadedFile $upload): \GdImage

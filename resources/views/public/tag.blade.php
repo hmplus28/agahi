@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'برچسب: ' . $keyword . ' | ' . config('app.name'), 'robots' => 'index, follow'])
+@extends('layouts.app', ['title' => 'برچسب: ' . $keyword . ' | ' . config('app.name'), 'robots' => 'index, follow', 'canonical' => route('tag.show', ['keyword' => $keyword]).($ads->currentPage() > 1 ? '?page='.$ads->currentPage() : '')])
 
 @section('content')
 <section class="tag-page">

@@ -48,7 +48,23 @@ class BillingController extends Controller
             Ad::query()->findOrFail($request->integer('ad_id')),
             Tariff::query()->findOrFail($request->integer('tariff_id')),
         );
-        $result = $service->begin($invoice, $request->user());
+        $result = $service->begin($invoice, $request->user(), $request->string('method', 'online')->toString());
+
+        // PRD §27 - کارت به کارت: کاربر راهنمای واریز را می‌بیند و پرداخت
+        // تا تأیید مدیر در وضعیت «نیازمند بررسی» می‌ماند.
+        if ($request->string('method', 'online')->toString() === 'card') {
+            $cardHolder = (string) \App\Models\SiteSetting::get('billing.card_number_holder', '');
+            $cardNumber = (string) \App\Models\SiteSetting::get('billing.card_number', '');
+            $message = 'فاکتور '.$invoice->invoice_number.' ایجاد شد.';
+            if ($cardNumber !== '') {
+                $message .= ' مبلغ را به شماره کارت '.$cardNumber.($cardHolder !== '' ? ' به نام '.$cardHolder : '').' واریز کنید؛ پس از بررسی مدیر، سرویس فعال می‌شود.';
+            } else {
+                $message .= ' پس از واریز مبلغ، پرداخت شما توسط مدیر بررسی و سرویس فعال می‌شود.';
+            }
+
+            return redirect()->to($result['redirect_url'])->with('success', $message);
+        }
+
         return redirect()->to($result['redirect_url']);
     }
 

@@ -48,6 +48,28 @@ class HomeController extends Controller
         $ads = $adsQuery->orderedForListing()->paginate(100)->withQueryString();
         $banner = HomeBanner::get();
 
+        // PRD §32 - separate "special ads" section on the homepage.
+        // Cached 5 minutes (PRD §58 HOMEPAGE SECTIONS 1-5min).
+        $featuredAds = Cache::remember('public.featured_ads.v1', now()->addMinutes(5), fn (): array => Ad::query()
+            ->publiclyVisible()
+            ->where('is_featured', true)
+            ->with(['city', 'images'])
+            ->withCount('links')
+            ->orderedForListing()
+            ->limit(8)
+            ->get()
+            ->all());
+
+        // PRD §45 - internal linking: home links to the busiest city pages.
+        $topCities = Cache::remember('public.top_cities.v2', now()->addHour(), fn (): array => \App\Models\City::query()
+            ->where('is_active', true)
+            ->whereHas('ads', fn ($query) => $query->publiclyVisible())
+            ->withCount(['ads' => fn ($query) => $query->publiclyVisible()])
+            ->orderByDesc('ads_count')
+            ->limit(12)
+            ->get(['id', 'name', 'slug'])
+            ->all());
+
         $totalActive = Cache::remember('public.total_active_ads.v1', now()->addMinutes(10), fn (): int => Ad::query()->publiclyVisible()->count());
 
         $allCategories = Category::query()->active()->select(['id', 'parent_id', 'title'])->orderBy('title')->get();
@@ -77,6 +99,8 @@ class HomeController extends Controller
             'tehranOnly'  => $tehranOnly,
             'provinces' => collect($provinces),
             'cities' => collect($cities),
+            'featuredAds' => collect($featuredAds),
+            'topCities' => collect($topCities),
         ]);
     }
 }

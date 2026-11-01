@@ -96,13 +96,16 @@ class DemoContentSeederTest extends TestCase
         $this->assertStringContainsString('آگهی واقعی که نباید حذف شود', (string) $page1->getContent());
         $this->assertStringContainsString('آگهی‌های تهران', (string) $page1->getContent());
 
-        // با ?all=1 همهٔ شهرها: Home page 1: exactly 100 cards + a link to page 2.
+        // با ?all=1 همهٔ شهرها: Home page 1: exactly 100 grid cards + up to
+        // 8 extra cards in the «آگهی‌های ویژه» strip (PRD §32).
+        $featuredCount = \App\Models\Ad::query()->publiclyVisible()->where('is_featured', true)->count();
         $allPage1 = $this->get('/?all=1');
         $allPage1->assertOk();
-        $this->assertSame(100, substr_count((string) $allPage1->getContent(), 'class="card-image"'), 'صفحه اول باید دقیقاً ۱۰۰ کارت آگهی داشته باشد.');
+        $this->assertSame(100 + min(8, $featuredCount), substr_count((string) $allPage1->getContent(), 'class="card-image"'), 'صفحه اول باید ۱۰۰ کارت شبکه اصلی + کارت‌های بخش ویژه داشته باشد.');
         $this->assertStringContainsString('page=2', (string) $allPage1->getContent());
 
-        // Home page 2: remaining 120 - 100 = 20 demo cards + 1 real ad.
+        // Home page 2: remaining 120 - 100 = 20 demo cards + 1 real ad (the
+        // featured strip only renders on page 1).
         $allPage2 = $this->get('/?all=1&page=2');
         $allPage2->assertOk();
         $this->assertSame(21, substr_count((string) $allPage2->getContent(), 'class="card-image"'), 'صفحه دوم باید ۲۱ کارت آگهی داشته باشد.');

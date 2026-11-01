@@ -81,9 +81,9 @@ final class PaymentService
     }
 
 
-    public function begin(Invoice $invoice, User $user): array
+    public function begin(Invoice $invoice, User $user, string $method = 'online'): array
     {
-        return DB::transaction(function () use ($invoice, $user): array {
+        return DB::transaction(function () use ($invoice, $user, $method): array {
             $locked = Invoice::query()->lockForUpdate()->findOrFail($invoice->id);
             if ($locked->user_id !== $user->id || $locked->status === 'paid') {
                 throw new LogicException('فاکتور قابل پرداخت نیست.');
@@ -105,6 +105,26 @@ final class PaymentService
                 ];
             }
 
+            // PRD §27 - کارت به کارت: پرداخت دستی ثبت می‌شود و تا زمانی که
+            // مدیر آن را از پنل تأیید نکند، در وضعیت «نیازمند بررسی» می‌ماند.
+            if ($method === 'card') {
+                $payment = Payment::query()->create([
+                    'user_id'    => $user->id,
+                    'ad_id'      => $locked->ad_id,
+                    'invoice_id' => $locked->id,
+                    'amount'     => $locked->total,
+                    'method'     => 'card',
+                    'status'     => 'needs_review',
+                    'gateway'    => 'manual',
+                    'authority'  => 'CARD-'.Str::upper(Str::random(20)),
+                ]);
+
+                return [
+                    'payment'      => $payment,
+                    'redirect_url' => route('user.payments.index'),
+                ];
+            }
+
             $gateway = config('payment.gateway', 'fake');
             $payment = Payment::query()->create([
                 'user_id'    => $user->id,
@@ -118,10 +138,6 @@ final class PaymentService
             $intent = $this->gateway->create($payment);
             $payment->update(['authority' => $intent['authority']]);
 
-
-
-
-
             $redirectUrl = $intent['redirect_url']
                 ?? route('user.payments.callback', [
                     'authority' => $intent['authority'],
@@ -132,6 +148,49 @@ final class PaymentService
                 'payment'      => $payment->refresh(),
                 'redirect_url' => $redirectUrl,
             ];
+        });
+    }
+
+    /**
+     * PRD §27 - admin manual confirmation (card-to-card / needs_review).
+     * Activates the purchased services exactly like the online settle path.
+     */
+    public function confirmManually(Payment $payment, ?string $note = null): Payment
+    {
+        return DB::transaction(function () use ($payment, $note): Payment {
+            $locked = Payment::query()->lockForUpdate()->findOrFail($payment->id);
+            if ($locked->status === 'successful') {
+                return $locked;
+            }
+            // PRD §27 - مدیر می‌تواند هر پرداخت غیرموفقی (نیازمند بررسی،
+            // در انتظار، لغو شده، ناموفق) را پس از رسیدن واریز تأیید کند.
+            if (! in_array($locked->status, ['needs_review', 'pending', 'canceled', 'failed'], true)) {
+                throw new LogicException('این پرداخت در وضعیت قابل تأیید نیست.');
+            }
+
+            $locked->update([
+                'admin_note' => $note !== null && $note !== '' ? $note : $locked->admin_note,
+            ]);
+
+            return $this->settle($locked, 'MANUAL-'.Str::upper(Str::random(8)));
+        });
+    }
+
+    /** PRD §27 - admin rejection: the payment becomes «لغو شده». */
+    public function rejectManually(Payment $payment, ?string $note = null): Payment
+    {
+        return DB::transaction(function () use ($payment, $note): Payment {
+            $locked = Payment::query()->lockForUpdate()->findOrFail($payment->id);
+            if ($locked->status === 'successful') {
+                throw new LogicException('پرداخت موفق قابل لغو نیست.');
+            }
+
+            $locked->update([
+                'status'     => 'canceled',
+                'admin_note' => $note !== null && $note !== '' ? $note : $locked->admin_note,
+            ]);
+
+            return $locked->refresh();
         });
     }
 
