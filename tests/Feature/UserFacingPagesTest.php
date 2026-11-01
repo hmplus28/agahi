@@ -66,10 +66,12 @@ class UserFacingPagesTest extends TestCase
             ->assertSee('header-phone', false)
             ->assertSee('city-picker', false)
             ->assertSee('header-search', false)
-            // شمارهٔ واقعی تبلیغات در هدر (با برچسب «تبلیغات:»)
+            // شمارهٔ واقعی تبلیغات در هدر (با برچسب «تبلیغات:» که سمت راستِ شماره است)
             ->assertSee('۰۲۱-۶۶۲۴۸۱۷۴', false)
             ->assertSee('header-phone-label', false)
             ->assertDontSee('۰۲۱-۰۰۰۰۰۰۰۰', false)
+            // در صفحهٔ اصلی، انتخابگر موقعیت هم پیش‌فرض تهران است
+            ->assertSee('city-picker-label">تهران</span>', false)
             // Quick links (تعرفهٔ آگهی / قوانین / درباره ما / تماس با ما)
             // were intentionally removed from the header per feedback.
             ->assertDontSee('header-nav', false);
@@ -114,7 +116,7 @@ class UserFacingPagesTest extends TestCase
         $page1 = $this->get('/')
             ->assertOk()
             ->assertDontSee('آگهی‌های منتخب', false)
-            ->assertSee('همه آگهی‌ها')
+            ->assertSee('آگهی‌های تهران')
             ->getContent();
 
         $this->assertSame(100, substr_count($page1, '<article class="ad-card'), 'page 1 must render exactly 100 ad cards');

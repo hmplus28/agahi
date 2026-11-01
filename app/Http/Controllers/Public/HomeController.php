@@ -8,12 +8,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Ad;
 use App\Models\Category;
 use App\Support\HomeBanner;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(Request $request): View
     {
 
         $categories = Cache::remember('public.root_categories.v2', now()->addHour(), function (): array {
@@ -35,10 +36,16 @@ class HomeController extends Controller
                 ->all();
         });
 
-        // Home is a plain listing of every publicly visible ad - no separate
+        // Home is a plain listing of publicly visible ads - no separate
         // "featured" section. Featured/urgent ads still float to the top via
         // orderedForListing(); 100 cards per page, the rest paginates.
-        $ads = Ad::query()->publiclyVisible()->with(['city', 'images'])->withCount('links')->orderedForListing()->paginate(100);
+        // پیش‌فرض صفحهٔ اصلی فقط آگهی‌های تهران است؛ با ?all=1 آگهی‌های همهٔ شهرها نمایش داده می‌شود.
+        $tehranOnly = ! $request->boolean('all');
+        $adsQuery = Ad::query()->publiclyVisible()->with(['city', 'images'])->withCount('links');
+        if ($tehranOnly) {
+            $adsQuery->whereHas('city', fn ($q) => $q->where('slug', 'tehran'));
+        }
+        $ads = $adsQuery->orderedForListing()->paginate(100)->withQueryString();
         $banner = HomeBanner::get();
 
         $totalActive = Cache::remember('public.total_active_ads.v1', now()->addMinutes(10), fn (): int => Ad::query()->publiclyVisible()->count());
@@ -67,6 +74,7 @@ class HomeController extends Controller
             'banner' => $banner,
             'allCategories' => $allCategories,
             'totalActive' => $totalActive,
+            'tehranOnly'  => $tehranOnly,
             'provinces' => collect($provinces),
             'cities' => collect($cities),
         ]);

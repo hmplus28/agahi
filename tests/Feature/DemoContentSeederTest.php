@@ -90,16 +90,22 @@ class DemoContentSeederTest extends TestCase
             'برخی آگهی‌های دمو باید کلمات کلیدی داشته باشند.'
         );
 
-        // Home page 1: exactly 100 cards + a link to page 2.
+        // صفحهٔ اصلی پیش‌فرض فقط آگهی‌های تهران را نشان می‌دهد؛ آگهی واقعی (تهران) باید دیده شود.
         $page1 = $this->get('/');
         $page1->assertOk();
-        $this->assertSame(100, substr_count((string) $page1->getContent(), 'class="card-image"'), 'صفحه اول باید دقیقاً ۱۰۰ کارت آگهی داشته باشد.');
-        $this->assertStringContainsString('page=2', (string) $page1->getContent());
+        $this->assertStringContainsString('آگهی واقعی که نباید حذف شود', (string) $page1->getContent());
+        $this->assertStringContainsString('آگهی‌های تهران', (string) $page1->getContent());
+
+        // با ?all=1 همهٔ شهرها: Home page 1: exactly 100 cards + a link to page 2.
+        $allPage1 = $this->get('/?all=1');
+        $allPage1->assertOk();
+        $this->assertSame(100, substr_count((string) $allPage1->getContent(), 'class="card-image"'), 'صفحه اول باید دقیقاً ۱۰۰ کارت آگهی داشته باشد.');
+        $this->assertStringContainsString('page=2', (string) $allPage1->getContent());
 
         // Home page 2: remaining 120 - 100 = 20 demo cards + 1 real ad.
-        $page2 = $this->get('/?page=2');
-        $page2->assertOk();
-        $this->assertSame(21, substr_count((string) $page2->getContent(), 'class="card-image"'), 'صفحه دوم باید ۲۱ کارت آگهی داشته باشد.');
+        $allPage2 = $this->get('/?all=1&page=2');
+        $allPage2->assertOk();
+        $this->assertSame(21, substr_count((string) $allPage2->getContent(), 'class="card-image"'), 'صفحه دوم باید ۲۱ کارت آگهی داشته باشد.');
     }
 
     public function test_seeder_is_idempotent_on_re_run(): void

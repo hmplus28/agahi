@@ -771,4 +771,32 @@ class ThirtyFlowsTest extends TestCase
             'to_status'  => AdStatus::PendingPayment->value,
         ]);
     }
+
+    public function test_flow_42_homepage_defaults_to_tehran_ads(): void
+    {
+        $user = User::factory()->create();
+        $this->seedGeo();
+        $this->makeAd($user, ['title' => 'آگهی فعال تهران']);
+
+        $otherCountry = Country::query()->create(['name' => 'ایران۲', 'slug' => 'iran-2']);
+        $otherProvince = Province::query()->create(['country_id' => $otherCountry->id, 'name' => 'فارس', 'slug' => 'fars']);
+        $shiraz = City::query()->create(['province_id' => $otherProvince->id, 'name' => 'شیراز', 'slug' => 'shiraz']);
+        $this->makeAd($user, ['title' => 'آگهی فعال شیراز', 'city_id' => $shiraz->id]);
+
+        // پیش‌فرض صفحهٔ اصلی: فقط آگهی‌های تهران
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('آگهی فعال تهران', false)
+            ->assertDontSee('آگهی فعال شیراز', false)
+            ->assertSee('آگهی‌های تهران', false)
+            ->assertSee('نمایش همهٔ شهرها', false);
+
+        // با ?all=1 همهٔ شهرها نمایش داده می‌شوند
+        $this->get(route('home', ['all' => 1]))
+            ->assertOk()
+            ->assertSee('آگهی فعال تهران', false)
+            ->assertSee('آگهی فعال شیراز', false)
+            ->assertSee('همه آگهی‌ها', false)
+            ->assertSee('فقط آگهی‌های تهران', false);
+    }
 }
